@@ -12,10 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_roles', function (Blueprint $table) {
-            $table->uuid('user_id')->index()->primary();
-            $table->uuid('role_id')->index()->primary();
+            $table->uuid('user_id');
+            $table->uuid('role_id');
             $table->boolean('is_enabled')->default(true);
             $table->timestamps();
+
+            $table->primary(['user_id', 'role_id']);
+            $table->index(['user_id', 'role_id']);
         });
     }
 

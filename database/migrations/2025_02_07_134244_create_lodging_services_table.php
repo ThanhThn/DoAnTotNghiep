@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('lodging_services', function (Blueprint $table) {
-            $table->uuid('service_id')->primary();
-            $table->uuid('lodging_id')->primary();
+            $table->uuid('service_id');
+            $table->uuid('lodging_id');
             $table->string('unit');
             $table->decimal('price_per_unit', 10);
             $table->boolean('is_fixed');
@@ -21,6 +21,8 @@ return new class extends Migration
             $table->integer('payment_date')->nullable();
             $table->integer('late_days')->nullable();
             $table->timestamps();
+
+            $table->primary(['service_id', 'lodging_id']);
         });
     }
 

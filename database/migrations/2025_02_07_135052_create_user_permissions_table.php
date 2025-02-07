@@ -12,11 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_permissions', function (Blueprint $table) {
-            $table->uuid('permission_id')->primary();
-            $table->uuid('user_id')->primary();
-            $table->uuid('lodging_id')->primary();
+            $table->uuid('permission_id');
+            $table->uuid('user_id');
+            $table->uuid('lodging_id');
             $table->boolean('is_enabled')->default(true);
             $table->timestamps();
+
+            $table->primary(['permission_id', 'user_id', 'lodging_id']);
         });
     }
 
