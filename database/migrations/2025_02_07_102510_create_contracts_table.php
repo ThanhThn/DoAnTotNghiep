@@ -21,6 +21,7 @@ return new class extends Migration
             $table->decimal('deposit_amount', 10)->comment("Số tiền cọc");
             $table->decimal('remain_amount', 10)->comment("Số tiền còn tại (remain_amount = deposit_amount - monthly_rent)");
             $table->smallInteger('status')->index();
+            $table->smallInteger('lease_duration');
             $table->timestamps();
         });
     }

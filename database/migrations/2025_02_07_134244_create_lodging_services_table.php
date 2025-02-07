@@ -12,7 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('lodging_services', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('service_id')->primary();
+            $table->uuid('lodging_id')->primary();
+            $table->string('unit');
+            $table->decimal('price_per_unit', 10);
+            $table->boolean('is_fixed');
+            $table->boolean('is_enabled')->default(true);
+            $table->integer('payment_date')->nullable();
+            $table->integer('late_days')->nullable();
             $table->timestamps();
         });
     }

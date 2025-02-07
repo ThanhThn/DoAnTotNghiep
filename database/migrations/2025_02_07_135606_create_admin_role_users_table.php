@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('admin_role_users', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('user_id')->primary();
+            $table->integer('role_id')->primary()->unsigned();
             $table->timestamps();
         });
     }

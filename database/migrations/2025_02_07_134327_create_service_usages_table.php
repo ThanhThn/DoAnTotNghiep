@@ -12,7 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('service_usages', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('room_id')->index();
+            $table->decimal('price', 10, 2);
+            $table->float('quantity');
+            $table->double('previous_value');
+            $table->double('current_value');
+            $table->uuid('lodging_service_id')->index();
+            $table->decimal('total_price', 10, 2);
+            $table->decimal('amount_paid', 10, 2);
+            $table->smallInteger('status')->index();
+            $table->timestamp('payment_date')->useCurrent();
+            $table->timestamp('last_payment_date')->useCurrent()->useCurrentOnUpdate();
+            $table->string('payment_method');
             $table->timestamps();
         });
     }

@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('wards', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id')->primary();
+            $table->string('name');
+            $table->integer('district_id')->unsigned();
             $table->timestamps();
         });
     }

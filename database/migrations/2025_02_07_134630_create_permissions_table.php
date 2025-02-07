@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('permissions', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->string('end_point');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

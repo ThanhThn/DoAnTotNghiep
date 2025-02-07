@@ -16,7 +16,10 @@ return new class extends Migration
             $table->uuid('contract_id')->index();
             $table->decimal('payment_amount', 10);
             $table->decimal("amount_paid", 10);
-            
+            $table->smallInteger("status")->index();
+            $table->timestamp('payment_date')->useCurrent();
+            $table->timestamp('last_payment_date')->useCurrent()->useCurrentOnUpdate();
+            $table->string('payment_method');
             $table->timestamps();
         });
     }

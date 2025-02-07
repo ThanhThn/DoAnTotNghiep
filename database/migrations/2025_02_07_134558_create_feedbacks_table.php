@@ -12,7 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('feedbacks', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('object_to_id');
+            $table->uuid('object_from_id');
+            $table->string('object_to_type');
+            $table->string('object_from_type');
+            $table->text('title');
+            $table->json('body');
+            $table->smallInteger('status');
             $table->timestamps();
         });
     }

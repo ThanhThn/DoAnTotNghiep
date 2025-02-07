@@ -12,7 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('room_setups', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('room_id')->primary();
+            $table->uuid('equipment_id')->primary();
+            $table->integer('quantity');
+            $table->smallInteger('status');
+            $table->timestamp('installation_date')->nullable();
+            $table->timestamp('last_serviced')->nullable();
             $table->timestamps();
         });
     }

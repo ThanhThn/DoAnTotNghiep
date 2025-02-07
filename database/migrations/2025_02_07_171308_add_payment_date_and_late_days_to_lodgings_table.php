@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('admin_role_users', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('lodgings', function (Blueprint $table) {
+            $table->integer('payment_date');
+            $table->integer('late_days');
         });
     }
 
@@ -22,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('admin_role_users');
+        Schema::table('lodgings', function (Blueprint $table) {
+            $table->dropColumn('payment_date');
+            $table->dropColumn('late_days');
+        });
     }
 };

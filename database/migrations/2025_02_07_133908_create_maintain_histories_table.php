@@ -12,7 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('maintain_histories', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('equipment_id');
+            $table->decimal('price', 10);
+            $table->integer('quantity');
+            $table->decimal('total_price', 10);
+            $table->date('maintain_date');
+            $table->text('description');
             $table->timestamps();
         });
     }
