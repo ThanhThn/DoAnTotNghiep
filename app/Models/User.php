@@ -6,10 +6,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -17,10 +17,19 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    protected $table = 'users';
     protected $fillable = [
-        'name',
+        'full_name',
         'email',
+        'email_verified_at',
+        'gender',
+        'phone',
+        'identity_card',
+        'is_public',
         'password',
+        'date_of_birth',
+        'relatives',
+        'remember_token',
     ];
 
     /**
@@ -29,20 +38,30 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token','token', 'created_at', 'updated_at',
+        'email_verified_at'
     ];
+
+
+    protected $keyType = 'string';
+    public $incrementing = false;
+    protected $primaryKey = 'id';
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'relatives' => 'array',
+    ];
+
+
 
     /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+    protected static function boot(){
+        parent::boot();
+        static::creating(function ($model) {
+            $model->id = Str::uuid();
+        });
     }
 }
