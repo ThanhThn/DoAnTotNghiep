@@ -24,52 +24,52 @@ class JWTMiddleware
             $authHeader = $request->header('Authorization');
             if(!$authHeader) {
                 return response()->json([
-                   'status' => JsonResponse::HTTP_BAD_REQUEST,
+                   'status' => JsonResponse::HTTP_UNAUTHORIZED,
                    'errors' => [[
                        'message' => 'Authorization header not found',
                        'field' => 'authorization'
                    ]]
-                ]);
+                ], JsonResponse::HTTP_UNAUTHORIZED);
             }
 
             $token = explode(' ', $authHeader);
             if(count($token) < 2) {
                 return response()->json([
-                    'status' => JsonResponse::HTTP_BAD_REQUEST,
+                    'status' => JsonResponse::HTTP_UNAUTHORIZED,
                     'errors' => [[
                         'message' => 'Authorization header not found',
                         'field' => 'authorization'
                     ]]
-                ]);
+                ], JsonResponse::HTTP_UNAUTHORIZED);
             }
             JWTAuth::parseToken()->authenticate();
         }catch (\Exception $exception){
             if($exception instanceof  TokenInvalidException){
                 return response()->json([
-                    'status' => JsonResponse::HTTP_BAD_REQUEST,
+                    'status' => JsonResponse::HTTP_UNAUTHORIZED,
                     'errors' => [[
                         'message' => 'Token is invalid',
                         'field' => 'token'
                     ]]
-                ]);
+                ], JsonResponse::HTTP_UNAUTHORIZED);
             }
 
             if($exception instanceof  TokenExpiredException){
                 return response()->json([
-                    'status' => JsonResponse::HTTP_BAD_REQUEST,
+                    'status' => JsonResponse::HTTP_UNAUTHORIZED,
                     'errors' => [[
                         'message' => 'Token has expired',
                         'field' => 'token'
                     ]]
-                ]);
+                ], JsonResponse::HTTP_UNAUTHORIZED);
             }
 
             return response()->json([
-                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [[
                     'message' => "Token not found",
                     'field' => 'token'
-                ]]]);
+                ]]], JsonResponse::HTTP_UNAUTHORIZED);
         }
         return $next($request);
     }
