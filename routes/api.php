@@ -9,7 +9,7 @@ Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers\Auth\User
     Route::post('login', 'AuthController@login');
 });
 
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers', 'middleware' => ['jwt.verify']], function ($route) {
+    Route::get('info', 'UserController@info');
+    Route::post('update', 'UserController@update');
+});

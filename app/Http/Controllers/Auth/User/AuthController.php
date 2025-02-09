@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -24,10 +25,12 @@ class AuthController extends Controller
             'password' => Hash::make($password),
             'phone' => $data['phone'],
         ]);
+
+        $token = JWTAuth::fromUser($user);
         return response()->json([
            'status' => JsonResponse::HTTP_OK,
             'body' => [
-                "data" => $user,
+                'token' => $token,
             ]
         ], JsonResponse::HTTP_OK);
     }
@@ -37,7 +40,8 @@ class AuthController extends Controller
         $data = $request->all();
         $password = Helper::decrypt($data["password"]);
 
-        if(!Auth::attempt(['phone' => $data['phone'], 'password' => $password])){
+        $token = JWTAuth::attempt(['phone' => $data['phone'], 'password' => $password]);
+        if(!$token){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [["message" => "Phone number or password is incorrect"]],
@@ -47,7 +51,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => [
-                "data" => Auth::user(),
+                'token' => $token,
             ]
         ]);
     }
