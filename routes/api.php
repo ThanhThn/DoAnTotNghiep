@@ -26,6 +26,7 @@ Route::group(['prefix' => 'general', 'namespace' => 'App\Http\Controllers'], fun
 //Lodging
 Route::group(['prefix' => 'lodging', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::get('list_by_user', 'LodgingController@listByUser')->middleware('jwt.verify');
+    Route::post('create', 'LodgingController@create')->middleware('jwt.verify');
 });
 
 //Lodging type
