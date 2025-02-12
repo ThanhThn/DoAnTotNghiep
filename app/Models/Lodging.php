@@ -10,7 +10,7 @@ class Lodging extends Model
     protected $table = 'lodgings';
 
     protected $fillable = [
-        'id', // Đảm bảo 'id' có trong fillable để Laravel có thể xử lý đúng
+        'id',
         'name',
         'user_id',
         'address',
