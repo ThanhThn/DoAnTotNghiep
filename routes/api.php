@@ -22,8 +22,13 @@ Route::group(['prefix' => 'general', 'namespace' => 'App\Http\Controllers'], fun
     Route::get('wards', 'GeneralController@listWard');
 });
 
+
+//Lodging
+Route::group(['prefix' => 'lodging', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::get('list_by_user', 'LodgingController@listByUser')->middleware('jwt.verify');
+});
+
 //Lodging type
 Route::group(['prefix' => 'lodging_type', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::get('list', 'LodgingTypeController@list');
-
 });
