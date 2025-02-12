@@ -33,6 +33,7 @@ class LodgingService
             'district_id' => $data['district_id'] ?? null,
             'ward_id' => $data['ward_id'] ?? null,
             'latitude' => $data['latitude'] ?? null,
+            'longitude' => $data['longitude'] ?? null,
             'type_id' => $data['type_id'] ?? null,
             'payment_date' => $data['payment_date'] ?? null,
             'late_days' => $data['late_days'] ?? null,
@@ -43,6 +44,7 @@ class LodgingService
         ];
 
         $lodging = Lodging::create($insertData);
+//        dd($lodging);
         return $lodging;
     }
 }

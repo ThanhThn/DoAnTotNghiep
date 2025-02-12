@@ -10,7 +10,7 @@ class Lodging extends Model
     protected $table = 'lodgings';
 
     protected $fillable = [
-        'id',
+        'id', // Đảm bảo 'id' có trong fillable để Laravel có thể xử lý đúng
         'name',
         'user_id',
         'address',
@@ -29,18 +29,20 @@ class Lodging extends Model
         'email_contact',
     ];
 
-    protected $keyType = "string";
-    public $timestamps = false;
+    protected $keyType = 'string';
     public $incrementing = false;
     protected $primaryKey = 'id';
-
 
     protected $casts = [
         'latitude' => 'float',
         'longitude' => 'float',
         'area_room_default' => 'float',
-        'price_room_default' => 'decimal'
+        'price_room_default' => 'decimal:2',
+        'late_days' => 'integer',
+        'is_enabled' => 'boolean',
+        'payment_date' => 'integer',
     ];
+
     protected $hidden = [
         'created_at', 'updated_at'
     ];
@@ -48,7 +50,9 @@ class Lodging extends Model
     protected static function boot(){
         parent::boot();
         static::creating(function ($model) {
-            $model->id = Str::uuid();
+            if (empty($model->id)) {
+                $model->id = Str::uuid();
+            }
         });
     }
 }
