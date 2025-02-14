@@ -7,9 +7,14 @@ use App\Models\User;
 
 class LodgingService
 {
-    function listByUserID($userID)
+
+    function get($lodgingId)
     {
-        $lodging = Lodging::where(['user_id' => $userID, 'is_enabled' => true])->get();
+        return Lodging::find($lodgingId);
+    }
+    function listByUserID($userId)
+    {
+        $lodging = Lodging::where(['user_id' => $userId, 'is_enabled' => true])->get();
         return $lodging;
     }
 
@@ -46,5 +51,9 @@ class LodgingService
         $lodging = Lodging::create($insertData);
 //        dd($lodging);
         return $lodging;
+    }
+
+    static function isOwnerLodging($lodgingId, $userId){
+        return Lodging::where(['id' => $lodgingId, 'user_id' => $userId])->exists();
     }
 }

@@ -33,3 +33,9 @@ Route::group(['prefix' => 'lodging', 'namespace' => 'App\Http\Controllers'], fun
 Route::group(['prefix' => 'lodging_type', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::get('list', 'LodgingTypeController@list');
 });
+
+
+//Permission
+Route::group(['prefix' => 'permission', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::get('list_by_user', 'PermissionController@listByUser')->middleware('jwt.verify');
+});

@@ -8,15 +8,15 @@ use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    private string $_userID;
-    public function __construct(string $userID)
+    private string $_userId;
+    public function __construct(string $userId)
     {
-        $this->_userID = $userID;
+        $this->_userId = $userId;
     }
 
     public function update($data)
     {
-        $user = User::find($this->_userID);
+        $user = User::find($this->_userId);
         if(isset($data['password'])){
             $data['password'] = Hash::make(Helper::decrypt($data['password']));
         }
