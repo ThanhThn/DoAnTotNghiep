@@ -23,9 +23,9 @@ class LodgingServiceManagerService
         return Model::create($insertData);}
         catch (\Exception $exception){
             return [
-                'error' => [
+                'errors' => [[
                     'message' => $exception->getMessage(),
-                ]
+                ]]
             ];
         }
     }
