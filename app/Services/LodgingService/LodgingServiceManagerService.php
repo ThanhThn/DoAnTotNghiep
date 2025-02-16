@@ -13,7 +13,7 @@ class LodgingServiceManagerService
         $insertData = [
             'lodging_id' => $data['lodging_id'],
             'service_id' => $data['service_id'] ?? null,
-            'service_name' => $data['service_name'] ?? null,
+            'name' => $data['name'] ?? null,
             'unit_id' => $data['unit_id'],
             'payment_date' => $data['payment_date'] ?? $lodging->payment_date,
             'late_days' => $data['late_days'] ?? $lodging->late_days,

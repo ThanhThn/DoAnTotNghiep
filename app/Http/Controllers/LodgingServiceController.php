@@ -13,7 +13,7 @@ class LodgingServiceController extends Controller
 {
     public function create(CreateLodgingServiceRequest $request)
     {
-        $data = $request->only('lodging_id', 'service_name', 'service_id', 'late_days', 'payment_date', 'unit_id', 'price_per_unit', 'room_ids');
+        $data = $request->only('lodging_id', 'name', 'service_id', 'late_days', 'payment_date', 'unit_id', 'price_per_unit', 'room_ids');
         $userId = Auth::id();
 
         if(!LodgingService::isOwnerLodging($data['lodging_id'], $userId)) {

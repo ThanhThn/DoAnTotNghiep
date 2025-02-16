@@ -13,7 +13,7 @@ class LodgingService extends Model
     protected $fillable = [
         'id',
         'service_id',
-        'service_name',
+        'name',
         'lodging_id',
         'unit_id',
         'price_per_unit',
