@@ -40,4 +40,46 @@ class LodgingServiceController extends Controller
         ]);
 
     }
+
+    public function listByLodging($lodgingId)
+    {
+        if(!isset($lodgingId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => [[
+                    'message' => 'Lodging id is required',
+                    'field' => 'lodging_id'
+                ]]
+            ]);
+        }
+
+        if(!(new LodgingService())->get($lodgingId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_NOT_FOUND,
+                'errors' => [[
+                    'message' => 'Lodging not found',
+                    'field' => 'lodging_id'
+                ]]
+            ]);
+        }
+
+        $userId = Auth::id();
+
+        if(!LodgingService::isOwnerLodging( $lodgingId, $userId)) {
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+        $service = new LodgingServiceManagerService();
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $service->listByLodging($lodgingId)
+            ]
+        ]);
+    }
 }

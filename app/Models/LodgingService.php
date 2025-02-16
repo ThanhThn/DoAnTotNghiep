@@ -45,4 +45,16 @@ class LodgingService extends Model
             }
         });
     }
+
+    public function service(){
+        return $this->belongsTo(Service::class, 'service_id');
+    }
+
+    public function lodging(){
+        return $this->belongsTo(Lodging::class, 'lodging_id');
+    }
+
+    public function unit(){
+        return $this->belongsTo(Unit::class, 'unit_id');
+    }
 }
