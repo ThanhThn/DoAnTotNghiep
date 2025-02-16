@@ -50,3 +50,9 @@ Route::group(['prefix' => 'unit' , 'namespace' => 'App\Http\Controllers'], funct
     Route::get('list', 'UnitController@list');
     Route::get('list_by_service', 'UnitServiceController@unitsByService');
 });
+
+
+//LodgingService
+Route::group(['prefix' => 'lodging_service' , 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('create', 'LodgingServiceController@create')->middleware('jwt.verify');
+});

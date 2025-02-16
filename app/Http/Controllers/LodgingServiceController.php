@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\LodgingService\CreateLodgingServiceRequest;
+use App\Services\Lodging\LodgingService;
+use App\Services\LodgingService\LodgingServiceManagerService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class LodgingServiceController extends Controller
+{
+    public function create(CreateLodgingServiceRequest $request)
+    {
+        $data = $request->only('lodging_id', 'service_name', 'service_id', 'late_days', 'payment_date', 'unit_id', 'price_per_unit', 'room_ids');
+        $userId = Auth::id();
+
+        if(!LodgingService::isOwnerLodging($data['lodging_id'], $userId)) {
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+        $service = new LodgingServiceManagerService();
+        $result = $service->create($data);
+        if(isset($result['errors'])) {
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
+        ]);
+
+    }
+}
