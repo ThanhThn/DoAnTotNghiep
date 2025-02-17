@@ -21,7 +21,7 @@ class Room extends Model
       'current_tenants',
       'max_tenants',
     ];
-    protected $hidden = ['created_at','updated_at'];
+    protected $hidden = ['created_at','updated_at', 'is_enabled'];
 
     protected $primaryKey = 'id';
     public $incrementing = false;
@@ -35,5 +35,10 @@ class Room extends Model
                 $model->id = Str::uuid();
             }
         });
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(LodgingService::class, 'room_services', 'room_id', 'lodging_service_id');
     }
 }
