@@ -22,6 +22,8 @@ class RoomService
             'area' => $data['area'] ?? $lodging->area_room_default ?? null,
             'status' => $data['status'] ?? config('constant.room.status.unfilled'),
             'priority' => $data['priority'] ?? null,
+            'payment_date' => $data['payment_date'] ?? $lodging->payment_date,
+            'late_days' => $data['late_days'] ?? $lodging->late_days,
         ];
 
         try {

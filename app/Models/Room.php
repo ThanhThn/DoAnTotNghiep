@@ -20,8 +20,19 @@ class Room extends Model
       'priority',
       'current_tenants',
       'max_tenants',
+      'payment_date',
+      'late_days',
     ];
     protected $hidden = ['created_at','updated_at', 'is_enabled'];
+
+    protected $casts = [
+        'area' => 'float',
+        'price' => 'decimal:2',
+        'late_days' => 'integer',
+        'is_enabled' => 'boolean',
+        'payment_date' => 'integer',
+        'priority' => 'array'
+    ];
 
     protected $primaryKey = 'id';
     public $incrementing = false;

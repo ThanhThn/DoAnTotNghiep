@@ -11,7 +11,7 @@ class CreateLodgingServiceRequest extends BaseRequest
             'lodging_id' => 'required|uuid|exists:lodgings,id',
             'name' => 'required_without:service_id|string|nullable',
             'service_id' => 'required_without:name|integer|nullable|exists:services,id',
-            'late_days' => 'nullable|integer|min:1',
+            'late_days' => 'nullable|integer|min:0',
             'payment_date' => 'nullable|integer|between:1,28',
             'unit_id' => 'required|integer|exists:units,id',
             'price_per_unit' => 'required|numeric|min:0',

@@ -15,6 +15,8 @@ class CreateRoomRequest extends BaseRequest
             'status' => 'nullable|integer|in:1,2,3',
             'area' => 'nullable|numeric|min:0',
             'priority' => 'nullable|array',
+            'payment_date' => 'nullable|integer|between:1,28',
+            'late_days' => 'nullable|integer|min:0',
 
             'services' => 'nullable|array',
             'services.*' => 'required_if:services|array',
