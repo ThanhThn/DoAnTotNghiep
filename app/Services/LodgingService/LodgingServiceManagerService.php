@@ -31,6 +31,8 @@ class LodgingServiceManagerService
     }
 
     public function listByLodging($lodgingId){
-        return Model::with(['service', 'unit'])->select('id', 'service_id', 'name', 'unit_id', 'price_per_unit')->where('lodging_id', $lodgingId)->get();
+        return Model::with(['service', 'unit'])
+            ->select('id', 'service_id', 'name', 'unit_id', 'price_per_unit')
+            ->where(['lodging_id' => $lodgingId, 'is_enabled' => true])->get();
     }
 }
