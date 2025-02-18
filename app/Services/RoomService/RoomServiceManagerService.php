@@ -12,7 +12,7 @@ class RoomServiceManagerService
         $createData = [
             'room_id' => $data['room_id'],
             'lodging_service_id' => $data['lodging_service_id'],
-            'last_recorded_value' => $data['last_recorded_value'] ?? null,
+            'last_recorded_value' => $data['last_recorded_value'] ?? 0,
         ];
         try {
             return RoomService::create($createData);
