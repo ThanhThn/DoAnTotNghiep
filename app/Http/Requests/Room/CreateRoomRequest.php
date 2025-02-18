@@ -19,7 +19,7 @@ class CreateRoomRequest extends BaseRequest
             'late_days' => 'nullable|integer|min:0',
 
             'services' => 'nullable|array',
-            'services.*' => 'required_if:services|array',
+            'services.*' => 'required_with:services|array',
             'services.*.id' => 'required_if:services|uuid|exists:lodging_services,id',
             'services.*.value' => 'nullable|numeric|min:0',
         ];
