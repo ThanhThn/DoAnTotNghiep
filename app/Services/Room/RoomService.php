@@ -59,9 +59,13 @@ class RoomService
         }
     }
 
-    public function listRoomsByLodging($lodgingId)
+    public function listRoomsByLodging($lodgingId, $data = [])
     {
-        return Room::where('lodging_id', $lodgingId)->get();
+        $room = Room::where('lodging_id', $lodgingId);
+        if (isset($data['status'])) {
+            $room->where('status', $data['status']);
+        }
+        return $room->get();
     }
 
 }

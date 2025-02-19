@@ -43,7 +43,8 @@ class RoomController extends Controller
         ]);
     }
 
-    public function listByLodging($lodgingId){
+    public function listByLodging($lodgingId, Request $request){
+        $status = $request->input("status");
         if(!isset($lodgingId)){
             return response()->json([
                 'status' => JsonResponse::HTTP_BAD_REQUEST,
@@ -67,7 +68,7 @@ class RoomController extends Controller
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => [
-                'data' => $service->listRoomsByLodging($lodgingId)
+                'data' => $service->listRoomsByLodging($lodgingId, ['status' => $status])
             ]
         ]);
 
