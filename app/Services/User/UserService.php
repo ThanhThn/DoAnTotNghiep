@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    private string $_userId;
-    public function __construct(string $userId)
+    private $_userId;
+    public function __construct( $userId = null)
     {
         $this->_userId = $userId;
     }
@@ -22,5 +22,10 @@ class UserService
         }
         $user->update($data);
         return $user->fresh();
+    }
+
+    public  function create($data)
+    {
+        return User::create($data);
     }
 }

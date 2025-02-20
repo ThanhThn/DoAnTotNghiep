@@ -52,4 +52,9 @@ class Room extends Model
     {
         return $this->belongsToMany(LodgingService::class, 'room_services', 'room_id', 'lodging_service_id');
     }
+
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class, 'room_id', 'id');
+    }
 }

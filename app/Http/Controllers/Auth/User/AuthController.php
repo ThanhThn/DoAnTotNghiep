@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginUserRequest;
 use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Models\User;
+use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -20,7 +21,7 @@ class AuthController extends Controller
         $data = $request->all();
         $password = Helper::decrypt($data["password"]);
 
-        $user = User::create([
+        $user = (new UserService())->create([
             'email' => $data['email'],
             'password' => Hash::make($password),
             'phone' => $data['phone'],

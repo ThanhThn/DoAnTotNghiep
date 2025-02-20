@@ -6,6 +6,7 @@ use App\Models\Lodging;
 use App\Models\Room;
 use App\Services\Lodging\LodgingService;
 use App\Services\RoomService\RoomServiceManagerService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class RoomService
@@ -61,11 +62,72 @@ class RoomService
 
     public function listRoomsByLodging($lodgingId, $data = [])
     {
-        $room = Room::where('lodging_id', $lodgingId);
+        $roomQuery = Room::where(['lodging_id'=> $lodgingId, 'is_enabled' => true]);
+
+        // Lọc theo trạng thái phòng nếu có
         if (isset($data['status'])) {
-            $room->where('status', $data['status']);
+            $roomQuery->where('status', $data['status']);
         }
-        return $room->get();
+
+        return $roomQuery->get();
     }
+
+
+    public function filterRooms($data, $lodgingId)
+    {
+        $roomQuery = Room::where([
+            'lodging_id' => $lodgingId,
+            'is_enabled' => true
+        ]);
+
+        if (isset($data['status'])) {
+            $roomQuery->where('status', $data['status']);
+        }
+
+        $startDate = isset($data['start_date']) ? Carbon::parse($data['start_date']) : Carbon::now();
+        $leaseDuration = $data['lease_duration'] ?? 1;
+        $endDate = $startDate->copy()->addMonths($leaseDuration);
+
+        // Loại bỏ các phòng có hợp đồng bị chồng lấn
+        $roomQuery->whereDoesntHave('contracts', function ($query) use ($startDate, $endDate) {
+            $query->where(function ($subQuery) use ($startDate, $endDate) {
+                $subQuery->whereNotNull('end_date')
+                    ->where(function ($q) use ($startDate, $endDate) {
+                        $q->whereBetween('start_date', [$startDate, $endDate])
+                            ->orWhereBetween('end_date', [$startDate, $endDate])
+                            ->orWhere(function ($q2) use ($startDate, $endDate) {
+                                $q2->where('start_date', '<', $startDate)
+                                    ->where('end_date', '>', $endDate);
+                            });
+                    })
+                    ->where('status', config('constant.contract.status.active'));
+            })
+                ->orWhere(function ($subQuery) use ($startDate) {
+                    $subQuery->whereNull('end_date')
+                        ->whereRaw('start_date + INTERVAL \'1 month\' * lease_duration >= ?', [$startDate])
+                        ->where('status', config('constant.contract.status.active'));
+                })
+                ->orWhere(function ($subQuery) use ($startDate) {
+                    $subQuery->where('start_date', '<=', $startDate)
+                        ->where('status', config('constant.contract.status.pending'));
+                });
+        });
+
+        $quantity = $data['quantity'] ?? 1;
+//        $roomQuery->whereDoesntHave(['contracts' => function ($query) use ($quantity) {
+//            $contracts = $query->whereIn('contracts.status', [config('constant.contract.status.active'), config('constant.contract.status.pending')])->sum('quantity');
+//            return $contracts + $quantity <= $query->max_tennant;
+//        }]);
+
+        return $roomQuery->get();
+    }
+
+    static function isOwnerRoom($roomId, $userId)
+    {
+        $room = Room::find($roomId);
+        if(!$room) return false;
+        return LodgingService::isOwnerLodging($room->lodging_id, $userId);
+    }
+
 
 }

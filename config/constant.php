@@ -6,5 +6,13 @@ return [
             'fixing' => 2,
             'filled' => 3
         ]
+    ],
+    'contract' => [
+        'status' => [
+            'pending' => 1,
+            'active' => 2,
+            'finished' => 3,
+            'canceled' => 4,
+        ]
     ]
 ];

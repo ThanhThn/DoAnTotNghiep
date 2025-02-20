@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Room\CreateRoomRequest;
+use App\Http\Requests\Room\FilterRoomRequest;
 use App\Models\Lodging;
 use App\Services\Lodging\LodgingService;
 use App\Services\Room\RoomService;
@@ -71,7 +72,17 @@ class RoomController extends Controller
                 'data' => $service->listRoomsByLodging($lodgingId, ['status' => $status])
             ]
         ]);
+    }
 
-
+    public function filter(FilterRoomRequest $request)
+    {
+        $data = $request->all();
+        $service = new RoomService();
+        return response()->json([
+           'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $service->filterRooms($data, $data['lodging_id'])
+            ]
+        ]);
     }
 }
