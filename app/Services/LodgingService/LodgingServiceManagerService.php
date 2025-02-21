@@ -103,7 +103,6 @@ class LodgingServiceManagerService
             return $service->refresh();
         } catch (\Exception $exception) {
             return [
-                'success' => false,
                 'errors' => [['message' => $exception->getMessage()]]
             ];
         }
