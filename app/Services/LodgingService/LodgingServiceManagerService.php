@@ -45,7 +45,7 @@ class LodgingServiceManagerService
     {
         $service = Model::with(['service', 'unit'])->find($id);
 
-        $rooms = Room::where('lodging_id', $service->lodging_id)
+        $rooms = Room::select('id', 'room_code')->where('lodging_id', $service->lodging_id)
             ->withExists([
                 'services as is_usage_service' => function ($query) use ($id) {
                     $query->where('lodging_service_id', $id);
