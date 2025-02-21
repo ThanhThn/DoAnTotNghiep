@@ -47,15 +47,28 @@ class LodgingServiceManagerService
 
         $rooms = Room::where('lodging_id', $service->lodging_id)
             ->withExists([
-                'services as is_usage' => function ($query) use ($id) {
+                'services as is_usage_service' => function ($query) use ($id) {
                     $query->where('lodging_service_id', $id);
                 }
             ])
+            ->with(['roomServices' => function ($query) use ($service) {
+                $query->where('lodging_service_id', $service->id);
+            }])
             ->get();
+
+        $rooms->transform(function ($room) {
+            if($room->is_usage_service){
+//                dd(optional($room->roomServices->first()));
+                $room->is_enabled_service = optional($room->roomServices->first())->is_enabled;
+            }
+            unset($room->roomServices);
+            return $room;
+        });
 
         $service->setRelation('rooms', $rooms);
         return $service;
     }
+
 
     public function update($id, $data)
     {
@@ -72,22 +85,19 @@ class LodgingServiceManagerService
                 'price_per_unit' => $data['price_per_unit'] ?? null,
             ], fn($value) => !is_null($value));
 
-            // Cập nhật dữ liệu nếu có thay đổi
+            $updateData = array_filter($updateData, function ($value, $key) use ($service) {
+                return $service->$key !== $value;
+            }, ARRAY_FILTER_USE_BOTH);
+
             if (!empty($updateData)) {
                 $service->update($updateData);
             }
 
+
             // Nếu có room_ids, đồng bộ danh sách
             if (!empty($data['room_ids'])) {
-                $unit = Unit::find($data['unit_id']);
-
-                // Chuẩn bị dữ liệu để đồng bộ
-                $roomServiceData = [];
-                foreach ($data['room_ids'] as $roomId) {
-                    $roomServiceData[$roomId] = ['last_recorded_value' => $unit?->is_fixed ? null : 0];
-                }
-
-                $service->rooms()->sync($roomServiceData);
+                $roomService = new RoomServiceManagerService();
+                $roomService->updateAndCreateByLodgingService($data['room_ids'], $id);
             }
 
             return $service->refresh();

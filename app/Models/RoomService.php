@@ -12,7 +12,8 @@ class RoomService extends Model
         'id',
         'lodging_service_id',
         'room_id',
-        'last_recorded_value'
+        'last_recorded_value',
+        'is_enabled'
     ];
 
     protected $hidden = ['created_at','updated_at'];

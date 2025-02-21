@@ -18,7 +18,6 @@ class RoomService
         try {
             DB::beginTransaction();
 
-
             $lodging = Lodging::find($data['lodging_id']);
 
             // Chuẩn bị dữ liệu phòng
@@ -38,7 +37,7 @@ class RoomService
             $newRoom = Room::create($roomData);
 
             if (!empty($data['services'])) {
-                // Lấy tất cả dịch vụ theo ID, tránh query từng dòng
+
                 $serviceIds = collect($data['services'])->pluck('id')->toArray();
                 $services = ModelLodgingService::whereIn('id', $serviceIds)->with('unit')->get()->keyBy('id');
 

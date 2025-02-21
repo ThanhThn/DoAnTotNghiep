@@ -2,6 +2,7 @@
 
 namespace App\Services\RoomService;
 
+use App\Models\LodgingService;
 use App\Models\Room;
 use App\Models\RoomService;
 
@@ -36,5 +37,36 @@ class RoomServiceManagerService
                 ]]
             ];
         }
+    }
+
+    public function updateAndCreateByLodgingService(array $roomIds, $lodgingServiceId)
+    {
+        // Lấy danh sách các RoomService đã tồn tại trong CSDL
+        $roomServiceExisted = RoomService::where('lodging_service_id', $lodgingServiceId)->get();
+
+        $existedRoomIds = $roomServiceExisted->pluck('room_id')->toArray();
+
+        RoomService::where('lodging_service_id', $lodgingServiceId)
+            ->whereNotIn('room_id', $roomIds)
+            ->update(['is_enabled' => false]);
+
+        // Lấy danh sách room_id cần thêm mới
+        $roomIdNotUsage = array_diff($roomIds, $existedRoomIds);
+
+        if (!empty($roomIdNotUsage)) {
+            $dataInsert = collect($roomIdNotUsage)->map(function ($roomId) use ($lodgingServiceId) {
+                return [
+                    'room_id' => $roomId,
+                    'lodging_service_id' => $lodgingServiceId,
+                    'last_recorded_value' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            })->toArray();
+
+            RoomService::insert($dataInsert);
+        }
+
+        return true;
     }
 }

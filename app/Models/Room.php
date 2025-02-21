@@ -58,4 +58,9 @@ class Room extends Model
         return $this->belongsToMany(LodgingService::class, 'room_services', 'room_id', 'lodging_service_id');
     }
 
+    function roomServices()
+    {
+        return $this->hasMany(RoomService::class, 'room_id', 'id');
+    }
+
 }
