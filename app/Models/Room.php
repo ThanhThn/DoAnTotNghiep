@@ -48,13 +48,14 @@ class Room extends Model
         });
     }
 
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class, 'room_id', 'id');
+    }
+
     public function services()
     {
         return $this->belongsToMany(LodgingService::class, 'room_services', 'room_id', 'lodging_service_id');
     }
 
-    public function contracts()
-    {
-        return $this->hasMany(Contract::class, 'room_id', 'id');
-    }
 }

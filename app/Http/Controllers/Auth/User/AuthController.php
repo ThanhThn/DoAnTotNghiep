@@ -36,6 +36,14 @@ class AuthController extends Controller
             'device' => $device,
             'token_type' => config('constant.token.type.login')
         ]);
+        if($data['token']){
+            TokenService::insert([
+                'token' => $data['token'],
+                'user_id' => Auth::id(),
+                'device' => $device,
+                'token_type' => config('constant.token.type.notify')
+            ]);
+        }
         return response()->json([
            'status' => JsonResponse::HTTP_OK,
             'body' => [
@@ -64,6 +72,15 @@ class AuthController extends Controller
             'device' => $device,
             'token_type' => config('constant.token.type.login')
         ]);
+
+        if($data['token']){
+            TokenService::insert([
+                'token' => $data['token'],
+                'user_id' => Auth::id(),
+                'device' => $device,
+                'token_type' => config('constant.token.type.notify')
+            ]);
+        }
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,

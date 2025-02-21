@@ -56,6 +56,7 @@ Route::group(['prefix' => 'unit' , 'namespace' => 'App\Http\Controllers'], funct
 Route::group(['prefix' => 'lodging_service' , 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('create', 'LodgingServiceController@create')->middleware('jwt.verify');
     Route::get('list/{lodgingId}', 'LodgingServiceController@listByLodging')->middleware('jwt.verify');
+    Route::get('detail/{id}', 'LodgingServiceController@detail');
 });
 
 //Room

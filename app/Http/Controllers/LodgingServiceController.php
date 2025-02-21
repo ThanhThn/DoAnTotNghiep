@@ -82,4 +82,22 @@ class LodgingServiceController extends Controller
             ]
         ]);
     }
+
+    public function detail($id)
+    {
+        $service = new LodgingServiceManagerService();
+        $result = $service->detail($id);
+        if(isset($result['errors'])) {
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
+        ]);
+    }
 }

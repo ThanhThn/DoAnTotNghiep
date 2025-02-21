@@ -2,6 +2,8 @@
 
 namespace App\Services\LodgingService;
 
+use App\Models\Room;
+use App\Models\RoomService;
 use App\Services\Lodging\LodgingService;
 use App\Models\LodgingService as Model;
 
@@ -34,5 +36,24 @@ class LodgingServiceManagerService
         return Model::with(['service', 'unit'])
             ->select('id', 'service_id', 'name', 'unit_id', 'price_per_unit')
             ->where(['lodging_id' => $lodgingId, 'is_enabled' => true])->get();
+    }
+
+
+    public function detail($id)
+    {
+        $service = Model::with(['service', 'unit'])->find($id);
+
+        $rooms = Room::where('lodging_id', $service->lodging_id)
+            ->withExists([
+                'services as is_usage' => function ($query) use ($id) {
+                    $query->where('lodging_service_id', $id);
+                }
+            ])
+            ->get();
+
+        $service->setRelation('rooms', $rooms);
+
+        return $service;
+
     }
 }
