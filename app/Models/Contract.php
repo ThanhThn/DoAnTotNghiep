@@ -33,6 +33,7 @@ class Contract extends Model
     public $incrementing = false;
     protected $primaryKey = 'id';
 
+    protected $dateFormat = 'Y-m-d H:i:s';
     protected $casts = [
       'relatives' => 'array',
       'lease_duration' => 'integer',
@@ -42,9 +43,7 @@ class Contract extends Model
       'gender' => 'boolean',
       'address' => 'string',
       'identity_card' => 'string',
-      'date_of_birth' => 'date:Y-m-d',
-      'start_date' => 'date:Y-m-d',
-      'end_date' => 'date:Y-m-d',
+
       'remain_amount' => 'decimal:2',
       'monthly_rent' => 'decimal:2',
       'status' => 'integer',

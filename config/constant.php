@@ -14,5 +14,11 @@ return [
             'finished' => 3,
             'canceled' => 4,
         ]
+    ],
+    "token" => [
+        'type' => [
+            'login' => 1,
+            'notify' => 2
+        ]
     ]
 ];

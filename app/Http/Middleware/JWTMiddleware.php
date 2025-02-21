@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Token;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -43,6 +44,16 @@ class JWTMiddleware
                 ], JsonResponse::HTTP_UNAUTHORIZED);
             }
             JWTAuth::parseToken()->authenticate();
+
+            $check = Token::where('token', $token[1])->first();
+            if(!$check){
+                return response()->json([
+                    'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                    'errors' => [[
+                        'message' => 'Token not found',
+                    ]]
+                ], JsonResponse::HTTP_UNAUTHORIZED);
+            }
         }catch (\Exception $exception){
             if($exception instanceof  TokenInvalidException){
                 return response()->json([

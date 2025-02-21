@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginUserRequest;
 use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Models\User;
+use App\Services\Token\TokenService;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,7 @@ class AuthController extends Controller
     {
         $data = $request->all();
         $password = Helper::decrypt($data["password"]);
+        $device = request()->header('User-Agent');
 
         $user = (new UserService())->create([
             'email' => $data['email'],
@@ -28,6 +30,12 @@ class AuthController extends Controller
         ]);
 
         $token = JWTAuth::fromUser($user);
+        TokenService::insert([
+            'token' => $token,
+            'user_id' => $user->id,
+            'device' => $device,
+            'token_type' => config('constant.token.type.login')
+        ]);
         return response()->json([
            'status' => JsonResponse::HTTP_OK,
             'body' => [
@@ -40,6 +48,7 @@ class AuthController extends Controller
     public function login(LoginUserRequest $request){
         $data = $request->all();
         $password = Helper::decrypt($data["password"]);
+        $device = request()->header('User-Agent');
 
         $token = JWTAuth::attempt(['phone' => $data['phone'], 'password' => $password]);
         if(!$token){
@@ -48,6 +57,13 @@ class AuthController extends Controller
                 'errors' => [["message" => "Phone number or password is incorrect"]],
             ], JsonResponse::HTTP_OK);
         }
+
+        TokenService::insert([
+            'token' => $token,
+            'user_id' => Auth::id(),
+            'device' => $device,
+            'token_type' => config('constant.token.type.login')
+        ]);
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,

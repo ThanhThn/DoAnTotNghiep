@@ -14,7 +14,8 @@ class Token extends Model
         'token',
         'device',
         'user_id',
-        'token_type'
+        'token_type',
+        'token_expired'
     ];
 
     public $incrementing = false;
