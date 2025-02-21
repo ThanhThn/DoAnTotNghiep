@@ -60,7 +60,8 @@ class LodgingService extends Model
 
     public function rooms()
     {
-        return $this->belongsToMany(Room::class, 'room_services');
+        return $this->belongsToMany(Room::class, 'room_services', 'lodging_service_id', 'room_id')
+            ->withPivot('last_recorded_value');
     }
 
 }

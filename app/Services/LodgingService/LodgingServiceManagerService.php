@@ -60,7 +60,7 @@ class LodgingServiceManagerService
     public function update($id, $data)
     {
         try {
-            $service = Model::findOrFail($id);
+            $service = Model::find($id);
 
             // Chuẩn bị dữ liệu cập nhật
             $updateData = array_filter([
@@ -70,37 +70,24 @@ class LodgingServiceManagerService
                 'payment_date' => $data['payment_date'] ?? null,
                 'late_days' => $data['late_days'] ?? null,
                 'price_per_unit' => $data['price_per_unit'] ?? null,
-            ], fn($value) => !is_null($value)); // Loại bỏ giá trị null để tránh ghi đè không cần thiết
+            ], fn($value) => !is_null($value));
 
             // Cập nhật dữ liệu nếu có thay đổi
             if (!empty($updateData)) {
                 $service->update($updateData);
             }
 
-            // Nếu có danh sách room_ids
+            // Nếu có room_ids, đồng bộ danh sách
             if (!empty($data['room_ids'])) {
-                // Lấy danh sách phòng đã sử dụng dịch vụ
-                $roomUsage = RoomService::where('lodging_service_id', $id)
-                    ->pluck('room_id')
-                    ->toArray();
+                $unit = Unit::find($data['unit_id']);
 
-                // Lọc ra những phòng chưa sử dụng dịch vụ
-                $roomNotUsage = array_diff($data['room_ids'], $roomUsage);
-
-                // Nếu không có phòng mới, bỏ qua
-                if (!empty($roomNotUsage)) {
-                    $unit = Unit::find($data['unit_id']);
-
-                    // Chuẩn bị dữ liệu để chèn hàng loạt (bulk insert)
-                    $roomServiceData = array_map(fn($room) => [
-                        'room_id' => $room,
-                        'lodging_service_id' => $id,
-                        'last_recorded_value' => $unit?->is_fixed ? null : 0,
-                    ], $roomNotUsage);
-
-                    // Chèn hàng loạt để tối ưu hiệu suất
-                    RoomService::insert($roomServiceData);
+                // Chuẩn bị dữ liệu để đồng bộ
+                $roomServiceData = [];
+                foreach ($data['room_ids'] as $roomId) {
+                    $roomServiceData[$roomId] = ['last_recorded_value' => $unit?->is_fixed ? null : 0];
                 }
+
+                $service->rooms()->sync($roomServiceData);
             }
 
             return $service->refresh();
