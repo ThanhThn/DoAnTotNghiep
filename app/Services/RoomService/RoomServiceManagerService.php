@@ -24,4 +24,17 @@ class RoomServiceManagerService
             ];
         }
     }
+
+    public function insert($data)
+    {
+        try {
+            return RoomService::insert($data);
+        }catch (\Exception $exception){
+            return [
+                'errors' => [[
+                    'message' => $exception->getMessage(),
+                ]]
+            ];
+        }
+    }
 }

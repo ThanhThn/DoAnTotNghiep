@@ -57,6 +57,7 @@ Route::group(['prefix' => 'lodging_service' , 'namespace' => 'App\Http\Controlle
     Route::post('create', 'LodgingServiceController@create')->middleware('jwt.verify');
     Route::get('list/{lodgingId}', 'LodgingServiceController@listByLodging')->middleware('jwt.verify');
     Route::get('detail/{id}', 'LodgingServiceController@detail');
+    Route::post('update', 'LodgingServiceController@update')->middleware('jwt.verify');
 });
 
 //Room

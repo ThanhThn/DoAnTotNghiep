@@ -5,6 +5,8 @@ namespace App\Services\Room;
 use App\Models\Lodging;
 use App\Models\Room;
 use App\Services\Lodging\LodgingService;
+use App\Models\LodgingService as ModelLodgingService;
+use App\Services\LodgingService\LodgingServiceManagerService;
 use App\Services\RoomService\RoomServiceManagerService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -13,45 +15,51 @@ class RoomService
 {
     public function createRoom($data)
     {
-        $lodging = (new LodgingService())->get($data['lodging_id']);
-
-        $roomData = [
-            'lodging_id' => $data['lodging_id'],
-            'room_code' => $data['room_code'],
-            'max_tenants' => $data['max_tenants'],
-            'price' => $data['price'] ?? $lodging->price_room_default ?? null,
-            'area' => $data['area'] ?? $lodging->area_room_default ?? null,
-            'status' => $data['status'] ?? config('constant.room.status.unfilled'),
-            'priority' => $data['priority'] ?? null,
-            'payment_date' => $data['payment_date'] ?? $lodging->payment_date,
-            'late_days' => $data['late_days'] ?? $lodging->late_days,
-        ];
-
         try {
             DB::beginTransaction();
 
+
+            $lodging = Lodging::find($data['lodging_id']);
+
+            // Chuẩn bị dữ liệu phòng
+            $roomData = [
+                'lodging_id' => $data['lodging_id'],
+                'room_code' => $data['room_code'],
+                'max_tenants' => $data['max_tenants'],
+                'price' => $data['price'] ?? $lodging->price_room_default,
+                'area' => $data['area'] ?? $lodging->area_room_default,
+                'status' => $data['status'] ?? config('constant.room.status.unfilled'),
+                'priority' => $data['priority'] ?? null,
+                'payment_date' => $data['payment_date'] ?? $lodging->payment_date,
+                'late_days' => $data['late_days'] ?? $lodging->late_days,
+            ];
+
+            // Tạo phòng mới
             $newRoom = Room::create($roomData);
 
-            if (isset($data['services'])) {
-                $roomServiceManager = new RoomServiceManagerService();
+            if (!empty($data['services'])) {
+                // Lấy tất cả dịch vụ theo ID, tránh query từng dòng
+                $serviceIds = collect($data['services'])->pluck('id')->toArray();
+                $services = ModelLodgingService::whereIn('id', $serviceIds)->with('unit')->get()->keyBy('id');
 
-                foreach ($data['services'] as $selectedService) {
-                    $serviceCreationResult = $roomServiceManager->create([
+                // Chuẩn bị dữ liệu để insert hàng loạt
+                $roomServiceData = collect($data['services'])->map(function ($service) use ($newRoom, $services) {
+                    $managerService = $services[$service['id']] ?? null;
+                    return [
                         'room_id' => $newRoom->id,
-                        'lodging_service_id' => $selectedService['id'],
-                        'last_recorded_value' => $selectedService['value'] ?? null
-                    ]);
+                        'lodging_service_id' => $service['id'],
+                        'last_recorded_value' => $service['value'] ?? ($managerService && $managerService->unit->is_fixed ? null : 0)
+                    ];
+                })->toArray();
 
-                    if (isset($serviceCreationResult['errors'])) {
-                        throw new \Exception($serviceCreationResult['errors']);
-                    }
-                }
+                // Bulk insert dữ liệu
+                (new RoomServiceManagerService())::insert($roomServiceData);
             }
 
             DB::commit();
             return $newRoom;
         } catch (\Exception $exception) {
-            DB::rollback();
+            DB::rollBack();
             return [
                 'errors' => [[
                     'message' => $exception->getMessage(),
@@ -59,6 +67,8 @@ class RoomService
             ];
         }
     }
+
+
 
     public function listRoomsByLodging($lodgingId, $data = [])
     {

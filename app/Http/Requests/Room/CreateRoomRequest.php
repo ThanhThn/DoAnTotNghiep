@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Room;
 
 use App\Http\Requests\BaseRequest;
+use Illuminate\Validation\Rule;
 
 class CreateRoomRequest extends BaseRequest
 {
@@ -20,7 +21,10 @@ class CreateRoomRequest extends BaseRequest
 
             'services' => 'nullable|array',
             'services.*' => 'required_with:services|array',
-            'services.*.id' => 'required_with:services|uuid|exists:lodging_services,id',
+            'services.*.id' => ['required_with:services','uuid',
+                Rule::exists('lodging_services', 'id')->where(function ($query) {
+                    return $query->where('lodging_id', $this->input('lodging_id'));
+                }),],
             'services.*.value' => 'nullable|numeric|min:0',
         ];
     }
