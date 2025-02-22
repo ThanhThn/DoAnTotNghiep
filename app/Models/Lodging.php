@@ -39,8 +39,8 @@ class Lodging extends Model
         'area_room_default' => 'float',
         'price_room_default' => 'decimal:2',
         'late_days' => 'integer',
-        'is_enabled' => 'boolean',
         'payment_date' => 'integer',
+        'is_enabled' => 'boolean',
     ];
 
     protected $hidden = [

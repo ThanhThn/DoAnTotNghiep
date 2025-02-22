@@ -47,7 +47,7 @@ class RoomService
                     return [
                         'room_id' => $newRoom->id,
                         'lodging_service_id' => $service['id'],
-                        'last_recorded_value' => $service['value'] ?? ($managerService && $managerService->unit->is_fixed ? null : 0)
+                        'last_recorded_value' => $service['value'] ?? 0
                     ];
                 })->toArray();
 
@@ -84,52 +84,36 @@ class RoomService
 
     public function filterRooms($data, $lodgingId)
     {
+        $startDate = isset($data['start_date']) ? Carbon::parse($data['start_date']) : Carbon::now();
+        $leaseDuration = $data['lease_duration'] ?? 1;
+        $endDate = $startDate->copy()->addMonths($leaseDuration);
+        $quantity = $data['quantity'] ?? 1;
+
         $roomQuery = Room::where([
             'lodging_id' => $lodgingId,
             'is_enabled' => true
-        ]);
+        ])->whereDoesntHave('contracts', function ($query) use ($startDate, $endDate, $quantity) {
+            $query->select('room_id')
+                ->selectRaw('COALESCE(SUM(quantity), 0) as total_tenants')
+                ->where(function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('start_date', [$startDate, $endDate])
+                        ->orWhereBetween('end_date', [$startDate, $endDate])
+                        ->orWhere(function ($q2) use ($startDate, $endDate) {
+                            $q2->where('start_date', '<', $startDate)
+                                ->where('end_date', '>', $endDate);
+                        });
+                })
+                ->groupBy('room_id')
+                ->havingRaw('(COALESCE(SUM(quantity), 0) + ?) > max_tenants', [$quantity]);
+        });
 
         if (isset($data['status'])) {
             $roomQuery->where('status', $data['status']);
         }
 
-        $startDate = isset($data['start_date']) ? Carbon::parse($data['start_date']) : Carbon::now();
-        $leaseDuration = $data['lease_duration'] ?? 1;
-        $endDate = $startDate->copy()->addMonths($leaseDuration);
-
-        // Loại bỏ các phòng có hợp đồng bị chồng lấn
-        $roomQuery->whereDoesntHave('contracts', function ($query) use ($startDate, $endDate) {
-            $query->where(function ($subQuery) use ($startDate, $endDate) {
-                $subQuery->whereNotNull('end_date')
-                    ->where(function ($q) use ($startDate, $endDate) {
-                        $q->whereBetween('start_date', [$startDate, $endDate])
-                            ->orWhereBetween('end_date', [$startDate, $endDate])
-                            ->orWhere(function ($q2) use ($startDate, $endDate) {
-                                $q2->where('start_date', '<', $startDate)
-                                    ->where('end_date', '>', $endDate);
-                            });
-                    })
-                    ->where('status', config('constant.contract.status.active'));
-            })
-                ->orWhere(function ($subQuery) use ($startDate) {
-                    $subQuery->whereNull('end_date')
-                        ->whereRaw('start_date + INTERVAL \'1 month\' * lease_duration >= ?', [$startDate])
-                        ->where('status', config('constant.contract.status.active'));
-                })
-                ->orWhere(function ($subQuery) use ($startDate) {
-                    $subQuery->where('start_date', '<=', $startDate)
-                        ->where('status', config('constant.contract.status.pending'));
-                });
-        });
-
-        $quantity = $data['quantity'] ?? 1;
-//        $roomQuery->whereDoesntHave(['contracts' => function ($query) use ($quantity) {
-//            $contracts = $query->whereIn('contracts.status', [config('constant.contract.status.active'), config('constant.contract.status.pending')])->sum('quantity');
-//            return $contracts + $quantity <= $query->max_tennant;
-//        }]);
-
         return $roomQuery->get();
     }
+
 
     static function isOwnerRoom($roomId, $userId)
     {

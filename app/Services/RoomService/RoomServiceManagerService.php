@@ -59,8 +59,6 @@ class RoomServiceManagerService
                     'room_id' => $roomId,
                     'lodging_service_id' => $lodgingServiceId,
                     'last_recorded_value' => 0,
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ];
             })->toArray();
 

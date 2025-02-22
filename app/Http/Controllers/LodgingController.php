@@ -13,6 +13,7 @@ class LodgingController extends Controller
     function listByUser()
     {
         $service = new LodgingService();
+
         $lodgings = $service->listByUserID(Auth::id());
         return response()->json([
             'status' => JsonResponse::HTTP_OK,

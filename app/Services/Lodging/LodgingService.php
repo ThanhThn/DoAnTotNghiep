@@ -14,7 +14,8 @@ class LodgingService
     }
     function listByUserID($userId)
     {
-        $lodging = Lodging::where(['user_id' => $userId, 'is_enabled' => true])->get();
+        $lodging = Lodging::where('user_id', $userId)
+            ->where('is_enabled', true)->get();
         return $lodging;
     }
 

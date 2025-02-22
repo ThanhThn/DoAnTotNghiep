@@ -9,7 +9,7 @@ class TokenService
 {
     public static function insert($data)
     {
-        $data['token_expired'] = Carbon::now()->addMinutes(env('JWT_TTL'))->toDateTimeString();
+        $data['token_expired'] = Carbon::now()->addMinutes((int)env('JWT_TTL'))->toDateTimeString();
         Token::create($data);
         return true;
     }
