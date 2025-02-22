@@ -114,7 +114,7 @@ class LodgingServiceController extends Controller
             ]);
         }
         $service = new LodgingServiceManagerService();
-        $result = $service->update($data, $data['id']);
+        $result = $service->update($data['id'], $data);
         if(isset($result['errors'])) {
             return response()->json([
                 'status' => JsonResponse::HTTP_BAD_REQUEST,
