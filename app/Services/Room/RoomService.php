@@ -144,12 +144,13 @@ class RoomService
                 $serviceIds = collect($data['services'])->pluck('id')->toArray();
 
                 ModelsRoomService::where('room_id', $id)
-                    ->update([
-                        'is_enabled' => DB::raw("CASE
-                        WHEN lodging_service_id IN (" . implode(',', $serviceIds) . ") THEN TRUE
-                        ELSE FALSE
-                    END")
-                    ]);
+                    ->whereIn('lodging_service_id', $serviceIds)
+                    ->update(['is_enabled' => true]);
+
+                ModelsRoomService::where('room_id', $id)
+                    ->whereNotIn('lodging_service_id', $serviceIds)
+                    ->update(['is_enabled' => false]);
+
 
                 $existingServices = ModelsRoomService::where('room_id', $id)
                     ->whereIn('lodging_service_id', $serviceIds)
@@ -172,8 +173,8 @@ class RoomService
                     }
                 }
 
-                if (!empty($newServices)) {
-                    ModelsRoomService::insert($newServices);
+                if (empty($newServices)) {
+                    (new RoomServiceManagerService())->insert($newServices);
                 }
             }
 

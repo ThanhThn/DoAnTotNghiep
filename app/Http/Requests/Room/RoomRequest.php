@@ -9,7 +9,7 @@ class RoomRequest extends BaseRequest
 {
     public function rules() : array {
         return [
-            'id' => 'nullable|uuid|exists:room,id',
+            'id' => 'nullable|uuid|exists:rooms,id',
             'lodging_id' => 'required|uuid|exists:lodgings,id',
             'room_code' => 'required|string',
             'max_tenants' => 'required|integer',
