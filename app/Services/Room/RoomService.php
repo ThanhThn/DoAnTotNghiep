@@ -173,7 +173,8 @@ class RoomService
                     }
                 }
 
-                if (empty($newServices)) {
+
+                if (!empty($newServices)) {
                     (new RoomServiceManagerService())->insert($newServices);
                 }
             }
