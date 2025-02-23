@@ -35,6 +35,7 @@ class RoomService extends Model
                 $model->id = Str::uuid();
             }
         });
+
     }
 
     public function lodgingService()

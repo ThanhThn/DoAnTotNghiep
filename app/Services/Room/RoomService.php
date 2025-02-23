@@ -11,6 +11,7 @@ use App\Services\LodgingService\LodgingServiceManagerService;
 use App\Services\RoomService\RoomServiceManagerService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RoomService
 {
@@ -38,21 +39,16 @@ class RoomService
             $newRoom = Room::create($roomData);
 
             if (!empty($data['services'])) {
-
-                $serviceIds = collect($data['services'])->pluck('id')->toArray();
-                $services = ModelLodgingService::whereIn('id', $serviceIds)->with('unit')->get()->keyBy('id');
-
                 // Chuẩn bị dữ liệu để insert hàng loạt
-                $roomServiceData = collect($data['services'])->map(function ($service) use ($newRoom, $services) {
-                    $managerService = $services[$service['id']] ?? null;
+                $roomServiceData = collect($data['services'])->map(function ($service) use ($newRoom) {
                     return [
+                        'id' => Str::uuid(),
                         'room_id' => $newRoom->id,
                         'lodging_service_id' => $service['id'],
                         'last_recorded_value' => $service['value'] ?? 0
                     ];
                 })->toArray();
 
-                // Bulk insert dữ liệu
                 (new RoomServiceManagerService())->insert($roomServiceData);
             }
 
