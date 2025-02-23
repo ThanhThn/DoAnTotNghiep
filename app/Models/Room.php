@@ -60,7 +60,7 @@ class Room extends Model
 
     function roomServices()
     {
-        return $this->hasMany(RoomService::class, 'room_id', 'id')->with('lodgingService')->where(['is_enabled' => true]);
+        return $this->hasMany(RoomService::class, 'room_id', 'id')->with('lodgingService');
     }
 
     public function lodging()
