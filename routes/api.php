@@ -66,6 +66,7 @@ Route::group(['prefix' => 'room', 'namespace' => 'App\Http\Controllers'], functi
     Route::get('list/{lodgingId}', 'RoomController@listByLodging');
     Route::post('filter', 'RoomController@filter');
     Route::get('detail/{id}', 'RoomController@detail');
+    Route::post('update', 'RoomController@update')->middleware('jwt.verify');
 });
 
 //Contract
