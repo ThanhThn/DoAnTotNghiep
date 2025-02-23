@@ -4,6 +4,7 @@ namespace App\Services\Room;
 
 use App\Models\Lodging;
 use App\Models\Room;
+use App\Models\RoomService as ModelsRoomService;
 use App\Services\Lodging\LodgingService;
 use App\Models\LodgingService as ModelLodgingService;
 use App\Services\LodgingService\LodgingServiceManagerService;
@@ -52,7 +53,7 @@ class RoomService
                 })->toArray();
 
                 // Bulk insert dữ liệu
-                (new RoomServiceManagerService())::insert($roomServiceData);
+                (new RoomServiceManagerService())->insert($roomServiceData);
             }
 
             DB::commit();
@@ -114,10 +115,71 @@ class RoomService
     public function detail($id)
     {
         $room = Room::with('roomServices')->find($id);
-//        $service = ModelLodgingService::where('lodging_id', $room->lodging_id)->get();
-//
-//        $room->setRelation('services', $service);
         return $room;
+    }
+
+    public function update($data, $id)
+    {
+        $room = Room::where(['id' => $id, 'lodging_id' => $data['lodging_id']])->first();
+        if(!$room) return [
+            'errors' => [[
+                'message' => 'Room not found'
+            ]]
+        ];
+
+        try {
+            DB::beginTransaction();
+
+            $lodging = Lodging::find($data['lodging_id']);
+
+            // Chuẩn bị dữ liệu phòng
+            $roomData = [
+                'room_code' => $data['room_code'],
+                'max_tenants' => $data['max_tenants'],
+                'price' => $data['price'] ?? $room->price,
+                'area' => $data['area'] ?? $room->area,
+                'status' => $data['status'] ?? $room->status,
+                'priority' => $data['priority'] ?? $room->priority,
+                'payment_date' => $data['payment_date'] ?? $room->payment_date,
+                'late_days' => $data['late_days'] ?? $room->late_days,
+            ];
+
+            Room::update($roomData);
+
+            if (!empty($data['services'])) {
+                $serviceIds = collect($data['services'])->pluck('id')->toArray();
+
+                $roomServiceExisted = ModelsRoomService::where('room_id', $id)->get();
+
+                $existedIds = $roomServiceExisted->pluck('lodging_service_id')->toArray();
+
+                $services = Room::whereIn('id', $serviceIds)->with('unit')->get()->keyBy('id');
+
+                // Chuẩn bị dữ liệu để insert hàng loạt
+                $roomServiceData = collect($data['services'])->map(function ($service) use ($newRoom, $services) {
+                    $managerService = $services[$service['id']] ?? null;
+                    return [
+                        'room_id' => $newRoom->id,
+                        'lodging_service_id' => $service['id'],
+                        'last_recorded_value' => $service['value'] ?? 0
+                    ];
+                })->toArray();
+
+                // Bulk insert dữ liệu
+                (new RoomServiceManagerService())::insert($roomServiceData);
+            }
+
+            DB::commit();
+            return $newRoom;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return [
+                'errors' => [[
+                    'message' => $exception->getMessage(),
+                ]]
+            ];
+        }
+
     }
 
     static function isOwnerRoom($roomId, $userId)

@@ -5,10 +5,11 @@ namespace App\Http\Requests\Room;
 use App\Http\Requests\BaseRequest;
 use Illuminate\Validation\Rule;
 
-class CreateRoomRequest extends BaseRequest
+class RoomRequest extends BaseRequest
 {
     public function rules() : array {
         return [
+            'id' => 'nullable|uuid|exists:room,id',
             'lodging_id' => 'required|uuid|exists:lodgings,id',
             'room_code' => 'required|string',
             'max_tenants' => 'required|integer',

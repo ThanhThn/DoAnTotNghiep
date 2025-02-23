@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Room\CreateRoomRequest;
+use App\Http\Requests\Room\RoomRequest;
 use App\Http\Requests\Room\FilterRoomRequest;
 use App\Models\Lodging;
 use App\Services\Lodging\LodgingService;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 class RoomController extends Controller
 {
-    public function create(CreateRoomRequest $request){
+    public function create(RoomRequest $request){
         $data = $request->all();
         $userId = Auth::id();
 
@@ -95,5 +95,47 @@ class RoomController extends Controller
                 'data' => $service->detail($id)
             ]
         ]);
+    }
+
+    public function update(RoomRequest $request)
+    {
+        $data = $request->all();
+        $userId = Auth::id();
+
+        if(!isset($data['id'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => [[
+                    'message' => 'Id is required',
+                ]]
+            ]);
+        }
+
+        if(!RoomService::isOwnerRoom($data['id'], $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $service = new RoomService();
+        $result = $service->update($data, $data['id']);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
+        ]);
+
     }
 }
