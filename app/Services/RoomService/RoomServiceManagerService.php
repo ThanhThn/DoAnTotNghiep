@@ -5,6 +5,7 @@ namespace App\Services\RoomService;
 use App\Models\LodgingService;
 use App\Models\Room;
 use App\Models\RoomService;
+use Illuminate\Support\Str;
 
 class RoomServiceManagerService
 {
@@ -48,6 +49,7 @@ class RoomServiceManagerService
         if (!empty($roomIdNotUsage)) {
             $dataInsert = collect($roomIdNotUsage)->map(function ($roomId) use ($lodgingServiceId) {
                 return [
+                    'id' => Str::uuid(),
                     'room_id' => $roomId,
                     'lodging_service_id' => $lodgingServiceId,
                     'last_recorded_value' => 0,

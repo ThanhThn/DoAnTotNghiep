@@ -117,18 +117,16 @@ class RoomService
     public function update($data, $id)
     {
         $room = Room::where(['id' => $id, 'lodging_id' => $data['lodging_id']])->first();
-        if(!$room) return [
-            'errors' => [[
-                'message' => 'Room not found'
-            ]]
-        ];
+        if (!$room) {
+            return [
+                'errors' => [['message' => 'Room not found']]
+            ];
+        }
 
         try {
             DB::beginTransaction();
 
-            $lodging = Lodging::find($data['lodging_id']);
-
-            // Chuẩn bị dữ liệu phòng
+            // Cập nhật thông tin phòng
             $roomData = [
                 'room_code' => $data['room_code'],
                 'max_tenants' => $data['max_tenants'],
@@ -140,43 +138,55 @@ class RoomService
                 'late_days' => $data['late_days'] ?? $room->late_days,
             ];
 
-            Room::update($roomData);
+            $room->update($roomData);
 
             if (!empty($data['services'])) {
                 $serviceIds = collect($data['services'])->pluck('id')->toArray();
 
-                $roomServiceExisted = ModelsRoomService::where('room_id', $id)->get();
+                ModelsRoomService::where('room_id', $id)
+                    ->update([
+                        'is_enabled' => DB::raw("CASE
+                        WHEN lodging_service_id IN (" . implode(',', $serviceIds) . ") THEN TRUE
+                        ELSE FALSE
+                    END")
+                    ]);
 
-                $existedIds = $roomServiceExisted->pluck('lodging_service_id')->toArray();
+                $existingServices = ModelsRoomService::where('room_id', $id)
+                    ->whereIn('lodging_service_id', $serviceIds)
+                    ->get()
+                    ->keyBy('lodging_service_id');
 
-                $services = Room::whereIn('id', $serviceIds)->with('unit')->get()->keyBy('id');
+                $newServices = [];
+                foreach ($data['services'] as $service) {
+                    if (isset($existingServices[$service['id']])) {
+                        $existingServices[$service['id']]->update([
+                            'last_recorded_value' => $service['value'] ?? 0
+                        ]);
+                    } else {
+                        $newServices[] = [
+                            'id' => Str::uuid(),
+                            'room_id' => $id,
+                            'lodging_service_id' => $service['id'],
+                            'last_recorded_value' => $service['value'] ?? 0,
+                        ];
+                    }
+                }
 
-                // Chuẩn bị dữ liệu để insert hàng loạt
-                $roomServiceData = collect($data['services'])->map(function ($service) use ($newRoom, $services) {
-                    $managerService = $services[$service['id']] ?? null;
-                    return [
-                        'room_id' => $newRoom->id,
-                        'lodging_service_id' => $service['id'],
-                        'last_recorded_value' => $service['value'] ?? 0
-                    ];
-                })->toArray();
-
-                // Bulk insert dữ liệu
-                (new RoomServiceManagerService())::insert($roomServiceData);
+                if (!empty($newServices)) {
+                    ModelsRoomService::insert($newServices);
+                }
             }
 
             DB::commit();
-            return $newRoom;
+            return $room->refresh();
         } catch (\Exception $exception) {
             DB::rollBack();
             return [
-                'errors' => [[
-                    'message' => $exception->getMessage(),
-                ]]
+                'errors' => [['message' => $exception->getMessage()]]
             ];
         }
-
     }
+
 
     static function isOwnerRoom($roomId, $userId)
     {
