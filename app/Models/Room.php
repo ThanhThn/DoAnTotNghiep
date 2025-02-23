@@ -60,7 +60,12 @@ class Room extends Model
 
     function roomServices()
     {
-        return $this->hasMany(RoomService::class, 'room_id', 'id');
+        return $this->hasMany(RoomService::class, 'room_id', 'id')->with('lodgingService');
+    }
+
+    public function lodging()
+    {
+        return $this->belongsTo(Lodging::class, 'lodging_id');
     }
 
 }

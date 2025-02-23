@@ -67,8 +67,6 @@ class RoomService
         }
     }
 
-
-
     public function listRoomsByLodging($lodgingId, $data = [])
     {
         $roomQuery = Room::where(['lodging_id'=> $lodgingId, 'is_enabled' => true]);
@@ -80,7 +78,6 @@ class RoomService
 
         return $roomQuery->get();
     }
-
 
     public function filterRooms($data, $lodgingId)
     {
@@ -114,13 +111,20 @@ class RoomService
         return $roomQuery->get();
     }
 
+    public function detail($id)
+    {
+        $room = Room::with('roomServices')->find($id);
+//        $service = ModelLodgingService::where('lodging_id', $room->lodging_id)->get();
+//
+//        $room->setRelation('services', $service);
+        return $room;
+    }
 
     static function isOwnerRoom($roomId, $userId)
     {
-        $room = Room::find($roomId);
-        if(!$room) return false;
-        return LodgingService::isOwnerLodging($room->lodging_id, $userId);
+        return Room::whereHas('lodging', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->where('id', $roomId)->exists();
     }
-
 
 }

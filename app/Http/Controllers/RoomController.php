@@ -85,4 +85,15 @@ class RoomController extends Controller
             ]
         ]);
     }
+
+    public function detail($id)
+    {
+        $service  = new RoomService();
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $service->detail($id)
+            ]
+        ]);
+    }
 }

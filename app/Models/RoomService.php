@@ -31,4 +31,14 @@ class RoomService extends Model
             }
         });
     }
+
+    public function lodgingService()
+    {
+        return $this->belongsTo(LodgingService::class, 'lodging_service_id')->with(['service', 'unit']);
+    }
+
+    public function service()
+    {
+        return $this->hasOneThrough(Service::class, LodgingService::class, 'id', 'id', 'lodging_service_id', 'service_id');
+    }
 }
