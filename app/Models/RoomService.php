@@ -21,6 +21,11 @@ class RoomService extends Model
     public $incrementing = false;
     protected $primaryKey = "id";
 
+    protected $casts = [
+        'is_enabled' => 'boolean',
+        'last_recorded_value' => 'float'
+    ];
+
 
     protected static function boot()
     {
