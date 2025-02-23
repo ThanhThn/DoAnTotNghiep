@@ -140,44 +140,42 @@ class RoomService
 
             $room->update($roomData);
 
-            if (!empty($data['services'])) {
-                $serviceIds = collect($data['services'])->pluck('id')->toArray();
+            $serviceIds = collect($data['services'])->pluck('id')->toArray();
 
-                ModelsRoomService::where('room_id', $id)
+            ModelsRoomService::where('room_id', $id)
                     ->whereIn('lodging_service_id', $serviceIds)
                     ->update(['is_enabled' => true]);
 
-                ModelsRoomService::where('room_id', $id)
+            ModelsRoomService::where('room_id', $id)
                     ->whereNotIn('lodging_service_id', $serviceIds)
                     ->update(['is_enabled' => false]);
 
 
-                $existingServices = ModelsRoomService::where('room_id', $id)
+            $existingServices = ModelsRoomService::where('room_id', $id)
                     ->whereIn('lodging_service_id', $serviceIds)
                     ->get()
                     ->keyBy('lodging_service_id');
 
-                $newServices = [];
-                foreach ($data['services'] as $service) {
-                    if (isset($existingServices[$service['id']])) {
-                        $existingServices[$service['id']]->update([
-                            'last_recorded_value' => $service['value'] ?? 0
-                        ]);
-                    } else {
-                        $newServices[] = [
-                            'id' => Str::uuid(),
-                            'room_id' => $id,
-                            'lodging_service_id' => $service['id'],
-                            'last_recorded_value' => $service['value'] ?? 0,
-                        ];
-                    }
+            $newServices = [];
+            foreach ($data['services'] as $service) {
+                if (isset($existingServices[$service['id']])) {
+                    $existingServices[$service['id']]->update([
+                        'last_recorded_value' => $service['value'] ?? 0
+                    ]);
+                } else {
+                    $newServices[] = [
+                        'id' => Str::uuid(),
+                        'room_id' => $id,
+                        'lodging_service_id' => $service['id'],
+                        'last_recorded_value' => $service['value'] ?? 0,
+                    ];
+                }
                 }
 
 
                 if (!empty($newServices)) {
                     (new RoomServiceManagerService())->insert($newServices);
                 }
-            }
 
             DB::commit();
             return $room->refresh();
