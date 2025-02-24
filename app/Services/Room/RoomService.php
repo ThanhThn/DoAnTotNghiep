@@ -5,9 +5,6 @@ namespace App\Services\Room;
 use App\Models\Lodging;
 use App\Models\Room;
 use App\Models\RoomService as ModelsRoomService;
-use App\Services\Lodging\LodgingService;
-use App\Models\LodgingService as ModelLodgingService;
-use App\Services\LodgingService\LodgingServiceManagerService;
 use App\Services\RoomService\RoomServiceManagerService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -86,26 +83,35 @@ class RoomService
         $roomQuery = Room::where([
             'lodging_id' => $lodgingId,
             'is_enabled' => true
-        ])->whereDoesntHave('contracts', function ($query) use ($startDate, $endDate, $quantity) {
-            $query->select('room_id')
-                ->selectRaw('COALESCE(SUM(quantity), 0) as total_tenants')
-                ->where(function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('start_date', [$startDate, $endDate])
-                        ->orWhereBetween('end_date', [$startDate, $endDate])
-                        ->orWhere(function ($q2) use ($startDate, $endDate) {
-                            $q2->where('start_date', '<', $startDate)
-                                ->where('end_date', '>', $endDate);
-                        });
-                })
-                ->groupBy('room_id')
-                ->havingRaw('(COALESCE(SUM(quantity), 0) + ?) > max_tenants', [$quantity]);
-        });
+        ])
+            ->with('contracts', function ($query) use ($startDate, $endDate, $quantity) {
+                $query->whereIn('status', [
+                    config('constant.contract.status.pending'),
+                    config('constant.contract.status.active')
+                ])
+                    ->where(function ($subQuery) use ($startDate, $endDate) {
+                        $subQuery->whereBetween('start_date', [$startDate, $endDate])
+                            ->orWhereRaw('
+                        (COALESCE(end_date, start_date + (lease_duration || \' months\')::INTERVAL) BETWEEN ? AND ?)
+                        OR (start_date < ? AND COALESCE(end_date, start_date + (lease_duration || \' months\')::INTERVAL) > ?)
+                    ', [$startDate, $endDate, $startDate, $endDate]);
+                    });
+            });
 
         if (isset($data['status'])) {
             $roomQuery->where('status', $data['status']);
         }
 
-        return $roomQuery->get();
+        $rooms =  $roomQuery->get();
+
+        $rooms = $rooms->filter(function ($room) use ($quantity) {
+            $totalQuantity = $room->contracts->sum('quantity') + $quantity;
+            return $totalQuantity <= $room->max_tenants;
+        })->map(function ($room) {
+            unset($room->contracts);
+            return $room;
+        })->values();
+        return $rooms;
     }
 
     public function detail($id)
