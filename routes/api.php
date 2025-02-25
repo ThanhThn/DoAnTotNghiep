@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -76,4 +75,9 @@ Route::group(['prefix' => 'room', 'namespace' => 'App\Http\Controllers'], functi
 //Contract
 Route::group(['prefix' => 'contract', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('create', 'ContractController@create')->middleware('jwt.verify');
+});
+
+//Feedback
+Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('create', 'FeedbackController@create')->middleware('jwt.verify');
 });

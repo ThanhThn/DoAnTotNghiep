@@ -20,5 +20,25 @@ return [
             'login' => 1,
             'notify' => 2
         ]
+    ],
+    "object" => [
+        "type" => [
+            'user' => 'user',
+            'room' => 'room',
+            'lodging' => 'lodging'
+        ]
+    ],
+    'feedback' => [
+        'status' => [
+            'submitted' => 1,
+            'received' => 2,
+            'in_progress' => 3,
+            'resolved' => 4,
+            'closed' => 5
+        ]
+    ],
+
+    'type' => [
+        'feedback' => 'feedback',
     ]
 ];

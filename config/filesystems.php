@@ -56,6 +56,20 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
+        'supabase' => [
+            'driver' => 'supabase',
+            'key'    => env('SUPABASE_ANON_KEY'),
+            'bucket' => env('SUPABASE_BUCKET'),
+            'endpoint' => env('SUPABASE_PROJECT_URL'),
+            'url'      => null,
+            'public'                      => true,
+            'defaultUrlGeneration'        => null,
+            'defaultUrlGenerationOptions' => [
+                'download'  => false,
+                'transform' => [],
+            ],
+            'signedUrlExpires' => 60*60*24, // 1 day <- default to 1 hour (3600)
+        ],
 
     ],
 
