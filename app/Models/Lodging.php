@@ -68,4 +68,8 @@ class Lodging extends Model
     public function ward(){
         return $this->belongsTo(Ward::class, 'ward_id');
     }
+
+    public function rooms(){
+        return $this->hasMany(Room::class, 'lodging_id');
+    }
 }

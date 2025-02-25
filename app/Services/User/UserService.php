@@ -3,6 +3,7 @@
 namespace App\Services\User;
 
 use App\Helpers\Helper;
+use App\Models\Lodging;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
