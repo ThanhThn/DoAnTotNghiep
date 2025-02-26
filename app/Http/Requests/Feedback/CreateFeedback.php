@@ -8,8 +8,7 @@ class CreateFeedback extends BaseRequest
 {
     public function rules() {
         return [
-            'object_to_id' => 'required|uuid',
-            'object_to_type' => 'required|string|in:lodging,room,user',
+            'room_id' => 'required|uuid|exists:rooms,id',
             'object_from_id' => 'required|uuid',
             'object_from_type' => 'required|string|in:lodging,room,user',
             'title' => 'required|string',

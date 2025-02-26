@@ -11,10 +11,8 @@ class Feedback extends Model
 
     protected $fillable = [
         'id',
-        'object_to_id',
-        'object_to_type',
-        'object_from_id',
-        'object_from_type',
+        'room_id',
+        'lodging_id',
         'title',
         'body',
         'status',
