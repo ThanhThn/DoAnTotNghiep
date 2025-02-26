@@ -72,4 +72,9 @@ class Lodging extends Model
     public function rooms(){
         return $this->hasMany(Room::class, 'lodging_id');
     }
+
+    public function type()
+    {
+        return $this->belongsTo(LodgingType::class, 'type_id');
+    }
 }

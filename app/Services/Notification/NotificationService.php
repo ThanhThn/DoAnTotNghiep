@@ -72,4 +72,34 @@ class NotificationService
         }
 
     }
+
+    static function sendNotificationRN($data, $tokens = null)
+    {
+
+        $headers = [
+            "Content-Type: application/json"
+        ];
+
+        $payload = [
+          'subIDs' => $tokens,
+          'appId' => (int)env("NOTIFY_ID"),
+          'appToken' => env("NOTIFY_TOKEN"),
+          'title' => $data['title'] ?? "Something",
+          'message' => $data['body'] ?? "Something",
+          'pushData' => [
+              'end_point' => $data['target_endpoint'] ?? "/",
+          ]
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://app.nativenotify.com/api/indie/group/notification");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+    }
 }

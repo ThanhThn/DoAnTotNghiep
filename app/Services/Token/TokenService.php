@@ -13,4 +13,12 @@ class TokenService
         Token::create($data);
         return true;
     }
+
+    public static function getTokens($userId, $typeToken)
+    {
+        return Token::where([
+            'user_id' => $userId,
+            'token_type' => $typeToken
+        ])->get()->pluck('token')->toArray();
+    }
 }
