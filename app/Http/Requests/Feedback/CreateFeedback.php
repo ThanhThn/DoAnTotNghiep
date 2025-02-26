@@ -15,7 +15,7 @@ class CreateFeedback extends BaseRequest
             'title' => 'required|string',
             'content' => 'required|string',
             'images' => 'nullable|array',
-//            'images.*' => 'file|mimes:jpeg,jpg,png,gif|max:2000',
+            'images.*' => 'required_with:images:string',
         ];
     }
 }

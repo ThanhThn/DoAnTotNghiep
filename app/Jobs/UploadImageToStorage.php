@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Helpers\FileUtils;
 use App\Helpers\S3Utils;
 use App\Models\Feedback;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,26 +38,19 @@ class UploadImageToStorage implements ShouldQueue
                 $feedback = Feedback::find($this->_objectId);
                 $images = [];
                 foreach ($this->_images as $image) {
-                    $data = substr($image, strpos($image, ',') + 1);
-                    $data = base64_decode($data);
-                    $fileName = uniqid();
-                    // Lưu tạm
-                    $tempFilePath = storage_path('app/temp_' . $fileName);
-                    file_put_contents($tempFilePath, $data);
-
-                    $file = new UploadedFile($tempFilePath, $fileName, 'image/webp', null, true);
-                    $url = S3Utils::upload($file, '/'. now()->format('Y-m-d') ."/". $this->_objectId . "/" .$fileName, 'feedback');
-                    unlink($tempFilePath);
+                    $fileName = now()->format('Y-m-d') . "/" . $this->_objectId . "/" . uniqid() . ".webp";
+                    Log::info($image);
+                    $file = FileUtils::convertBase64ToFile($image, 'image');
+                    $url = S3Utils::upload($file, $fileName, 'feedback');
+                    unlink($file->getPathname());
                     $images[] = $url;
                 }
 
                 $body = $feedback->body;
                 $body['images'] = $images;
-                Log::info("Data", $body);
                 $feedback->body = $body;
                 $feedback->save();
-//                $feedback->update(['body' => $body]);
-            }; break;
+            } break;
         }
     }
 }
