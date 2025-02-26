@@ -38,7 +38,7 @@ class UploadImageToStorage implements ShouldQueue
                 $feedback = Feedback::find($this->_objectId);
                 $images = [];
                 foreach ($this->_images as $image) {
-                    $fileName = now()->format('Y-m-d') . "/" . $this->_objectId . "/" . uniqid() . ".webp";
+                    $fileName = now()->format('Y-m-d') . "/" . $this->_objectId . "/" . uniqid();
                     Log::info($image);
                     $file = FileUtils::convertBase64ToFile($image, 'image');
                     $url = S3Utils::upload($file, $fileName, 'feedback');
