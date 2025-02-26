@@ -14,10 +14,8 @@ class FeedbackService
         try {
             DB::beginTransaction();
             $insertData = [
-                'object_to_id' => $data['object_to_id'],
-                'object_to_type' => $data['object_to_type'],
-                'object_from_type' => $data['object_from_type'],
-                'object_from_id' => $data['object_from_id'],
+                'room_id' => $data['room_id'],
+                'lodging_id' => $data['lodging_id'],
                 'user_id' => $userId,
                 'status' => config('constant.feedback.status.submitted'),
                 'title' => $data['title'],
