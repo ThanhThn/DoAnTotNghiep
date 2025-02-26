@@ -37,5 +37,19 @@ class Feedback extends Model
             }
         });
     }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id');
+    }
+
+    public function lodging(){
+        return $this->belongsTo(Lodging::class, 'lodging_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
 

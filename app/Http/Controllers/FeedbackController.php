@@ -29,6 +29,19 @@ class FeedbackController extends Controller
                 'data' => $result
             ]
         ]);
+    }
 
+    public function listByUser(Request $request)
+    {
+        $data = $request->all();
+        $userId = Auth::id();
+        $service = new FeedbackService();
+        $result = $service->listByUser($data, $userId);
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
+        ]);
     }
 }

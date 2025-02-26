@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Lodging extends Model
 {
+    use SoftDeletes;
     protected $table = 'lodgings';
 
     protected $fillable = [
@@ -46,6 +48,8 @@ class Lodging extends Model
     protected $hidden = [
         'created_at', 'updated_at'
     ];
+
+    protected $dates = ['deleted_at'];
 
     protected static function boot(){
         parent::boot();

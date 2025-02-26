@@ -66,4 +66,31 @@ class FeedbackService
             ];
         }
     }
+
+    public function listByUser($data, $userId)
+    {
+        $feedback = Feedback::with(['room', 'lodging'])->where('user_id', $userId);
+
+        if(isset($data['status'])){
+            $feedback->where('status', $data['status']);
+        }
+        return $feedback->get();
+    }
+
+    public function list($data)
+    {
+        $feedback = Feedback::with('user');
+        if(isset($data['lodging_id'])){
+            $feedback->with('room')->where('lodging_id', $data['lodging_id']);
+        }
+
+        if(isset($data['room_id'])){
+            $feedback->with('lodging')->where('room_id', $data['room_id']);
+        }
+
+        if(isset($data['status'])){
+            $feedback->where('status', $data['status']);
+        }
+        return $feedback->get();
+    }
 }
