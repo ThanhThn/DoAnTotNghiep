@@ -7,13 +7,42 @@ use App\Models\Lodging;
 class ClientService
 {
 
-    public function listLodgingAndRoomToContractByUser($userId)
+    public function listLodgingAndRoomToContractByUser($data, $userId)
     {
-        $result = Lodging::with(['rooms' => function($query) use ($userId) {
-            $query->whereHas('contracts', function($subQuery) use ($userId) {
-                $subQuery->where(['user_id' => $userId, 'status' => config('constant.contract.status.active')]);
+        $includeContracts = isset($data['with_contracts']) && $data['with_contracts'];
+
+        // Khai báo query cơ bản
+        $query = Lodging::query();
+
+        $query->whereHas('rooms', function ($query) use ($userId) {
+            $query->whereHas('contracts', function ($query) use ($userId) {
+                $query->where([
+                    'user_id' => $userId,
+                    'status' => config('constant.contract.status.active'),
+                ]);
             });
-        }])->get();
-        return $result;
+        });
+
+        $relations = [
+            'rooms' => function ($query) use ($userId, $includeContracts) {
+                $query->whereHas('contracts', function ($query) use ($userId) {
+                    $query->where([
+                        'user_id' => $userId,
+                        'status' => config('constant.contract.status.active'),
+                    ]);
+                });
+
+                if ($includeContracts) {
+                    $query->with(['contracts' => function ($query) use ($userId) {
+                        $query->where([
+                            'user_id' => $userId,
+                            'status' => config('constant.contract.status.active'),
+                        ]);
+                    }]);
+                }
+            },
+        ];
+
+        return $query->with($relations)->get();
     }
 }
