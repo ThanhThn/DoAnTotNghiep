@@ -12,7 +12,7 @@ class ClientService
         $includeContracts = isset($data['with_contracts']) && $data['with_contracts'];
 
         // Khai báo query cơ bản
-        $query = Lodging::query();
+        $query = Lodging::with(['province', 'district', 'ward', 'type']);
 
         $query->whereHas('rooms', function ($query) use ($userId) {
             $query->whereHas('contracts', function ($query) use ($userId) {

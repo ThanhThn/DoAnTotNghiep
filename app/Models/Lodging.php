@@ -58,6 +58,7 @@ class Lodging extends Model
                 $model->id = Str::uuid();
             }
         });
+
     }
 
     public function province()
