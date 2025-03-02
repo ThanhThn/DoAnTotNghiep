@@ -15,21 +15,25 @@ class RealtimeService
             "notification/user/$userId" => ["subscribe"]
         ];
 
-        $keyParts = explode(":", env('ABLY_KEY'));
-        $ablyKeyName = $keyParts[0];
-
         $tokenRequest = $ably->auth->createTokenRequest([
-            "capability" => json_encode($capability),
+            "capability" => $capability,
         ]);
 
-        $response = Http::post("https://rest.ably.io/keys/$ablyKeyName/requestToken", [
-            "keyName"    => $tokenRequest['keyName'],
-            "timestamp"  => $tokenRequest['timestamp'],
-            "nonce"      => $tokenRequest['nonce'],
-            "mac"        => $tokenRequest['mac'],
-            "capability" => $tokenRequest['capability'],
+        $keyName = $tokenRequest->keyName;
+        $timestamp = $tokenRequest->timestamp;
+        $nonce = $tokenRequest->nonce;
+        $mac = $tokenRequest->mac;
+        $capability = $tokenRequest->capability;
+
+        $response = Http::post("https://rest.ably.io/keys/$keyName/requestToken", [
+            "keyName"    => $keyName,
+            "timestamp"  => $timestamp,
+            "nonce"      => $nonce,
+            "mac"        => $mac,
+            "capability" => $capability,
         ]);
+
+
         return $response->json();
     }
-
 }

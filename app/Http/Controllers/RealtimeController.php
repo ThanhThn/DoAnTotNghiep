@@ -14,13 +14,11 @@ class RealtimeController extends Controller
     {
         $userId = Auth::id();
         $service = new RealtimeService();
-        $token = $service->getToken($userId);
+        $result = $service->getToken($userId);
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => [
-                'data' => [
-                    'token' => $token,
-                ]
+                'data' =>$result
             ]
         ]);
     }
