@@ -89,8 +89,8 @@ Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], fu
 
 //Realtime
 Route::post('/realtime/auth', function (Request $request){
-    $chanelName = $request->input('chanelName');
+    $channelName = $request->input('channelName');
     return response()->json([
-        'name' => $chanelName]
+        'name' => $channelName]
     );
 })->middleware('jwt.verify');
