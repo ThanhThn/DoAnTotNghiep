@@ -4,6 +4,7 @@ use App\Http\Controllers\FeedbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\RealtimeController;
 
 Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers\Auth\User'], function ($route) {
     Route::post('register', 'AuthController@register');
@@ -88,9 +89,4 @@ Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], fu
 
 
 //Realtime
-Route::post('/realtime/auth', function (Request $request){
-    $channelName = $request->input('channelName');
-    return response()->json([
-        'name' => $channelName]
-    );
-})->middleware('jwt.verify');
+Route::post('/realtime/auth', [RealtimeController::class, "auth"])->middleware('jwt.verify');
