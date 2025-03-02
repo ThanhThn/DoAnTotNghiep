@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\FeedbackController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Broadcast;
 
 Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers\Auth\User'], function ($route) {
     Route::post('register', 'AuthController@register');
@@ -83,3 +84,10 @@ Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], fu
     Route::post('create', 'FeedbackController@create')->middleware('jwt.verify');
     Route::get('list_by_user', 'FeedbackController@listByUser')->middleware('jwt.verify');
 });
+
+
+
+//Realtime
+Route::post('/realtime/auth', function (Request $request){
+    return Broadcast::auth($request);
+})->middleware('jwt.verify');
