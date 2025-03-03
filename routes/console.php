@@ -11,5 +11,6 @@ Artisan::command('inspire', function () {
 
 $schedule = app(Schedule::class);
 
-$schedule->command('inspire')->everyMinute();
-$schedule->command('queue:work --daemon')->everyMinute()->withoutOverlapping();
+$schedule->command('inspire')->hourly();
+$schedule->command('queue:restart')->yearly();
+
