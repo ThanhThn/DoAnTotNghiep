@@ -14,6 +14,6 @@ Broadcast::channel('chat.{receiverId}', function (User $user, int $receiverId) {
     return (int) $user->id === (int) $receiverId;
 });
 
-Broadcast::channel('notification', function ($user) {
+Broadcast::channel('private:notification', function ($user) {
     return true;
 });
