@@ -13,3 +13,4 @@ $schedule = app(Schedule::class);
 
 $schedule->command('inspire')->hourly();
 $schedule->command('queue:work --daemon')->everyMinute()->withoutOverlapping();
+$schedule->command('reverb:start')->yearly()->withoutOverlapping();
