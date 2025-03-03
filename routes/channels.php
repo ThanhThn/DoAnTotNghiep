@@ -3,13 +3,18 @@
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-
-
-//Broadcast::routes(['middleware' => ['jwt.verify']]);
+use Illuminate\Support\Facades\Log;
 
 Route::post('/broadcasting/auth', function (Request $request) {
-    Broadcast::auth($request);
-});
+    Log::info('Auth request received', [
+        'headers' => $request->headers->all(),
+        'body' => $request->all(),
+        'user' => auth()->user()
+    ]);
+    $response = Broadcast::auth($request);
+    Log::info('Auth response sent', ['response' => $response]);
+    return $response;
+})->middleware('jwt.verify');
 
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
@@ -23,6 +28,6 @@ Broadcast::channel('', function ($user) {
     return true;
 });
 
-Broadcast::channel('private:notification', function ($user) {
+Broadcast::channel('notification', function ($user) {
     return true;
 });
