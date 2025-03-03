@@ -1,7 +1,7 @@
-# Dùng base image Ubuntu để không phụ thuộc vào PHP mặc định
+# Dùng base image Ubuntu 22.04
 FROM ubuntu:22.04
 
-# Cài đặt các gói cần thiết
+# Cài đặt các gói cần thiết và thêm PPA cho PHP
 RUN apt-get update && apt-get install -y \
     curl \
     git \
@@ -9,18 +9,16 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     nginx \
     software-properties-common \
-    && add-apt-repository ppa:ondrej/php \
-    && apt-get update
-
-# Cài PHP 8.2 và extensions cần thiết
-RUN apt-get install -y \
-    php8.2 \
-    php8.2-fpm \
-    php8.2-mysql \
-    php8.2-mbstring \
-    php8.2-xml \
-    php8.2-bcmath \
-    php8.2-pcntl \
+    && add-apt-repository ppa:ondrej/php -y \
+    && apt-get update \
+    && apt-get install -y \
+        php8.2 \
+        php8.2-fpm \
+        php8.2-mysql \
+        php8.2-mbstring \
+        php8.2-xml \
+        php8.2-bcmath \
+        php8.2-pcntl \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Cài Node.js để build asset (Vite)
@@ -36,14 +34,16 @@ RUN composer install --no-dev --optimize-autoloader \
     && npm install \
     && npm run build
 
-# Copy file cấu hình Supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Quyền thư mục
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
+    && chmod -R 775 /app/storage /app/bootstrap/cache
 
-# Copy Nginx config (tùy chọn nếu muốn custom proxy)
+# Copy file cấu hình
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY nginx.conf /etc/nginx/sites-available/default
 
 # Mở port mà Render yêu cầu
 EXPOSE 10000
 
-# Chạy Supervisor để quản lý Laravel và Reverb
+# Chạy Supervisor
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
