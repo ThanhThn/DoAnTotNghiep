@@ -3,8 +3,10 @@
 use App\Http\Controllers\FeedbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Broadcast;
-use App\Http\Controllers\RealtimeController;
+use Illuminate\Support\Facades\Broadcast;;
+
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers\Auth\User'], function ($route) {
     Route::post('register', 'AuthController@register');
@@ -87,6 +89,9 @@ Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], fu
 });
 
 
+Route::post('/broadcasting/auth', function (Request $request) {
+    Broadcast::auth($request);
+})->middleware(['jwt.verify']);
 
 
 
