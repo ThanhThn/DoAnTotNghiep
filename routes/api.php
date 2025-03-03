@@ -88,10 +88,6 @@ Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], fu
 
 
 
-//Realtime
-Route::post('/realtime/auth', [RealtimeController::class, "auth"])->middleware('jwt.verify');
 
 
-Route::get('test', function (Request $request) {
-   event(new \App\Events\TestEvent("Hello from Laravel!"));
-});
+
