@@ -1,14 +1,18 @@
 # Dùng base image Ubuntu 22.04
 FROM ubuntu:22.04
 
-# Cài đặt các gói cần thiết và thêm PPA cho PHP
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    unzip \
-    supervisor \
-    nginx \
-    software-properties-common \
+# Thiết lập môi trường không tương tác
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Cài đặt các gói cần thiết với retry logic
+RUN apt-get update --allow-releaseinfo-change || apt-get update --allow-releaseinfo-change \
+    && apt-get install -y \
+        curl \
+        git \
+        unzip \
+        supervisor \
+        nginx \
+        software-properties-common \
     && add-apt-repository ppa:ondrej/php -y \
     && apt-get update \
     && apt-get install -y \
@@ -19,6 +23,7 @@ RUN apt-get update && apt-get install -y \
         php8.2-xml \
         php8.2-bcmath \
         php8.2-pcntl \
+    && php -v \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Cài Node.js để build asset (Vite)
