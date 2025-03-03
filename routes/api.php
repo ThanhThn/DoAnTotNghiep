@@ -7,12 +7,6 @@ use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
 
 
-Broadcast::routes(['middleware' => ['jwt.verify']]);
-
-Route::post('/broadcasting/auth', function (Request $request) {
-    Broadcast::auth($request);
-})->middleware(['jwt.verify']);
-
 Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers\Auth\User'], function ($route) {
     Route::post('register', 'AuthController@register');
     Route::post('login', 'AuthController@login');
