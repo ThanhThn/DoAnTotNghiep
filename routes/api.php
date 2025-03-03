@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 Broadcast::routes(['middleware' => ['jwt.verify']]);
 
 Route::post('/broadcasting/auth', function (Request $request) {
-    Log::info('Channel auth', ['user' => $request]);
     Broadcast::auth($request);
 })->middleware(['jwt.verify']);
 
