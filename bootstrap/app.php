@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withBroadcasting(
         __DIR__.'/../routes/channels.php',
-        ['prefix' => 'api', 'middleware' => ['api', 'jwt.verify']],
+        ['prefix' => 'api', 'middleware' => ['jwt.verify']],
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
