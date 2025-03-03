@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+
 
 
 
@@ -16,6 +16,5 @@ Broadcast::channel('chat.{receiverId}', function (User $user, int $receiverId) {
 });
 
 Broadcast::channel('private:notification', function ($user) {
-    Log::info('Channel auth', ['user' => $user]);
     return true;
 });
