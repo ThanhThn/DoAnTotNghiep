@@ -6,7 +6,11 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;;
 
 
-Broadcast::routes(['middleware' => ['auth:sanctum']]);
+Broadcast::routes(['middleware' => ['jwt.verify']]);
+
+Route::post('/broadcasting/auth', function (Request $request) {
+    Broadcast::auth($request);
+})->middleware(['jwt.verify']);
 
 Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers\Auth\User'], function ($route) {
     Route::post('register', 'AuthController@register');
@@ -87,11 +91,6 @@ Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], fu
     Route::post('create', 'FeedbackController@create')->middleware('jwt.verify');
     Route::get('list_by_user', 'FeedbackController@listByUser')->middleware('jwt.verify');
 });
-
-
-Route::post('/broadcasting/auth', function (Request $request) {
-    Broadcast::auth($request);
-})->middleware(['jwt.verify']);
 
 
 
