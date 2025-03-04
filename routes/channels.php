@@ -5,8 +5,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-Broadcast::routes(['middleware' => 'jwt.verify']);
-
 Route::post('/broadcasting/auth', function (Request $request) {
     $response = Broadcast::auth($request);
 })->middleware('jwt.verify');
