@@ -87,6 +87,8 @@ Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], fu
     Route::get('list_by_user', 'FeedbackController@listByUser')->middleware('jwt.verify');
 });
 
-
+Route::group(['prefix' => 'notification', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('create', 'NotificationController@index')->middleware('jwt.verify');
+});
 
 
