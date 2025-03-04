@@ -7,8 +7,10 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class NewNotification implements ShouldBroadcast
 {
@@ -35,7 +37,7 @@ class NewNotification implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        return ['private:notification-'. $this->_objectType .'-'. $this->_objectId];
+        return ['private-notification-'. $this->_objectType .'-'. $this->_objectId];
     }
 
     public function broadcastWith(): array
