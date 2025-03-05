@@ -5,6 +5,7 @@ namespace App\Services\Contract;
 use App\Models\Contract;
 use App\Models\Room;
 use App\Models\User;
+use App\Services\RentalHistory\RentalHistoryService;
 use App\Services\User\UserService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -80,5 +81,37 @@ class ContractService
                 ]]
             ];
         }
+    }
+
+    public function calculateContract($contract, $amountNeedPayment)
+    {
+        if($amountNeedPayment == 0) return;
+
+        $difference = $contract->remain_amount - $amountNeedPayment;
+
+        $contract->remain_amount = max(0, $difference);
+        $contract->save();
+
+        if ($difference < 0) {
+            $status = ($difference == -$amountNeedPayment)
+                ? config('constant.payment_status.unpaid')
+                : config('constant.payment_status.partial');
+        } else {
+            $status = config('constant.payment_status.paid');
+        }
+
+        $dataHistory = [
+            'contract_id' => $contract->id,
+            'payment_amount' => $amountNeedPayment,
+            'amount_paid' => $difference < 0 ? abs($difference) : $amountNeedPayment,
+            'status' => $status,
+        ];
+
+        if($status == config('constant.payment_status.paid')){
+            $dataHistory['payment_method'] = 'system';
+        }
+
+        $service = new RentalHistoryService();
+        $service->createRentalHistory($dataHistory);
     }
 }
