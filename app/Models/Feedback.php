@@ -23,7 +23,7 @@ class Feedback extends Model
     public $incrementing = false;
     protected $primaryKey = 'id';
 
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['updated_at'];
 
     protected $casts = [
         'body' => 'array'
@@ -44,7 +44,7 @@ class Feedback extends Model
     }
 
     public function lodging(){
-        return $this->belongsTo(Lodging::class, 'lodging_id');
+        return $this->belongsTo(Lodging::class, 'lodging_id')->with('type');
     }
 
     public function user()

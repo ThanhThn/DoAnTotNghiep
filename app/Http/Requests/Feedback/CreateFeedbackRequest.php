@@ -4,7 +4,7 @@ namespace App\Http\Requests\Feedback;
 
 use App\Http\Requests\BaseRequest;
 
-class CreateFeedback extends BaseRequest
+class CreateFeedbackRequest extends BaseRequest
 {
     public function rules() {
         return [

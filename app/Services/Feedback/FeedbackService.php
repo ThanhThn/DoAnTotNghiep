@@ -40,8 +40,10 @@ class FeedbackService
                 UploadImageToStorage::dispatch($feedback->id, config('constant.type.feedback'), $data['images']);
             }
 
-            $lodging = Lodging::with(['type'])->find($lodgingId);
-            $room = Room::find($roomId);
+            $feedback->load(['lodging', 'room']);
+
+            $lodging = $feedback->lodging;
+            $room = $feedback->room;
 
             $tokens = TokenService::getTokens($lodging->user_id, config('constant.token.type.notify'));
 
@@ -95,6 +97,51 @@ class FeedbackService
         if(isset($data['status'])){
             $feedback->where('status', $data['status']);
         }
+
+        $feedback->orderBy('created_at', 'desc');
         return $feedback->get();
+    }
+
+    public function detail($id)
+    {
+        return Feedback::with(['room', 'lodging'])->find($id);
+    }
+
+    public function updateStatus($id, $status)
+    {
+        $feedback = $this->detail($id);
+
+        $oldStatus = $feedback->status;
+        $newStatus = $status;
+
+        $feedback->status = $status;
+        $feedback->save();
+
+        if($oldStatus != $newStatus){
+            $tokens = TokenService::getTokens($feedback->user_id, config('constant.token.type.notify'));
+            $notificationService = new NotificationService();
+
+            if(count($tokens) > 0){
+                $lodging = $feedback->lodging;
+                $room = $feedback->room;
+
+                $status =  [
+                    config('constant.feedback.status.submitted') => "Đã gửi",
+                    config('constant.feedback.status.received') => "Đã nhận" ,
+                    config('constant.feedback.status.in_progress') => "Đang xử lý" ,
+                    config('constant.feedback.status.resolved') => "Đã giải quyết",
+                    config('constant.feedback.status.closed') => "Đã đóng"];
+
+                $mess = [
+                    'title' => "Cập nhật phản hồi tại {$lodging->type->name} {$lodging->name}",
+                    'body' => "Phòng {$room->room_code} có phản hồi lúc " . date('H:i d/m/Y', strtotime($feedback->created_at)) . " vừa được cập nhật trạng thái thành: {$status[$newStatus]}.",
+                    'target_endpoint' => "/feedback/detail/{$feedback->id}",
+                    'type' => 'update'
+                ];
+
+                $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback, $tokens);
+            }
+        }
+        return $feedback;
     }
 }
