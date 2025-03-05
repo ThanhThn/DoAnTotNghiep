@@ -2,6 +2,7 @@
 
 namespace App\Services\Notification;
 
+use App\Models\Notification;
 use App\Models\Token;
 use Google\Client;
 
@@ -101,5 +102,22 @@ class NotificationService
         $response = curl_exec($ch);
         curl_close($ch);
 
+    }
+
+    public function list($data)
+    {
+        $query = Notification::where([
+            'object_id' => $data['object_id'],
+            'object_type' => $data['object_type'],
+        ])->orderBy('created_at', 'desc');
+
+        $total = $query->count();
+
+        $notifications = $query->offset($data['offset'] ?? 0)->limit($data['limit'] ?? 20)->get();
+
+        return [
+            'total' => $total,
+            'data' => $notifications
+        ];
     }
 }

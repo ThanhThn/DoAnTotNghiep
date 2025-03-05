@@ -69,7 +69,7 @@ class FeedbackService
 
     public function listByUser($data, $userId)
     {
-        $feedback = Feedback::with(['room', 'lodging'])->where('user_id', $userId);
+        $feedback = Feedback::with(['room', 'lodging'])->where('user_id', $userId)->orderBy('created_at', 'desc');
 
         if(isset($data['status'])){
             $feedback->where('status', $data['status']);

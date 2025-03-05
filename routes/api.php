@@ -89,6 +89,8 @@ Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], fu
 
 Route::group(['prefix' => 'notification', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('create', 'NotificationController@index')->middleware('jwt.verify');
+
+    Route::post('list', 'NotificationController@list')->middleware('jwt.verify');
 });
 
 
