@@ -2,6 +2,7 @@
 
 namespace App\Services\Notification;
 
+use App\Events\NewNotification;
 use App\Models\Notification;
 use App\Models\Token;
 use Google\Client;
@@ -102,6 +103,27 @@ class NotificationService
         $response = curl_exec($ch);
         curl_close($ch);
 
+    }
+
+    public function createNotification($data, $objectType, $objectId ,$tokens = null)
+    {
+        $data['title'] = $data['title'] ?? "Something";
+        $data['body'] = $data['body'] ?? "Something";
+        $data['target_endpoint'] = $data['target_endpoint'] ?? "/";
+
+        $notification = Notification::create([
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'title' => $data['title'],
+            'body' => $data['body'],
+            'type' => $data['type'] ?? 'normal',
+            'url' => $data['target_endpoint'],
+        ]);
+
+        event(new NewNotification($objectId, $objectType, $notification));
+        $this->sendNotificationRN($data, $tokens);
+
+        return $notification;
     }
 
     public function list($data)

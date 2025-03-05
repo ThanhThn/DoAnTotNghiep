@@ -45,14 +45,18 @@ class FeedbackService
 
             $tokens = TokenService::getTokens($lodging->user_id, config('constant.token.type.notify'));
 
+            $notificationService = new NotificationService();
+
             if(count($tokens) > 0){
                 $mess = [
                     'title' => "Ý kiến mới tại {$lodging->type->name} {$lodging->name}",
                     'body' => "Phòng {$room->room_code} tại {$lodging->type->name} {$lodging->name} vừa có góp ý mới!",
-                    'target_endpoint' => '/feedback'
+                    'target_endpoint' => '/feedback/list',
+                    'type' => 'normal'
                 ];
 
-                NotificationService::sendNotificationRN($mess, $tokens);
+                $notificationService->createNotification($mess, config('constant.object.type.lodging'), $lodging->id, $tokens);
+
             }
 
 
