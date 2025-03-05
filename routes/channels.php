@@ -20,3 +20,7 @@ Broadcast::channel('chat.{receiverId}', function (User $user, int $receiverId) {
 Broadcast::channel('notification-user-{userId}', function ($user, $userId) {
     return $userId == $user->id;
 });
+
+Broadcast::channel('notification-lodging-{lodgingId}', function ($user, $lodgingId) {
+    return true;
+});
