@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Feedback\CreateFeedbackRequest;
 use App\Http\Requests\Feedback\DetailFeedbackRequest;
+use App\Http\Requests\Feedback\ListFeedbackRequest;
 use App\Http\Requests\Feedback\UpdateFeedbackRequest;
 use App\Services\Feedback\FeedbackService;
 use App\Services\Lodging\LodgingService;
@@ -48,7 +49,7 @@ class FeedbackController extends Controller
         ]);
     }
 
-    public function list(Request $request)
+    public function list(ListFeedbackRequest $request)
     {
         $data = $request->all();
 //        $userId = Auth::id();
