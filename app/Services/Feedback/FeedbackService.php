@@ -54,7 +54,7 @@ class FeedbackService
                     'title' => "Ý kiến mới tại {$lodging->type->name} {$lodging->name}",
                     'body' => "Phòng {$room->room_code} tại {$lodging->type->name} {$lodging->name} vừa có góp ý mới!",
                     'target_endpoint' => '/feedback/list',
-                    'type' => 'normal'
+                    'type' => config('constant.notification.type.normal')
                 ];
 
                 $notificationService->createNotification($mess, config('constant.object.type.lodging'), $lodging->id, $tokens);
@@ -136,7 +136,7 @@ class FeedbackService
                     'title' => "Cập nhật phản hồi tại {$lodging->type->name} {$lodging->name}",
                     'body' => "Phòng {$room->room_code} có phản hồi lúc " . date('H:i d/m/Y', strtotime($feedback->created_at)) . " vừa được cập nhật trạng thái thành: {$status[$newStatus]}.",
                     'target_endpoint' => "/feedback/detail/{$feedback->id}",
-                    'type' => 'update'
+                    'type' => config('constant.notification.type.normal')
                 ];
 
                 $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback, $tokens);

@@ -65,7 +65,7 @@ class Room extends Model
 
     public function lodging()
     {
-        return $this->belongsTo(Lodging::class, 'lodging_id');
+        return $this->belongsTo(Lodging::class, 'lodging_id')->with('type');
     }
 
 }

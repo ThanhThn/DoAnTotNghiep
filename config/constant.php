@@ -40,5 +40,25 @@ return [
 
     'type' => [
         'feedback' => 'feedback',
+    ],
+
+    'payment' => [
+        'status' => [
+            'unpaid' => 1,
+            'paid' => 2,
+            'partial' => 3
+        ],
+        'method' => [
+            'system' => 'system',
+            'cash' => 'cash',
+            'card' => 'card',
+        ]
+    ],
+
+    'notification' => [
+        'type' => [
+            'normal' => 'normal',
+            'important' => 'important',
+        ]
     ]
 ];

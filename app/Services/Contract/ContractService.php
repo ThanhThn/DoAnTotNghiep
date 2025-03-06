@@ -88,30 +88,43 @@ class ContractService
         if($amountNeedPayment == 0) return;
 
         $difference = $contract->remain_amount - $amountNeedPayment;
+        try{
+            DB::beginTransaction();
+            $contract->remain_amount = max(0, $difference);
+            $contract->save();
 
-        $contract->remain_amount = max(0, $difference);
-        $contract->save();
+            if ($difference < 0) {
+                $status = ($difference == -$amountNeedPayment)
+                    ? config('constant.payment.status.unpaid')
+                    : config('constant.payment.status.partial');
+            } else {
+                $status = config('constant.payment.status.paid');
+            }
 
-        if ($difference < 0) {
-            $status = ($difference == -$amountNeedPayment)
-                ? config('constant.payment_status.unpaid')
-                : config('constant.payment_status.partial');
-        } else {
-            $status = config('constant.payment_status.paid');
+            $dataHistory = [
+                'contract_id' => $contract->id,
+                'payment_amount' => $amountNeedPayment,
+                'amount_paid' => $difference < 0 ? abs($difference) : $amountNeedPayment,
+                'status' => $status,
+                'payment_method' =>  $status == config('constant.payment.status.paid') ? config('constant.payment.method.system') : null
+            ];
+
+            $service = new RentalHistoryService();
+            $result = $service->createRentalHistory($dataHistory);
+
+            if (!empty($result['errors'])) {
+                throw new \Exception($result['errors'][0]['message']);
+            }
+
+            DB::commit();
+            return $contract;
+        }catch (\Exception $exception) {
+            DB::rollback();
+            return [
+                'errors' => [[
+                    'message' => $exception->getMessage(),
+                ]]
+            ];
         }
-
-        $dataHistory = [
-            'contract_id' => $contract->id,
-            'payment_amount' => $amountNeedPayment,
-            'amount_paid' => $difference < 0 ? abs($difference) : $amountNeedPayment,
-            'status' => $status,
-        ];
-
-        if($status == config('constant.payment_status.paid')){
-            $dataHistory['payment_method'] = 'system';
-        }
-
-        $service = new RentalHistoryService();
-        $service->createRentalHistory($dataHistory);
     }
 }

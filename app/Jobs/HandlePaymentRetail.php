@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Contract;
 use App\Models\Room;
+use App\Services\Contract\ContractService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -35,21 +36,22 @@ class HandlePaymentRetail implements ShouldQueue
         $contracts = $room->contracts->sortByDesc(fn($contract) => $contract->month_rent ?? -1);
         $quantity = $room->current_tenants;
 
+        $contractService = new ContractService();
         foreach ($contracts as $contract) {
             // Ngưng khi đã tính tiền cần đóng hết cho mọi khách
             if($quantity <= 0) break;
 
             if(is_numeric($contract->month_rent)){
-                $moneyNeedPaid = min($contract->month_rent, $roomRent);
-                $roomRent -= $moneyNeedPaid;
+                $amountNeedPayment = min($contract->month_rent, $roomRent);
+                $roomRent -= $amountNeedPayment;
             }else{
                 $diff = max(1, $quantity);
-                $moneyNeedPaid = ($roomRent / $diff) * $contract->quantity;
-                $roomRent -= $moneyNeedPaid;
+                $amountNeedPayment = ($roomRent / $diff) * $contract->quantity;
+                $roomRent -= $amountNeedPayment;
             }
 
-            if($moneyNeedPaid){
-                ///Code
+            if($amountNeedPayment){
+                $contractService->calculateContract($contract, $amountNeedPayment);
             }
 
             $quantity -= $contract->quantity;

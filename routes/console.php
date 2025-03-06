@@ -7,4 +7,6 @@ use Illuminate\Console\Scheduling\Schedule;
 
 $schedule = app(Schedule::class);
 
+
+$schedule->command('rental:check-payments')->dailyAt('08:00');
 $schedule->command('queue:work --daemon')->everyMinute()->withoutOverlapping();
