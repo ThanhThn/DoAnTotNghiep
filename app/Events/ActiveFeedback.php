@@ -39,7 +39,7 @@ class ActiveFeedback implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
-        return ['private-feedback-'. $this->_objectType .'-'. $this->_objectId];
+        return ['private-feedback.'. $this->_objectType .'.'. $this->_objectId];
     }
 
     public function broadcastWith(): array

@@ -37,7 +37,7 @@ class NewNotification implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        return ['private-notification-'. $this->_objectType .'-'. $this->_objectId];
+        return ['private-notification.'. $this->_objectType .'.'. $this->_objectId];
     }
 
     public function broadcastWith(): array
