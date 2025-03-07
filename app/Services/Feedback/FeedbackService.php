@@ -139,7 +139,7 @@ class FeedbackService
                     'type' => config('constant.notification.type.normal')
                 ];
 
-                $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback, $tokens);
+                $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback->user_id, $tokens);
             }
         }
         return $feedback;
