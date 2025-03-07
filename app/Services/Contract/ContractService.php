@@ -102,10 +102,17 @@ class ContractService
             }
 
 
+            $amountPaid = match ($status) {
+                config('constant.payment.status.unpaid')  => 0,
+                config('constant.payment.status.partial') => $difference - $amountNeedPayment,
+                $status = config('constant.payment.status.paid') => $amountNeedPayment,
+            };
+
+
             $dataHistory = [
                 'contract_id' => $contract->id,
                 'payment_amount' => $amountNeedPayment,
-                'amount_paid' => $difference < 0 ? $difference : $amountNeedPayment,
+                'amount_paid' => $amountPaid,
                 'status' => $status,
                 'payment_method' =>  $status == config('constant.payment.status.paid') ? config('constant.payment.method.system') : null
             ];
