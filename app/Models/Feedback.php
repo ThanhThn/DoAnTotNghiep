@@ -28,7 +28,6 @@ class Feedback extends Model
 
     protected $casts = [
         'body' => 'array',
-        'created_at' => 'datetime:Y-m-d H:i:s',
     ];
 
     protected static function boot(){

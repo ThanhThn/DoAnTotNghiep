@@ -47,7 +47,6 @@ class Contract extends Model
       'remain_amount' => 'decimal:2',
       'monthly_rent' => 'decimal:2',
       'status' => 'integer',
-        'created_at' => 'datetime:Y-m-d H:i:s',
     ];
 
     protected $hidden = ['created_at','updated_at'];
