@@ -7,8 +7,9 @@ use App\Models\Room;
 use App\Services\Contract\ContractService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 
-class HandlePaymentRetail implements ShouldQueue
+class HandlePaymentRental implements ShouldQueue
 {
     use Queueable;
 

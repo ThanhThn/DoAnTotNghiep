@@ -31,11 +31,9 @@ class RentalHistoryService
                 $tokens = TokenService::getTokens($contract->user_id, config('constant.token.type.notify'));
                 $currentMonth = Carbon::today()->month;
 
-                $dif = $data['payment_amount'] - $data['amount_paid'];
-
                 if (count($tokens) > 0) {
                     $contract->load('room');
-                    $formattedDif = number_format($dif, 2, ',', '.');
+                    $formattedDif = number_format(-$data['amount_paid'], 2, ',', '.');
 
                     $roomName = $contract->room->room_code ?? 'Phòng không xác định';
                     $lodging = $contract->room->lodging;

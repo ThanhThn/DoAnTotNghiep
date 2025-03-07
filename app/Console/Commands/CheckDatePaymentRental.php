@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\HandlePaymentRetail;
+use App\Jobs\HandlePaymentRental;
 use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CheckDatePaymentRental extends Command
 {
@@ -28,7 +29,7 @@ class CheckDatePaymentRental extends Command
             $query->where('status', config('constant.contract.status.active'));
         })->chunk(100, function ($rooms) {
             foreach ($rooms as $room) {
-                HandlePaymentRetail::dispatch($room->id);
+                HandlePaymentRental::dispatch($room->id);
             }
         });
     }

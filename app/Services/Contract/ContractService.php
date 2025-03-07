@@ -101,10 +101,11 @@ class ContractService
                 $status = config('constant.payment.status.paid');
             }
 
+
             $dataHistory = [
                 'contract_id' => $contract->id,
                 'payment_amount' => $amountNeedPayment,
-                'amount_paid' => $difference < 0 ? abs($difference) : $amountNeedPayment,
+                'amount_paid' => $difference < 0 ? $difference : $amountNeedPayment,
                 'status' => $status,
                 'payment_method' =>  $status == config('constant.payment.status.paid') ? config('constant.payment.method.system') : null
             ];
