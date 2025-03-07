@@ -144,7 +144,7 @@ class FeedbackService
                 $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback->user_id, $tokens);
             }
 
-            event(new ActiveFeedback($feedback->user_id, config('constant.object.type.user'), $feedback, "new"));
+            event(new ActiveFeedback($feedback->user_id, config('constant.object.type.user'), $feedback, "update"));
         }
         return $feedback;
     }
