@@ -80,7 +80,7 @@ class FeedbackController extends Controller
         $data = $request->all();
         $userId = Auth::id();
 
-        if(!LodgingService::isOwnerLodging($data['lodgingId'], $userId)){
+        if(!LodgingService::isOwnerLodging($data['lodging_id'], $userId)){
             return response()->json([
                 'status' => JsonResponse::HTTP_BAD_REQUEST,
                 'errors' => [[
