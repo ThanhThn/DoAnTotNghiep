@@ -24,6 +24,10 @@ class Notification extends Model
     public $primaryKey = 'id';
     protected $hidden = ['updated_at'];
 
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s',
+    ];
+
     protected $dateFormat = 'Y-m-d H:i:s';
 
     protected static function boot(){

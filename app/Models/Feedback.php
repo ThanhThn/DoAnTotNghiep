@@ -23,10 +23,12 @@ class Feedback extends Model
     public $incrementing = false;
     protected $primaryKey = 'id';
 
+    protected $dateFormat = 'Y-m-d H:i:s';
     protected $hidden = ['updated_at'];
 
     protected $casts = [
-        'body' => 'array'
+        'body' => 'array',
+        'created_at' => 'datetime:Y-m-d H:i:s',
     ];
 
     protected static function boot(){
