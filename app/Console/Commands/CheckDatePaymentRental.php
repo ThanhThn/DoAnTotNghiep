@@ -7,7 +7,7 @@ use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class CheckDatePaymentRentail extends Command
+class CheckDatePaymentRental extends Command
 {
     /**
      * The name and signature of the console command.
@@ -24,9 +24,9 @@ class CheckDatePaymentRentail extends Command
     {
         $today = Carbon::today();
 
-        Room::where('payment_date', $today->day)->whereHas(['contracts' => function ($query) {
+        Room::where('payment_date', $today->day)->whereHas('contracts', function ($query) {
             $query->where('status', config('constant.contract.status.active'));
-        }])->chunk(100, function ($rooms) {
+        })->chunk(100, function ($rooms) {
             foreach ($rooms as $room) {
                 HandlePaymentRetail::dispatch($room->id);
             }
