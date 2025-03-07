@@ -104,7 +104,7 @@ class ContractService
 
             $amountPaid = match ($status) {
                 config('constant.payment.status.unpaid')  => 0,
-                config('constant.payment.status.partial') => $difference - $amountNeedPayment,
+                config('constant.payment.status.partial') => $difference + $amountNeedPayment,
                 $status = config('constant.payment.status.paid') => $amountNeedPayment,
             };
 
