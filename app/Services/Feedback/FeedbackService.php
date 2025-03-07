@@ -2,6 +2,7 @@
 
 namespace App\Services\Feedback;
 
+use App\Events\ActiveFeedback;
 use App\Jobs\UploadImageToStorage;
 use App\Models\Feedback;
 use App\Models\Lodging;
@@ -61,6 +62,7 @@ class FeedbackService
 
             }
 
+            event(new ActiveFeedback($lodging->id, config('constant.object.type.lodging'), $feedback, "new"));
 
             return $feedback;
         }catch (\Exception $exception){
@@ -141,6 +143,8 @@ class FeedbackService
 
                 $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback->user_id, $tokens);
             }
+
+            event(new ActiveFeedback($feedback->user_id, config('constant.object.type.user'), $feedback, "new"));
         }
         return $feedback;
     }
