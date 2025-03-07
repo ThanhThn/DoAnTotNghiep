@@ -49,7 +49,7 @@ class RentalHistoryService
                         'target_endpoint' => '/rental_history/list',
                         'type' => config('constant.notification.type.important')
                     ];
-                    $notificationService->createNotification($mess, $contract->user_id, config('constant.object.type.user'), $tokens);
+                    $notificationService->createNotification($mess, config('constant.object.type.user'),$contract->user_id, $tokens);
                 }
             }
             DB::commit();
