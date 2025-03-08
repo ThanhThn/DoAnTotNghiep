@@ -40,6 +40,7 @@ return [
 
     'type' => [
         'feedback' => 'feedback',
+        'equipment' => 'equipment',
     ],
 
     'payment' => [
