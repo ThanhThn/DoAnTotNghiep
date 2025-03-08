@@ -57,4 +57,20 @@ class EquipmentService
             ];
         }
     }
+
+    public function listByLodging($data, $lodgingId)
+    {
+        $equipments = Equipment::where(['lodging_id' => $lodgingId]);
+
+        $total = $equipments->count();
+
+        $equipments = $equipments->offset($data['offset'] ?? 0)
+            ->limit($data['limit'] ?? 20)
+            ->get();
+
+        return [
+            'total' => $total,
+            'data' => $equipments
+        ];
+    }
 }

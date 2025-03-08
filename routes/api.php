@@ -100,4 +100,6 @@ Route::group(['prefix' => 'notification', 'namespace' => 'App\Http\Controllers']
 
 Route::group(['prefix' => 'equipment', 'namespace' => 'App\Http\Controllers'] , function ($route) {
     Route::post('create', 'EquipmentController@create')->middleware('jwt.verify');
+
+    Route::get('list', 'EquipmentController@listByLodging');
 });

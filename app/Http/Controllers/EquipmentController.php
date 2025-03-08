@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Equipment\CreateEquipmentRequest;
+use App\Http\Requests\Equipment\ListEquipmentRequest;
 use App\Services\Equipment\EquipmentService;
 use App\Services\Lodging\LodgingService;
 use Illuminate\Http\JsonResponse;
@@ -40,6 +41,19 @@ class EquipmentController extends Controller
             'body' => [
                 'data' => $result
             ]
+        ]);
+    }
+
+    public function listByLodging(ListEquipmentRequest $request)
+    {
+        $data = $request->all();
+
+        $service = new EquipmentService();
+        $result = $service->listByLodging($data, $data['lodging_id']);
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => $result
         ]);
     }
 }
