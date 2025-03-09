@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -26,7 +27,8 @@ class Contract extends Model
         'address',
         'identity_card',
         'date_of_birth',
-        'relatives'
+        'relatives',
+        'code'
     ];
 
     protected $keyType = "string";
@@ -56,7 +58,9 @@ class Contract extends Model
         parent::boot();
         static::creating(function ($model) {
             if(empty($model->id)){
-                $model->id = Str::uuid();
+                $id = Str::uuid();
+                $model->id = $id;
+                $model->code = Helper::generateUniqueCode($id, $model->room_id);
             }
         });
     }

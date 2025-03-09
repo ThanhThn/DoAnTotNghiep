@@ -18,4 +18,10 @@ class Helper
         $dataEncrypt = base64_decode($data);
         return openssl_decrypt($dataEncrypt, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
     }
+
+    static function generateUniqueCode($val1, $val2) {
+        $merged = strtoupper(substr(hash('sha256', $val1 . $val2), 0, 6));
+
+        return $merged;
+    }
 }
