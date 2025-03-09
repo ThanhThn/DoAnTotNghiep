@@ -16,7 +16,7 @@ class EquipmentController extends Controller
     {
         $data = $request->all();
         $userId = Auth::id();
-        if(LodgingService::isOwnerLodging($data['lodging_id'], $userId)){
+        if(!LodgingService::isOwnerLodging($data['lodging_id'], $userId)){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [[
