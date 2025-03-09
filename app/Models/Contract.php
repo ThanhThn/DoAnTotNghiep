@@ -69,4 +69,8 @@ class Contract extends Model
     {
         return $this->belongsTo(Room::class, 'room_id')->with('lodging');
     }
+
+    public function rentalHistories() {
+        return $this->hasMany(RentalHistory::class, 'contract_id');
+    }
 }

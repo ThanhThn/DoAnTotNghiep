@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Contract\CreateContractRequest;
+use App\Http\Requests\Contract\ListContractRequest;
 use App\Models\Lodging;
 use App\Services\Contract\ContractService;
 use App\Services\Lodging\LodgingService;
@@ -39,6 +40,28 @@ class ContractController extends Controller
             'body' =>  [
                 'data' => $result
             ]
+        ]);
+    }
+
+    public function list(ListContractRequest $request){
+        $data = $request->all();
+        $userId = Auth::id();
+
+        if(!LodgingService::isOwnerLodging($data['lodging_id'], $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $service  = new ContractService();
+        $result = $service->listContract($data);
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => $result
         ]);
     }
 }

@@ -79,6 +79,8 @@ Route::group(['prefix' => 'room', 'namespace' => 'App\Http\Controllers'], functi
 //Contract
 Route::group(['prefix' => 'contract', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('create', 'ContractController@create')->middleware('jwt.verify');
+
+    Route::post('list', 'ContractController@list')->middleware('jwt.verify');
 });
 
 //Feedback
