@@ -20,7 +20,7 @@ class EquipmentService
             'remaining_quantity' => isset($data['room_ids']) ? $data['quantity'] - count($data['room_ids']) : $data['quantity'],
         ];
 
-        if (isset($data['room_ids']) && count($data['room_ids']) < $data['needed_rooms']) {
+        if (isset($data['room_ids']) && count($data['room_ids']) < $data['quantity']) {
             return [
                 'errors' => [[
                     'message' => "Số lượng lưu trữ bé hơn số lượng cần dùng"
