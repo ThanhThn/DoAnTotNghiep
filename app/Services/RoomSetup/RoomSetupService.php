@@ -16,6 +16,8 @@ class RoomSetupService
             ...$item,
             'status' => 1,
             'installation_date' => now(),
+            'created_at' => now(),
+            'updated_at' => now()
         ], $data);
 
         RoomSetup::insert($dataInsert);
