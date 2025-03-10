@@ -34,7 +34,7 @@ class HandlePaymentRental implements ShouldQueue
 
         $roomRent = $room->price;
 
-        $contracts = $room->contracts->sortByDesc(fn($contract) => $contract->month_rent ?? -1);
+        $contracts = $room->contracts->sortByDesc(fn($contract) => $contract->monthly_rent ?? -1);
         $quantity = $room->current_tenants;
 
         $contractService = new ContractService();
@@ -42,8 +42,8 @@ class HandlePaymentRental implements ShouldQueue
             // Ngưng khi đã tính tiền cần đóng hết cho mọi khách
             if($quantity <= 0) break;
 
-            if(is_numeric($contract->month_rent)){
-                $amountNeedPayment = min($contract->month_rent, $roomRent);
+            if(is_numeric($contract->monthly_rent)){
+                $amountNeedPayment = min($contract->monthly_rent, $roomRent);
                 $roomRent -= $amountNeedPayment;
             }else{
                 $diff = max(1, $quantity);
@@ -52,7 +52,7 @@ class HandlePaymentRental implements ShouldQueue
             }
 
             if($amountNeedPayment){
-                $contractService->calculateContract($contract, $amountNeedPayment);
+                $contractService->calculateContract($contract, $amountNeedPayment, $room->late_days);
             }
 
             $quantity -= $contract->quantity;

@@ -20,6 +20,9 @@ class RentalHistoryService
             'amount_paid' => $data['amount_paid'],
             'status' => $data['status'],
             'payment_method' => $data['payment_method'] ?? null,
+            'payment_date' => $data['payment_date'],
+            'last_payment_date' => $data['last_payment_date'],
+            'due_date' => $data['due_date'],
         ];
 
         try {

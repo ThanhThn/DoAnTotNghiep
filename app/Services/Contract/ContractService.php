@@ -118,7 +118,7 @@ class ContractService
         ];
     }
 
-    public function calculateContract($contract, $amountNeedPayment)
+    public function calculateContract($contract, $amountNeedPayment, $lateDays)
     {
         if($amountNeedPayment == 0) return;
 
@@ -143,13 +143,16 @@ class ContractService
                 $status = config('constant.payment.status.paid') => $amountNeedPayment,
             };
 
-
+            $now = Carbon::now();
             $dataHistory = [
                 'contract_id' => $contract->id,
                 'payment_amount' => $amountNeedPayment,
                 'amount_paid' => $amountPaid,
                 'status' => $status,
-                'payment_method' =>  $status == config('constant.payment.status.paid') ? config('constant.payment.method.system') : null
+                'payment_method' =>  $status == config('constant.payment.status.paid') ? config('constant.payment.method.system') : null,
+                'payment_date' => $now,
+                'last_payment_date' => $now,
+                'due_date' => $now->addDays($lateDays),
             ];
 
             $service = new RentalHistoryService();
