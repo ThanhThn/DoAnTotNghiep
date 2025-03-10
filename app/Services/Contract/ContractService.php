@@ -93,11 +93,11 @@ class ContractService
             ->when(isset($data['room_id']),
                 fn($query) => $query->where('room_id', $data['room_id']),
                 function ($query) use ($data) {
-                    // Chỉ lấy danh sách room_id khi không có room_id cụ thể
                     $roomIds = Room::where("lodging_id", $data['lodging_id'])->pluck("id")->toArray();
-                    return $query->whereIn('room_id', $roomIds)->with('room');
+                    return $query->whereIn('room_id', $roomIds);
                 }
             )
+            ->with("room")
             ->when(isset($data['status']), fn($query) => $query->where('status', $data['status']))
             ->withCount(['rentalHistories as due_months' => function ($query) {
                 $query->whereColumn('amount_paid', '<', 'payment_amount');
