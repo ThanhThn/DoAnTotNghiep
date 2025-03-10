@@ -105,3 +105,8 @@ Route::group(['prefix' => 'equipment', 'namespace' => 'App\Http\Controllers'] , 
 
     Route::get('list', 'EquipmentController@listByLodging');
 });
+
+
+Route::group(['prefix' => 'rental_history', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('list', 'RentalHistoryController@listRentalHistory')->middleware('jwt.verify');
+});

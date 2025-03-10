@@ -173,4 +173,12 @@ class ContractService
             ];
         }
     }
+
+    static function isContractOwner($contract_id, $user_id)
+    {
+        return Contract::where([
+            'id' => $contract_id,
+            'user_id' => $user_id,
+        ])->exists();
+    }
 }

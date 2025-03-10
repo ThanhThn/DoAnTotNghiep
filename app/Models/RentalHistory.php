@@ -23,6 +23,7 @@ class RentalHistory extends Model
 
     public $incrementing = false;
     protected $primaryKey = 'id';
+    protected $hidden = ['created_at','updated_at'];
 
     protected static function boot(){
         parent::boot();

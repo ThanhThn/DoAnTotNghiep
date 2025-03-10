@@ -20,9 +20,9 @@ class RentalHistoryService
             'amount_paid' => $data['amount_paid'],
             'status' => $data['status'],
             'payment_method' => $data['payment_method'] ?? null,
-            'payment_date' => $data['payment_date'],
-            'last_payment_date' => $data['last_payment_date'],
-            'due_date' => $data['due_date'],
+            'payment_date' => $data['payment_date'] ?? now(),
+            'last_payment_date' => $data['last_payment_date'] ?? now(),
+            'due_date' => $data['due_date'] ?? now(),
         ];
 
         try {
@@ -65,5 +65,23 @@ class RentalHistoryService
                 ]]
             ];
         }
+    }
+
+    function listRentalHistory($data)
+    {
+        $rentalHistory = RentalHistory::where('contract_id', $data['contract_id']);
+
+        if(isset($data['status'])){
+            $rentalHistory->where('status', $data['status']);
+        }
+
+        $total = $rentalHistory->count();
+
+        $rentalHistories = $rentalHistory->offset($data['offset'] ?? 0)->limit($data['limit'] ?? 20)->get();
+
+        return [
+            'total' => $total,
+            'data' => $rentalHistories,
+        ];
     }
 }
