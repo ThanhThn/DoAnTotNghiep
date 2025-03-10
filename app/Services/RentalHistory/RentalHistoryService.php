@@ -77,7 +77,7 @@ class RentalHistoryService
 
         $total = $rentalHistory->count();
 
-        $rentalHistories = $rentalHistory->offset($data['offset'] ?? 0)->limit($data['limit'] ?? 20)->get();
+        $rentalHistories = $rentalHistory->orderBy('payment_date', 'desc')->offset($data['offset'] ?? 0)->limit($data['limit'] ?? 20)->get();
 
         return [
             'total' => $total,
