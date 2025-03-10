@@ -11,6 +11,7 @@ use App\Services\User\UserService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class ContractService
 {
@@ -150,9 +151,9 @@ class ContractService
                 'amount_paid' => $amountPaid,
                 'status' => $status,
                 'payment_method' =>  $status == config('constant.payment.status.paid') ? config('constant.payment.method.system') : null,
-                'payment_date' => $now,
-                'last_payment_date' => $now,
-                'due_date' => $now->addDays($lateDays),
+                'payment_date' => $now->copy(),
+                'last_payment_date' => $now->copy(),
+                'due_date' => $now->copy()->addDays($lateDays),
             ];
 
             $service = new RentalHistoryService();
