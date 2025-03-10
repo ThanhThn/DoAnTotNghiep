@@ -17,7 +17,7 @@ class RentalHistoryController extends Controller
         $data = $request->all();
         $userId = Auth::id();
 
-        if(!LodgingService::isOwnerLodging($data['lodging_id'], $userId) || !ContractService::isContractOwner($data['contract_id'], $userId)){
+        if((isset($data['lodging_id']) && !LodgingService::isOwnerLodging($data['lodging_id'], $userId)) || !ContractService::isContractOwner($data['contract_id'], $userId)){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [[

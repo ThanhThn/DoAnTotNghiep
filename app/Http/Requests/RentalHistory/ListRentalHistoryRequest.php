@@ -9,7 +9,7 @@ class ListRentalHistoryRequest extends BaseRequest
     public function rules()
     {
         return [
-            'lodging_id' => 'required|uuid|exists:lodgings,id',
+            'lodging_id' => 'nullable|uuid|exists:lodgings,id',
             'contract_id' => 'required|uuid|exists:contracts,id',
             'status' => 'nullable|integer',
             'limit' => 'nullable|integer',
