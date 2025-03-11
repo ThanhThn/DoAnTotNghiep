@@ -129,4 +129,14 @@ class LodgingServiceController extends Controller
             ]
         ]);
     }
+
+    public function list()
+    {
+        $service = new LodgingServiceManagerService();
+        $result = $service->list();
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => $result
+        ]);
+    }
 }

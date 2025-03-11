@@ -46,21 +46,15 @@ class FeedbackService
             $lodging = $feedback->lodging;
             $room = $feedback->room;
 
-            $tokens = TokenService::getTokens($lodging->user_id, config('constant.token.type.notify'));
-
             $notificationService = new NotificationService();
+            $mess = [
+                'title' => "Ý kiến mới tại {$lodging->type->name} {$lodging->name}",
+                'body' => "Phòng {$room->room_code} tại {$lodging->type->name} {$lodging->name} vừa có góp ý mới!",
+                'target_endpoint' => '/feedback/list',
+                'type' => config('constant.notification.type.normal')
+            ];
 
-            if(count($tokens) > 0){
-                $mess = [
-                    'title' => "Ý kiến mới tại {$lodging->type->name} {$lodging->name}",
-                    'body' => "Phòng {$room->room_code} tại {$lodging->type->name} {$lodging->name} vừa có góp ý mới!",
-                    'target_endpoint' => '/feedback/list',
-                    'type' => config('constant.notification.type.normal')
-                ];
-
-                $notificationService->createNotification($mess, config('constant.object.type.lodging'), $lodging->id, $tokens);
-
-            }
+            $notificationService->createNotification($mess, config('constant.object.type.lodging'), $lodging->id, $lodging->user_id);
 
             event(new ActiveFeedback($lodging->id, config('constant.object.type.lodging'), $feedback, "new"));
 
@@ -120,29 +114,26 @@ class FeedbackService
         $feedback->save();
 
         if($oldStatus != $newStatus){
-            $tokens = TokenService::getTokens($feedback->user_id, config('constant.token.type.notify'));
             $notificationService = new NotificationService();
 
-            if(count($tokens) > 0){
-                $lodging = $feedback->lodging;
-                $room = $feedback->room;
+            $lodging = $feedback->lodging;
+            $room = $feedback->room;
 
-                $status =  [
-                    config('constant.feedback.status.submitted') => "Đã gửi",
-                    config('constant.feedback.status.received') => "Đã nhận" ,
-                    config('constant.feedback.status.in_progress') => "Đang xử lý" ,
-                    config('constant.feedback.status.resolved') => "Đã giải quyết",
-                    config('constant.feedback.status.closed') => "Đã đóng"];
+            $status =  [
+                config('constant.feedback.status.submitted') => "Đã gửi",
+                config('constant.feedback.status.received') => "Đã nhận" ,
+                config('constant.feedback.status.in_progress') => "Đang xử lý" ,
+                config('constant.feedback.status.resolved') => "Đã giải quyết",
+                config('constant.feedback.status.closed') => "Đã đóng"];
 
-                $mess = [
-                    'title' => "Cập nhật phản hồi tại {$lodging->type->name} {$lodging->name}",
-                    'body' => "Phòng {$room->room_code} có phản hồi lúc " . date('H:i d/m/Y', strtotime($feedback->created_at)) . " vừa được cập nhật trạng thái thành: {$status[$newStatus]}.",
-                    'target_endpoint' => "/feedback/detail/{$feedback->id}",
-                    'type' => config('constant.notification.type.normal')
-                ];
+            $mess = [
+                'title' => "Cập nhật phản hồi tại {$lodging->type->name} {$lodging->name}",
+                'body' => "Phòng {$room->room_code} có phản hồi lúc " . date('H:i d/m/Y', strtotime($feedback->created_at)) . " vừa được cập nhật trạng thái thành: {$status[$newStatus]}.",
+                'target_endpoint' => "/feedback/detail/{$feedback->id}",
+                'type' => config('constant.notification.type.normal')
+            ];
 
-                $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback->user_id, $tokens);
-            }
+            $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback->user_id, $feedback->user_id);
 
             event(new ActiveFeedback($feedback->user_id, config('constant.object.type.user'), $feedback, "update"));
         }

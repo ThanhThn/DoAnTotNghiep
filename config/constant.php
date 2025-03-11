@@ -61,5 +61,15 @@ return [
             'normal' => 'normal',
             'important' => 'important',
         ]
+    ],
+
+    'service' => [
+        'name' => [
+            'water' => "Nước",
+            'wifi' => "Wifi",
+            'electricity' => "Điện",
+            'garbage' => "Rác",
+            'parking' => "Đổ xe",
+        ]
     ]
 ];

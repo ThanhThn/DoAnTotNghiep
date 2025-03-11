@@ -8,6 +8,7 @@ use App\Models\Unit;
 use App\Services\Lodging\LodgingService;
 use App\Models\LodgingService as Model;
 use App\Services\RoomService\RoomServiceManagerService;
+use Carbon\Carbon;
 
 class LodgingServiceManagerService
 {
@@ -108,4 +109,25 @@ class LodgingServiceManagerService
         }
     }
 
+
+    public function list()
+    {
+        $results = Model::whereHas('roomServices', function ($query) {
+            $query->where('is_enabled', true)
+                ->whereHas('room.contracts', function ($queryInner) {
+                    $queryInner->where('status', config('constant.contract.status.active'));
+                });
+        })->with(['service', 'unit'])->get();
+        return $results;
+    }
+
+    public function getServiceCalculator(Model $lodgingService): ?BaseServiceCalculator
+    {
+        $lodgingService->load('unit');
+        return match ($lodgingService->unit->name) {
+            'month' => new MonthlyService($lodgingService),
+            'person' => new PersonService($lodgingService),
+            default => throw new \InvalidArgumentException("Unknown service type: " . $lodgingService->type->name),
+        };
+    }
 }

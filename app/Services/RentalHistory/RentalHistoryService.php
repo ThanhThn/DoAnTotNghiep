@@ -31,29 +31,27 @@ class RentalHistoryService
 
             if ($data['amount_paid'] < $data['payment_amount']) {
                 $contract = Contract::find($data['contract_id']);
-                $tokens = TokenService::getTokens($contract->user_id, config('constant.token.type.notify'));
+
                 $currentMonth = Carbon::today()->month;
 
                 $dif = $data['payment_amount'] - $data['amount_paid'];
 
-                if (count($tokens) > 0) {
-                    $contract->load('room');
-                    $formattedDif = number_format($dif, 2, ',', '.');
+                $contract->load('room');
+                $formattedDif = rtrim(rtrim(number_format($dif, 2, ',', '.'), '0'), ',');
 
-                    $roomName = $contract->room->room_code ?? 'Phòng không xác định';
-                    $lodging = $contract->room->lodging;
-                    $lodgingName = $lodging->name ?? "Nhà trọ không xác định";
-                    $lodgingType = strtolower($lodging->type->name ?? "");
+                $roomName = $contract->room->room_code ?? 'Phòng không xác định';
+                $lodging = $contract->room->lodging;
+                $lodgingName = $lodging->name ?? "Nhà trọ không xác định";
+                $lodgingType = strtolower($lodging->type->name ?? "");
 
-                    $notificationService = new NotificationService();
-                    $mess = [
-                        'title' => "Nhắc nhở thanh toán tiền trọ tháng $currentMonth",
-                        'body' => "Bạn còn thiếu $formattedDif đ tiền trọ tháng $currentMonth cho phòng $roomName, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phát sinh phí trễ hạn.",
-                        'target_endpoint' => '/rental_history/list',
-                        'type' => config('constant.notification.type.important')
-                    ];
-                    $notificationService->createNotification($mess, config('constant.object.type.user'),$contract->user_id, $tokens);
-                }
+                $notificationService = new NotificationService();
+                $mess = [
+                    'title' => "Nhắc nhở thanh toán tiền trọ tháng $currentMonth",
+                    'body' => "Bạn còn thiếu $formattedDif đ tiền trọ tháng $currentMonth cho phòng $roomName, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phát sinh phí trễ hạn.",
+                    'target_endpoint' => '/rental_history/list',
+                    'type' => config('constant.notification.type.important')
+                ];
+                $notificationService->createNotification($mess, config('constant.object.type.user'),$contract->user_id, $contract->user_id);
             }
             DB::commit();
             return $rentalHistory;

@@ -51,7 +51,7 @@ class LodgingService extends Model
     }
 
     public function lodging(){
-        return $this->belongsTo(Lodging::class, 'lodging_id');
+        return $this->belongsTo(Lodging::class, 'lodging_id')->with('type');
     }
 
     public function unit(){
@@ -64,4 +64,8 @@ class LodgingService extends Model
             ->withPivot('last_recorded_value');
     }
 
+    public function roomServices()
+    {
+        return $this->hasMany(RoomService::class, 'lodging_service_id');
+    }
 }

@@ -47,4 +47,9 @@ class RoomService extends Model
     {
         return $this->hasOneThrough(Service::class, LodgingService::class, 'id', 'id', 'lodging_service_id', 'service_id');
     }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id');
+    }
 }
