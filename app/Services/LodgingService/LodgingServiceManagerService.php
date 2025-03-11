@@ -127,6 +127,7 @@ class LodgingServiceManagerService
         return match ($lodgingService->unit->name) {
             'month' => new MonthlyService($lodgingService),
             'person' => new PersonService($lodgingService),
+            'kwh', 'cubic_meter' => new IndexedService($lodgingService),
             default => throw new \InvalidArgumentException("Unknown service type: " . $lodgingService->type->name),
         };
     }
