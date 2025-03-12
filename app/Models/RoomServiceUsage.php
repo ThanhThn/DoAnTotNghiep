@@ -17,6 +17,9 @@ class RoomServiceUsage extends Model
         'amount_paid',
         'value',
         'finalized',
+        'month_billing',
+        'year_billing',
+        'is_finalized_early',
     ];
 
     protected $primaryKey = "id";

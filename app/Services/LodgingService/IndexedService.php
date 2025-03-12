@@ -28,7 +28,7 @@ class IndexedService extends BaseServiceCalculator
             'lodging_service_id' => $this->lodgingService->id,
         ])->first();
 
-        if (!$roomUsage) {
+        if (!$roomUsage['usage']) {
             // Nếu chưa có, tạo mới
             $roomUsage = RoomServiceUsage::create([
                 'room_id' => $room->id,
@@ -37,6 +37,8 @@ class IndexedService extends BaseServiceCalculator
                 'amount_paid' => 0,
                 'value' => $roomService ? $roomService->last_recorded_value : 0,
                 'finalized' => false,
+                'month_billing' => $roomUsage['month_billing'],
+                'year_billing' => $roomUsage['year_billing'],
             ]);
         }
 

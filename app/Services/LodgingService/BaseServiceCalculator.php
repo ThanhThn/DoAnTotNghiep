@@ -9,6 +9,7 @@ use App\Models\ServicePayment;
 use App\Services\Notification\NotificationService;
 use App\Services\Token\TokenService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 abstract class BaseServiceCalculator
 {
@@ -29,17 +30,36 @@ abstract class BaseServiceCalculator
     {
         $billingDay = $this->lodgingService->payment_date;
 
+        // Xác định ngày bắt đầu chu kỳ thanh toán của tháng này
         $billingStartDate = Carbon::create($this->now->year, $this->now->month, $billingDay);
-        $billingStartDatePrev = $billingStartDate->clone()->subMonth();
 
-        // Kiểm tra xem đã có bản ghi trong tháng này chưa
+        // Nếu hôm nay >= payment_date → tính cho tháng này (dịch vụ của tháng trước)
+        if ($this->now > $billingStartDate) {
+            $monthBilling = $this->now->month;
+            $yearBilling = $this->now->year;
+
+        } else {
+            $monthBilling = $this->now->month - 1;
+            $yearBilling = $this->now->year;
+
+            if ($monthBilling == 0) {
+                $monthBilling += 12;
+                $yearBilling -= 1;
+            }
+        }
+
         $roomUsage = RoomServiceUsage::where([
             'room_id' => $room->id,
             'lodging_service_id' => $this->lodgingService->id,
-        ])
-            ->whereBetween('created_at', [$billingStartDatePrev, $billingStartDate])
-            ->first();
-        return $roomUsage;
+            'month_billing' => $monthBilling,
+            'year_billing' => $yearBilling
+        ])->first();
+
+        return [
+            "usage" => $roomUsage,
+            "month_billing" => $monthBilling,
+            "year_billing" => $yearBilling
+        ];
     }
 
     protected function createPaymentAndNotify($room, $contract, $paymentAmount, $roomUsage)

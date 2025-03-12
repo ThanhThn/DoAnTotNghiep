@@ -23,7 +23,7 @@ class MonthlyService extends BaseServiceCalculator
         $roomUsage = $this->findRoomUsage($room);
         $remainPrice = $totalPrice;
 
-        if (!$roomUsage) {
+        if (!$roomUsage['usage']) {
             // Nếu chưa có, tạo mới
             $roomUsage = RoomServiceUsage::create([
                 'room_id' => $room->id,
@@ -32,19 +32,21 @@ class MonthlyService extends BaseServiceCalculator
                 'amount_paid' => 0,
                 'value' => $value,
                 'finalized' => true,
+                'month_billing' => $roomUsage['month_billing'],
+                'year_billing' => $roomUsage['year_billing'],
             ]);
         } else {
             // Nếu đã có, chỉ cập nhật finalized
-            $roomUsage->finalized = true;
-            $roomUsage->update_at = $this->now;
-            $roomUsage->save();
+            $roomUsage['usage']->finalized = true;
+            $roomUsage['usage']->update_at = $this->now;
+            $roomUsage['usage']->save();
 
-            if($roomUsage->total_price === $totalPrice){
+            if($roomUsage['usage']->total_price === $totalPrice){
                 return;
             }
-            $remainPrice = $totalPrice - $roomUsage->total_price;
-            $roomUsage->total_price = $totalPrice;
-            $roomUsage->save();
+            $remainPrice = $totalPrice - $roomUsage['usage']->total_price;
+            $roomUsage['usage']->total_price = $totalPrice;
+            $roomUsage['usage']->save();
         }
 
         $amountPayment = ($remainPrice / $room->current_tenants);

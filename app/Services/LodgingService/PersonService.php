@@ -29,7 +29,7 @@ class PersonService extends BaseServiceCalculator
         $roomUsage = $this->findRoomUsage($room);
 
 
-        if (!$roomUsage) {
+        if (!$roomUsage['usage']) {
             // Nếu chưa có, tạo mới
             $roomUsage = RoomServiceUsage::create([
                 'room_id' => $room->id,
@@ -38,12 +38,14 @@ class PersonService extends BaseServiceCalculator
                 'amount_paid' => 0,
                 'value' => $value,
                 'finalized' => true,
+                'month_billing' => $roomUsage['month_billing'],
+                'year_billing' => $roomUsage['year_billing'],
             ]);
         } else {
             // Nếu đã có, chỉ cập nhật finalized
-            $roomUsage->update([
-                'total_price' => $roomUsage->total_price + $totalPrice,
-                'value' => $roomUsage->value + $value,
+            $roomUsage['usage']->update([
+                'total_price' => $roomUsage['usage']->total_price + $totalPrice,
+                'value' => $roomUsage['usage']->value + $value,
                 'finalized' => true,
                 'updated_at' => $this->now
             ]);
