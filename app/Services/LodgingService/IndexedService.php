@@ -30,7 +30,7 @@ class IndexedService extends BaseServiceCalculator
 
         if (!$roomUsage['usage']) {
             // Nếu chưa có, tạo mới
-            $roomUsage = RoomServiceUsage::create([
+            $roomUsage = $this->roomUsageService->createRoomUsage([
                 'room_id' => $room->id,
                 'lodging_service_id' => $this->lodgingService->id,
                 'total_price' => 0,
