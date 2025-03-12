@@ -18,31 +18,50 @@ class MonthlyService extends BaseServiceCalculator
         }
     }
 
-    function processRoomUsage($room, $totalPrice, $value)
+    function processRoomUsage($room, $totalPrice, $value, $monthBilling = null, $yearBilling = null, $recursionCount = 0)
     {
-        $roomUsage = $this->findRoomUsage($room);
+        if ($recursionCount > 1) {
+            return 0;
+        }
+
+        $roomUsage = $this->findRoomUsage($room,$monthBilling, $yearBilling);
         $remainPrice = $totalPrice;
 
         if (!$roomUsage['usage']) {
             // Nếu chưa có, tạo mới
-            $roomUsage = RoomServiceUsage::create([
+            $roomUsage = $this->roomUsageService->createRoomUsage([
                 'room_id' => $room->id,
                 'lodging_service_id' => $this->lodgingService->id,
                 'total_price' => $totalPrice,
                 'amount_paid' => 0,
                 'value' => $value,
-                'finalized' => true,
+                'finalized' => $this->now->day == $this->lodgingService->payment_date && $recursionCount < 1,
                 'month_billing' => $roomUsage['month_billing'],
                 'year_billing' => $roomUsage['year_billing'],
             ]);
         } else {
+
+            // Nếu hôm nay là ngày lập hóa đơn và đã finalized -> Kiểm tra tháng tiếp theo
+            if ($this->now->day == $this->lodgingService->payment_date && $roomUsage['usage']->finalized) {
+                $nextMonth = $roomUsage['month_billing'] + 1;
+                $nextYear = $roomUsage['year_billing'];
+
+                if ($nextMonth > 12) {
+                    $nextMonth = 1;
+                    $nextYear++;
+                }
+
+                // Gọi đệ quy để kiểm tra tháng tiếp theo
+                return $this->processRoomUsage($room, $totalPrice, $value, $nextMonth, $nextYear, $recursionCount + 1);
+            }
+
             // Nếu đã có, chỉ cập nhật finalized
-            $roomUsage['usage']->finalized = true;
-            $roomUsage['usage']->update_at = $this->now;
+            $roomUsage['usage']->finalized = $this->now->day == $this->lodgingService->payment_date && $recursionCount < 1;
+            $roomUsage['usage']->updated_at = $this->now;
             $roomUsage['usage']->save();
 
             if($roomUsage['usage']->total_price === $totalPrice){
-                return;
+                return 0;
             }
             $remainPrice = $totalPrice - $roomUsage['usage']->total_price;
             $roomUsage['usage']->total_price = $totalPrice;
@@ -51,7 +70,8 @@ class MonthlyService extends BaseServiceCalculator
 
         $amountPayment = ($remainPrice / $room->current_tenants);
         foreach ($room->contracts as $contract) {
-            $this->createPaymentAndNotify($room, $contract, $amountPayment * $contract->quantity, $roomUsage);
+            $this->createPaymentAndNotify($room, $contract, $amountPayment * $contract->quantity, $roomUsage, $roomUsage['month_billing']);
         }
+        return 0;
     }
 }

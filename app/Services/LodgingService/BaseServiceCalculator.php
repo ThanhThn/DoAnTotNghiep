@@ -7,6 +7,7 @@ use App\Models\Room;
 use App\Models\RoomServiceUsage;
 use App\Models\ServicePayment;
 use App\Services\Notification\NotificationService;
+use App\Services\RoomUsageService\RoomUsageService;
 use App\Services\Token\TokenService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -15,36 +16,37 @@ abstract class BaseServiceCalculator
 {
     protected LodgingService $lodgingService;
     protected $now;
+    protected $roomUsageService;
 
     public function __construct($lodgingService)
     {
         $this->lodgingService = $lodgingService->load(['service', 'unit', 'lodging']);
         $this->now = Carbon::now();
+        $this->roomUsageService = new RoomUsageService();
     }
 
     abstract public function calculateCost();
 
-    abstract function processRoomUsage($room, $totalPrice, $value);
+    abstract function processRoomUsage($room, $totalPrice, $value, $monthBilling = null, $yearBilling = null, $recursionCount = 0);
 
-    protected function findRoomUsage(Room $room)
+    protected function findRoomUsage(Room $room, $monthBilling = null, $yearBilling = null)
     {
         $billingDay = $this->lodgingService->payment_date;
 
-        // Xác định ngày bắt đầu chu kỳ thanh toán của tháng này
-        $billingStartDate = Carbon::create($this->now->year, $this->now->month, $billingDay);
+        if($monthBilling == null && $yearBilling == null){
+            // Nếu hôm nay >= payment_date → tính cho tháng này (dịch vụ của tháng trước)
+            if ($this->now->day > $billingDay) {
+                $monthBilling = $this->now->month;
+                $yearBilling = $this->now->year;
 
-        // Nếu hôm nay >= payment_date → tính cho tháng này (dịch vụ của tháng trước)
-        if ($this->now > $billingStartDate) {
-            $monthBilling = $this->now->month;
-            $yearBilling = $this->now->year;
+            } else {
+                $monthBilling = $this->now->month - 1;
+                $yearBilling = $this->now->year;
 
-        } else {
-            $monthBilling = $this->now->month - 1;
-            $yearBilling = $this->now->year;
-
-            if ($monthBilling == 0) {
-                $monthBilling += 12;
-                $yearBilling -= 1;
+                if ($monthBilling == 0) {
+                    $monthBilling += 12;
+                    $yearBilling -= 1;
+                }
             }
         }
 
@@ -62,7 +64,7 @@ abstract class BaseServiceCalculator
         ];
     }
 
-    protected function createPaymentAndNotify($room, $contract, $paymentAmount, $roomUsage)
+    protected function createPaymentAndNotify($room, $contract, $paymentAmount, $roomUsage, $monthBilling)
     {
         // Lưu thanh toán vào bảng ServicePayment
         ServicePayment::create([
@@ -85,7 +87,7 @@ abstract class BaseServiceCalculator
         $paymentAmount = rtrim(rtrim(number_format($paymentAmount, 2, ',', '.'), '0'), ',');
         // Nội dung thông báo rõ ràng hơn
         $message = [
-            'title' => "Nhắc nhở thanh toán tiền $nameService tháng {$this->now->month} - $lodgingName",
+            'title' => "Nhắc nhở thanh toán tiền $nameService tháng {$monthBilling} - $lodgingName",
             'body' => "Bạn cần thanh toán $paymentAmount đ cho phòng {$room->room_code}, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phí trễ hạn.",
             'target_endpoint' => '/rental_history/list',
             'type' => config('constant.notification.type.important'),

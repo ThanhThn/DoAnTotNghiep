@@ -19,7 +19,7 @@ class IndexedService extends BaseServiceCalculator
         }
     }
 
-    function processRoomUsage($room, $totalPrice, $value)
+    function processRoomUsage($room, $totalPrice, $value, $monthBilling = null, $yearBilling = null, $recursionCount = 0)
     {
 
         $roomUsage = $this->findRoomUsage($room);
@@ -40,6 +40,19 @@ class IndexedService extends BaseServiceCalculator
                 'month_billing' => $roomUsage['month_billing'],
                 'year_billing' => $roomUsage['year_billing'],
             ]);
+        }else{
+            if ($this->now->day == $this->lodgingService->payment_date && $roomUsage['usage']->finalized) {
+                $nextMonth = $roomUsage['month_billing'] + 1;
+                $nextYear = $roomUsage['year_billing'];
+
+                if ($nextMonth > 12) {
+                    $nextMonth = 1;
+                    $nextYear++;
+                }
+
+                // Gọi đệ quy để kiểm tra tháng tiếp theo
+                return $this->processRoomUsage($room, $totalPrice, $value, $nextMonth, $nextYear, $recursionCount + 1);
+            }
         }
 
 
@@ -54,5 +67,7 @@ class IndexedService extends BaseServiceCalculator
             'type' => config('constant.notification.type.important'),
         ];
         $notificationService->createNotification($message, config('constant.object.type.lodging'), $this->lodgingService->lodging->id, $this->lodgingService->lodging->user_id);
+
+        return 0;
     }
 }
