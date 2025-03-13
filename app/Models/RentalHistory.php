@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Google\Service\HangoutsChat\Resource\Rooms;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -32,5 +33,10 @@ class RentalHistory extends Model
                 $model->id = Str::uuid();
             }
         });
+    }
+
+    public function contract()
+    {
+        return $this->belongsTo(Contract::class);
     }
 }

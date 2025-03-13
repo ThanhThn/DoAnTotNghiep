@@ -50,7 +50,7 @@ class Room extends Model
 
     public function contracts()
     {
-        return $this->hasMany(Contract::class, 'room_id', 'id');
+        return $this->hasMany(Contract::class);
     }
 
     public function services()

@@ -73,4 +73,5 @@ class Contract extends Model
     public function rentalHistories() {
         return $this->hasMany(RentalHistory::class, 'contract_id');
     }
+
 }

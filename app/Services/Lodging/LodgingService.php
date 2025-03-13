@@ -2,8 +2,13 @@
 
 namespace App\Services\Lodging;
 
+use App\Models\Contract;
 use App\Models\Lodging;
+use App\Models\Room;
 use App\Models\User;
+use App\Services\RentalHistory\RentalHistoryService;
+use App\Services\RoomUsageService\RoomUsageService;
+use Carbon\Carbon;
 
 class LodgingService
 {
@@ -12,6 +17,7 @@ class LodgingService
     {
         return Lodging::find($lodgingId);
     }
+
     function listByUserID($userId)
     {
         $lodging = Lodging::with(['province','ward', 'district'])->where('user_id', $userId)
@@ -52,6 +58,62 @@ class LodgingService
         $lodging = Lodging::create($insertData);
 //        dd($lodging);
         return $lodging;
+    }
+
+    function overview($data)
+    {
+        return match ($data['section']) {
+            'statistical' => $this->statistical($data),
+            default => $this->overviewRoom($data),
+        };
+    }
+
+
+    public function statistical($data)
+    {
+
+        $month = $data['month'] ?? Carbon::now()->month;
+        $year = $data['year'] ?? Carbon::now()->year;
+
+        $service = (new RoomUsageService())->statisticalAmount($month, $year, $data['lodging_id']);
+        $room = (new RentalHistoryService())->statisticalAmount($month, $year, $data['lodging_id']);
+
+        return [
+            'service' => $service,
+            'room' => $room
+        ];
+    }
+
+    public function overviewRoom($data)
+    {
+
+        $rooms = Room::where('lodging_id', $data['lodging_id'])->get();
+        $roomIds = $rooms->pluck('id')->toArray();
+
+        $roomRentingQuery = Room::where('lodging_id', $data['lodging_id'])
+            ->whereHas('contracts', function ($query) {
+                $query->where('status', config('constant.contract.status.active'));
+            });
+
+        $roomRenting = $roomRentingQuery->count();
+
+        $unpaidRooms = Room::where('lodging_id', $data['lodging_id'])
+            ->whereHas('contracts', function ($query) {
+                $query->where('status', 2)
+                    ->whereHas('rentalHistories', function ($q) {
+                        $q->select('contract_id')
+                            ->groupBy('contract_id')
+                            ->havingRaw('SUM(amount_paid) < SUM(payment_amount)');
+                    });
+            })
+            ->count();
+
+        return [
+            'total' => count($roomIds),
+            'unpaid' => $unpaidRooms,
+            'renting' => $roomRenting,
+            'empty' => count($roomIds) - $roomRenting,
+        ];
     }
 
     static function isOwnerLodging($lodgingId, $userId){

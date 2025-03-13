@@ -34,6 +34,8 @@ Route::group(['prefix' => 'general', 'namespace' => 'App\Http\Controllers'], fun
 Route::group(['prefix' => 'lodging', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::get('list_by_user', 'LodgingController@listByUser')->middleware('jwt.verify');
     Route::post('create', 'LodgingController@create')->middleware('jwt.verify');
+
+    Route::post('overview', 'LodgingController@overview')->middleware('jwt.verify');
 });
 
 //Lodging type
@@ -109,6 +111,8 @@ Route::group(['prefix' => 'equipment', 'namespace' => 'App\Http\Controllers'] , 
 });
 
 
+// Rental
 Route::group(['prefix' => 'rental_history', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('list', 'RentalHistoryController@listRentalHistory')->middleware('jwt.verify');
 });
+
