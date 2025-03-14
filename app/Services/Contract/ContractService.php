@@ -19,12 +19,10 @@ class ContractService
     {
         try {
             DB::beginTransaction();
-            $user = User::where('phone', $data['phone'])->first();
-            if (!$user) {
-                $userService = new UserService();
-                $user = $userService->create([
+            $user = User::firstOrCreate(
+                ['phone' => $data['phone']],
+                [
                     'full_name' => $data['full_name'],
-                    'phone' => $data['phone'],
                     'address' => $data['address'],
                     'password' => Hash::make(""),
                     'identity_card' => $data['identity_card'],
@@ -32,8 +30,9 @@ class ContractService
                     'gender' => $data['gender'],
                     'relatives' => $data['relatives'] ?? null,
                     'is_completed' => true
-                ]);
-            }
+                ]
+            );
+
             //Số lượng người ở trên hợp đồng này
             $quantity = $data['quantity'] ?? 1;
 
@@ -119,6 +118,11 @@ class ContractService
         ];
     }
 
+    public function detail($id)
+    {
+        return Contract::with('room')->find($id);
+    }
+
     public function calculateContract($contract, $amountNeedPayment, $lateDays)
     {
         if($amountNeedPayment == 0) return;
@@ -165,6 +169,82 @@ class ContractService
 
             DB::commit();
             return $contract;
+        }catch (\Exception $exception) {
+            DB::rollback();
+            return [
+                'errors' => [[
+                    'message' => $exception->getMessage(),
+                ]]
+            ];
+        }
+    }
+
+    public function update($data)
+    {
+        $contract = $this->detail($data['contract_id']);
+
+        if($contract->room->lodging_id != $data['lodging_id']){
+            return [
+                'errors' => [[
+                    'message' => 'Hợp đồng không thuộc nhà cho thuê',
+                ]]
+            ];
+        }
+
+        try {
+            DB::beginTransaction();
+            $statusOld = $contract->status;
+            $statusNew = $data['status'];
+
+            $dataUpdate = [
+                'status' => $statusNew,
+            ];
+
+            if ($statusOld == config('constant.contract.status.pending')) {
+                if ($statusNew == config('constant.contract.status.active')) {
+                    $dataUpdate += [
+                        'start_date' => $data['start_date'] ?? null,
+                        'lease_duration' => $data['lease_duration'] ?? null,
+                        'remain_amount' => $data['remain_amount'] ?? null,
+                        'deposit_amount' => $data['deposit_amount'] ?? null,
+                        'full_name' => $data['full_name'] ?? $contract->full_name ?? null,
+//                        'monthly_rent' => $data['monthly_rent'] ?? $contract->monthly_rent ?? null,
+                        'quantity' => $data['quantity'] ?? null,
+                        'gender' => $data['gender'] ?? $contract->gender ?? null,
+                        'address' => $data['address'] ?? $contract->address ?? null,
+                        'identity_card' => $data['identity_card'] ?? $contract->identity_card ?? null,
+                        'date_of_birth' => $data['date_of_birth'] ?? $contract->date_of_birth ?? null,
+                    ];
+
+                    // Kiểm tra các trường bị null
+                    $missingFields = array_keys(array_filter($dataUpdate, fn($value) => is_null($value)));
+
+                    if (!empty($missingFields)) {
+                        throw new \Exception("Các trường sau không được để trống: " . implode(", ", $missingFields));
+                    }
+
+                    // Tạo User nếu chưa có
+                    $user = User::firstOrCreate(
+                        ['phone' => $contract->phone],
+                        [
+                            'full_name' => $data['full_name'] ?? $contract->full_name,
+                            'address' => $data['address'],
+                            'password' => Hash::make(""),
+                            'identity_card' => $data['identity_card'],
+                            'date_of_birth' => $data['date_of_birth'],
+                            'gender' => $data['gender'],
+                            'relatives' =>  $data['relatives'] ?? $contract->relatives ?? null,
+                            'is_completed' => true
+                        ]
+                    );
+
+                    $dataUpdate['user_id'] = $user->id;
+                }
+            }
+
+            $contract->update($dataUpdate);
+            DB::commit();
+            return $this->detail($contract->id);
         }catch (\Exception $exception) {
             DB::rollback();
             return [
