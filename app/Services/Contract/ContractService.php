@@ -44,7 +44,7 @@ class ContractService
             $startDate = isset($data['start_date']) ? Carbon::parse($data['start_date']) : Carbon::now();
 
             $insertData = [
-                'user_id' => $user ? (string)$user->id : null,
+                'user_id' => $user ? (string)$user->id : null ,
                 'room_id' => $data['room_id'],
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'] ?? null,
