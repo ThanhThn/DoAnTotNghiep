@@ -19,19 +19,23 @@ class ContractService
     {
         try {
             DB::beginTransaction();
-            $user = User::firstOrCreate(
-                ['phone' => $data['phone']],
-                [
-                    'full_name' => $data['full_name'],
-                    'address' => $data['address'],
-                    'password' => Hash::make(""),
-                    'identity_card' => $data['identity_card'],
-                    'date_of_birth' => $data['date_of_birth'],
-                    'gender' => $data['gender'],
-                    'relatives' => $data['relatives'] ?? null,
-                    'is_completed' => true
-                ]
-            );
+            $user = null;
+            if($data['status'] == config('constant.contract.status.active')){
+                $user = User::firstOrCreate(
+                    ['phone' => $data['phone']],
+                    [
+                        'full_name' => $data['full_name'],
+                        'address' => $data['address'],
+                        'password' => Hash::make(""),
+                        'identity_card' => $data['identity_card'],
+                        'date_of_birth' => $data['date_of_birth'],
+                        'gender' => $data['gender'],
+                        'relatives' => $data['relatives'] ?? null,
+                        'is_completed' => true
+                    ]
+                );
+            }
+
 
             //Số lượng người ở trên hợp đồng này
             $quantity = $data['quantity'] ?? 1;
@@ -40,7 +44,7 @@ class ContractService
             $startDate = isset($data['start_date']) ? Carbon::parse($data['start_date']) : Carbon::now();
 
             $insertData = [
-                'user_id' => (string)$user->id,
+                'user_id' => $user ? (string)$user->id : null,
                 'room_id' => $data['room_id'],
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'] ?? null,
@@ -61,7 +65,7 @@ class ContractService
 //            dd($insertData);
             $contract = Contract::create($insertData);
             $room = Room::find($data['room_id']);
-            if ($startDate->toDateString() == Carbon::now()->toDateString()) {
+            if ($data['status'] == config('constant.contract.status.active') && $startDate->toDateString() == Carbon::now()->toDateString()) {
                 $newTenantCount = $room->current_tenants + $data['quantity'];
                 if ($newTenantCount > $room->max_tenants) {
                     throw new \Exception("Số lượng người thuê vượt quá sức chứa của phòng");

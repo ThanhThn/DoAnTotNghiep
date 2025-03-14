@@ -8,12 +8,13 @@ class CreateContractRequest extends BaseRequest
 {
     public function rules(){
         return [
+            'status' => 'required|in:1,2',
             'room_id' => 'required|uuid|exists:rooms,id',
-            'identity_card' => 'required|string',
+            'identity_card' => 'required_if:status,2|string',
             'phone' => 'required|string',
-            'gender' => 'required|boolean',
-            'date_of_birth' => 'required|date',
-            'address' => 'required|string',
+            'gender' => 'required_if:status,2|boolean',
+            'date_of_birth' => 'required_if:status,2|date',
+            'address' => 'required_if:status,2|string',
             'full_name' => 'required|string',
 
             'quantity' => 'required|integer',
@@ -22,7 +23,6 @@ class CreateContractRequest extends BaseRequest
             'lease_duration' => 'required|integer',
             'monthly_rent' => 'nullable|numeric',
             'deposit_amount' => 'required|numeric',
-            'status' => 'required|in:1,2,3,4',
 
 
             'relatives' => 'nullable|array',
