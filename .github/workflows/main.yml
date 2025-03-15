@@ -25,6 +25,7 @@ jobs:
         username: datn@ntu257.vpsttt.vn
         password: DBHLe}fIGNzv
         protocol: ftps
+        passive: true
         port: 21
         local-dir: "./" 
         server-dir: "/backend/"
