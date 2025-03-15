@@ -21,14 +21,9 @@ jobs:
     - name: Deploy to CPanel via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: ftp.ntu257.vpsttt.vn 
-        username: datn@ntu257.vpsttt.vn
-        password: DBHLe}fIGNzv
-        passive: true
-        protocol: ftps 
-        timeout: 300000
-        security: strict 
-        log-level: verbose
-        port: 990
+        server: 160.30.136.116
+        username: ftpuser
+        password: Thanh1809@
+        protocol: ftp
         local-dir: "./" 
-        server-dir: "/backend/"
+        server-dir: "/"
