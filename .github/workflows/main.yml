@@ -21,14 +21,11 @@ jobs:
     - name: Install lftp
       run: sudo apt-get update && sudo apt-get install -y lftp
 
-    - name: Deploy to CPanel via FTP using lftp
-      env:
-        FTP_SERVER: ${{ secrets.SERVER }}
-        FTP_USERNAME: ${{ secrets.USERNAME }}
-        FTP_PASSWORD: ${{ secrets.PASSWORD }}
-      run: |
-        lftp -u $FTP_USERNAME,$FTP_PASSWORD -p 21 $FTP_SERVER <<EOF
-        set ftp:ssl-allow no
-        mirror -R --verbose ./ /public_html/
-        quit
-        EOF
+    - name: Deploy to CPanel via FTP (easypanel/ftp-deploy-action)
+      uses: SamKirkland/FTP-Deploy-Action@4.3.3
+      with:
+        server: ${{ secrets.SERVER }}  
+        username: ${{ secrets.USERNAME }} 
+        password: ${{ secrets.PASSWORD }}  
+        local-dir: "./" 
+        server-dir: "/"  
