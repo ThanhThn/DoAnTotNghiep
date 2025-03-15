@@ -3,26 +3,27 @@ name: Deploy Laravel to CPanel via FTP
 on:
   push:
     branches:
-      - main  # Trigger deployment when there's a push to the main branch
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Runs on the latest Ubuntu environment
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2  # Checkout code from your GitHub repository
+      uses: actions/checkout@v2
 
     - name: Set up PHP
-      uses: shivammathur/setup-php@v2  # Set up PHP
+      uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'  # Specify the PHP version you're using
+        php-version: '8.2'
 
-    - name: Deploy to CPanel via FTP (easypanel/ftp-deploy-action)
-      uses: SamKirkland/FTP-Deploy-Action@4.3.3
+    - name: Deploy to CPanel via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: ${{ secrets.SERVER }}  
-        username: ${{ secrets.USERNAME }} 
-        password: ${{ secrets.PASSWORD }}  
+        server: 160.30.136.116
+        username: ftpuser
+        password: Thanh1809@
+        protocol: ftp
         local-dir: "./" 
-        server-dir: "/backend/"  
+        server-dir: "/"
