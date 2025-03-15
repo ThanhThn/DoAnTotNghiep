@@ -43,6 +43,8 @@ class ContractService
             //
             $startDate = isset($data['start_date']) ? Carbon::parse($data['start_date']) : Carbon::now();
 
+
+            $status = $data['status'] ?? config('constant.contract.status.pending');
             $insertData = [
                 'user_id' => $user ? (string)$user->id : null ,
                 'room_id' => $data['room_id'],
@@ -51,17 +53,23 @@ class ContractService
                 'monthly_rent' => $data['monthly_rent'] ?? null,
                 'deposit_amount' => $data['deposit_amount'],
                 'remain_amount' => $data['deposit_amount'],
-                'status' => $data['status'] ?? config('constant.contract.status.pending'),
+                'status' => $status,
                 'lease_duration' => $data['lease_duration'],
                 'quantity' => $quantity,
                 'full_name' => $data['full_name'],
-                'gender' => $data['gender'],
                 'phone' => $data['phone'],
-                'identity_card' => $data['identity_card'],
-                'date_of_birth' => $data['date_of_birth'],
-                'relatives' => $data['relatives'] ?? null,
-                'address' => $data['address'],
             ];
+
+            if($status == config('constant.contract.status.active')){
+                $insertData = array_merge($insertData, [
+                    'gender' => $data['gender'],
+                    'identity_card' => $data['identity_card'],
+                    'date_of_birth' => $data['date_of_birth'],
+                    'relatives' => $data['relatives'] ?? null,
+                    'address' => $data['address'],
+                ]);
+            }
+
 //            dd($insertData);
             $contract = Contract::create($insertData);
             $room = Room::find($data['room_id']);
