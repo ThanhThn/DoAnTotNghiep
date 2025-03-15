@@ -18,33 +18,12 @@ jobs:
       with:
         php-version: '8.2'
 
-    - name: Install lftp
-      run: sudo apt-get update && sudo apt-get install -y lftp
-
-    - name: Log environment variables
-      run: |
-        echo "SERVER: ${{ secrets.SERVER }}"
-        echo "USERNAME: ${{ secrets.USERNAME }}"
-        echo "PASSWORD: *** (masked for security)"
-        echo "PROTOCOL: ftps"
-        echo "LOCAL_DIR: ./"
-        echo "SERVER_DIR: ./"
-
-    - name: Test FTP connection
-      run: |
-        echo "Testing FTP connection to ${{ secrets.SERVER }}..."
-        lftp -u ${{ secrets.USERNAME }},${{ secrets.PASSWORD }} -p 21 ${{ secrets.SERVER }} <<EOF
-        ls
-        quit
-        EOF
-      continue-on-error: true  # Tiếp tục chạy ngay cả khi lỗi
-
     - name: Deploy to CPanel via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: ${{ secrets.SERVER }}  
-        username: ${{ secrets.USERNAME }} 
-        password: ${{ secrets.PASSWORD }}  
-        protocol: ftps
+        server: ftp.ntu257.vpsttt.vn 
+        username: datn@ntu257.vpsttt.vn
+        password: DBHLe}fIGNzv
+        protocol: ftp
         local-dir: "./" 
         server-dir: "./"
