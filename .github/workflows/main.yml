@@ -27,4 +27,4 @@ jobs:
         port: 21
         protocol: ftp
         local-dir: "./" 
-        server-dir: "/backend"
+        server-dir: "/backend/"
