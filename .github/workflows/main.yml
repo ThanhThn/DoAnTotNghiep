@@ -25,8 +25,10 @@ jobs:
         username: datn@ntu257.vpsttt.vn
         password: DBHLe}fIGNzv
         passive: true
+        protocol: ftps 
         timeout: 300000
+        security: strict 
         log-level: verbose
-        port: 21
+        port: 990
         local-dir: "./" 
         server-dir: "/backend/"
