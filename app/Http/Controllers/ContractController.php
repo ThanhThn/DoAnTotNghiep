@@ -69,19 +69,10 @@ class ContractController extends Controller
     public function detail(DetailContractRequest $request, $contractId)
     {
         $userId = Auth::id();
-
-        if(!ContractService::isContractOwner($contractId, $userId)){
-            return response()->json([
-                'status' => JsonResponse::HTTP_UNAUTHORIZED,
-                'errors' => [[
-                    'message' => 'Unauthorized'
-                ]]
-            ]);
-        }
         $service  = new ContractService();
         $result = $service->detail($contractId);
 
-        if(!RoomService::isOwnerRoom($result->room->id, $userId)){
+        if(!RoomService::isOwnerRoom($result->room->id, $userId) && !ContractService::isContractOwner($contractId, $userId)){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [[
