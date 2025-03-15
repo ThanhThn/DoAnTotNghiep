@@ -3,20 +3,23 @@ name: Deploy Laravel to CPanel via FTP
 on:
   push:
     branches:
-      - main  # Trigger deployment when there's a push to the main branch
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Runs on the latest Ubuntu environment
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2  # Checkout code from your GitHub repository
+      uses: actions/checkout@v2
 
     - name: Set up PHP
-      uses: shivammathur/setup-php@v2  # Set up PHP
+      uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'  # Specify the PHP version you're using
+        php-version: '8.2'
+
+    - name: Install lftp
+      run: sudo apt-get update && sudo apt-get install -y lftp
 
     - name: Log environment variables
       run: |
@@ -25,9 +28,18 @@ jobs:
         echo "PASSWORD: *** (masked for security)"
         echo "PROTOCOL: ftps"
         echo "LOCAL_DIR: ./"
-        echo "SERVER_DIR: ./"    
+        echo "SERVER_DIR: ./"
 
-    - name: Deploy to CPanel via FTP (easypanel/ftp-deploy-action)
+    - name: Test FTP connection
+      run: |
+        echo "Testing FTP connection to ${{ secrets.SERVER }}..."
+        lftp -u ${{ secrets.USERNAME }},${{ secrets.PASSWORD }} -p 21 ${{ secrets.SERVER }} <<EOF
+        ls
+        quit
+        EOF
+      continue-on-error: true  # Tiếp tục chạy ngay cả khi lỗi
+
+    - name: Deploy to CPanel via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.SERVER }}  
@@ -35,4 +47,4 @@ jobs:
         password: ${{ secrets.PASSWORD }}  
         protocol: ftps
         local-dir: "./" 
-        server-dir: "./"  
+        server-dir: "./"
