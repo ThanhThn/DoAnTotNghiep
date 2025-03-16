@@ -46,6 +46,12 @@ class Room extends Model
                 $model->id = Str::uuid();
             }
         });
+
+        static::creating(function ($model) {
+            if($model->current_tenants > $model->max_tenants){
+                throw new \Exception('Cannot create model: max tenants limit reached.');
+            }
+        });
     }
 
     public function contracts()
