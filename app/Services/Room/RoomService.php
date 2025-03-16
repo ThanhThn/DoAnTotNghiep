@@ -124,7 +124,6 @@ class RoomService
     public function update($data, $id)
     {
         $room = Room::where(['id' => $id, 'lodging_id' => $data['lodging_id']])->first();
-        Log::info($room);
         if (!$room) {
             return [
                 'errors' => [['message' => 'Room not found']]
