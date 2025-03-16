@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Contract\CreateContractRequest;
 use App\Http\Requests\Contract\DetailContractRequest;
 use App\Http\Requests\Contract\ListContractRequest;
+use App\Http\Requests\Contract\UpdateContractRequest;
 use App\Models\Lodging;
 use App\Services\Contract\ContractService;
 use App\Services\Lodging\LodgingService;
@@ -89,7 +90,7 @@ class ContractController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function update(UpdateContractRequest $request)
     {
         $data = $request->only(['lodging_id', 'contract_id', 'status', 'start_date', 'lease_duration', 'remain_amount', 'deposit_amount', 'monthly_rent', 'quantity', 'gender', 'address', 'identity_card', 'date_of_birth', 'full_name', "relatives"]);
         $userId = Auth::id();
