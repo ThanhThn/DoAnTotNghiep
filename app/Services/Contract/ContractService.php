@@ -7,6 +7,7 @@ use App\Models\RentalHistory;
 use App\Models\Room;
 use App\Models\User;
 use App\Services\RentalHistory\RentalHistoryService;
+use App\Services\Room\RoomService;
 use App\Services\User\UserService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -212,6 +213,8 @@ class ContractService
                 'status' => $statusNew,
             ];
 
+
+            $quantity = $data['quantity'] ?? $contract->quantity ?? null;
             if ($statusOld == config('constant.contract.status.pending')) {
                 if ($statusNew == config('constant.contract.status.active')) {
                     $dataUpdate += [
@@ -221,7 +224,7 @@ class ContractService
                         'deposit_amount' => $data['deposit_amount'] ?? null,
                         'full_name' => $data['full_name'] ?? $contract->full_name ?? null,
 //                        'monthly_rent' => $data['monthly_rent'] ?? $contract->monthly_rent ?? null,
-                        'quantity' => $data['quantity'] ?? null,
+                        'quantity' => $quantity,
                         'gender' => $data['gender'] ?? $contract->gender ?? null,
                         'address' => $data['address'] ?? $contract->address ?? null,
                         'identity_card' => $data['identity_card'] ?? $contract->identity_card ?? null,
@@ -255,6 +258,28 @@ class ContractService
             }
 
             $contract->update($dataUpdate);
+
+            if ($statusNew != $statusOld) {
+
+
+                $delta = $quantity ?? 0;
+                $currentTenants = $contract->room->current_tenants;
+
+                if ($statusNew == config('constant.contract.status.active')) {
+                    $currentTenants += $delta;
+                } else {
+                    $currentTenants -= $delta;
+                }
+
+                // Chỉ update trường cần thiết
+                $roomService = new RoomService();
+                $result = $roomService->update(['current_tenants' => $currentTenants], $contract->room_id);
+
+                if (!empty($result['errors'])) {
+                    throw new \Exception('Cập nhật số lượng khách thuê phòng hiện tại thất bại!');
+                }
+            }
+
             DB::commit();
             return $this->detail($contract->id);
         }catch (\Exception $exception) {

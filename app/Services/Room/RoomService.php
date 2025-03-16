@@ -136,6 +136,7 @@ class RoomService
             $roomData = [
                 'room_code' => $data['room_code'],
                 'max_tenants' => $data['max_tenants'],
+                'current_tenants' => $data['current_tenants'] ?? $room->current_tenants,
                 'price' => $data['price'] ?? $room->price,
                 'area' => $data['area'] ?? $room->area,
                 'status' => $data['status'] ?? $room->status,
