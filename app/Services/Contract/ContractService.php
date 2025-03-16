@@ -276,7 +276,7 @@ class ContractService
                 $result = $roomService->update(array_merge($contract->room->toArray(), ['current_tenants' => $currentTenants]), $contract->room_id);
 
                 if (!empty($result['errors'])) {
-                    throw new \Exception('Cập nhật số lượng khách thuê phòng hiện tại thất bại!');
+                    throw new \Exception($result['errors'][0]['message']);
                 }
             }
 
