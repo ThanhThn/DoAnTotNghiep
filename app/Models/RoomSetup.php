@@ -20,4 +20,8 @@ class RoomSetup extends Model
     {
         return $this->belongsTo(Equipment::class);
     }
+
+    public function room(): BelongsTo{
+        return $this->belongsTo(Room::class);
+    }
 }

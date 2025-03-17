@@ -61,7 +61,7 @@ class EquipmentService
 
     public function detail($equipmentId)
     {
-        $equipment = Equipment::with(['roomSetups'])->find($equipmentId);
+        $equipment = Equipment::with(['roomSetups.room'])->find($equipmentId);
         return $equipment;
     }
 
