@@ -48,12 +48,12 @@ class RoomServiceUsage extends Model
     }
 
     public function room() {
-        return $this->belongsTo(Room::class, 'room_id')->with('lodging');
+        return $this->belongsTo(Room::class, 'room_id');
     }
 
     public function lodgingService()
     {
-        return $this->belongsTo(LodgingService::class, 'lodging_service_id');
+        return $this->belongsTo(LodgingService::class, 'lodging_service_id')->with(['unit', 'service']);
     }
 
 }

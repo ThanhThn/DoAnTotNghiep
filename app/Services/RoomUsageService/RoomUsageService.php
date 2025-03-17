@@ -52,7 +52,7 @@ class RoomUsageService
         })->where([
             'finalized' => false,
             'is_need_close' => true,
-        ])->get();
+        ])->with(['room:id,room_code,lodging_id', 'lodgingService:id,name,unit_id,service_id'])->get();
 
         return $usages;
 
@@ -61,7 +61,7 @@ class RoomUsageService
 
     function updateFinalRoomUsage($data)
     {
-        $roomUsage = RoomServiceUsage::with(['lodgingService', 'room'])->find($data['room_usage_id']);
+        $roomUsage = RoomServiceUsage::with(['lodgingService', 'room', 'room.lodging'])->find($data['room_usage_id']);
 
         try{
             DB::beginTransaction();
