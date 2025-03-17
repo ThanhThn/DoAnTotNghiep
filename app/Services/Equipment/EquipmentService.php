@@ -4,6 +4,7 @@ namespace App\Services\Equipment;
 
 use App\Jobs\UploadImageToStorage;
 use App\Models\Equipment;
+use App\Models\RoomSetup;
 use App\Services\RoomSetup\RoomSetupService;
 use Illuminate\Support\Facades\DB;
 
@@ -56,6 +57,67 @@ class EquipmentService
                 ]]
             ];
         }
+    }
+
+    public function detail($equipmentId)
+    {
+        $equipment = Equipment::with(['roomSetups'])->find($equipmentId);
+        return $equipment;
+    }
+
+    public function update($equipmentId, $data)
+    {
+        $equipment = Equipment::find($equipmentId);
+
+        $type = $data['type'] ?? $equipment->type;
+
+        try{
+            DB::beginTransaction();
+            $roomSetupService = new RoomSetupService();
+            if($type == config('constant.equipment.type.public')){
+                $roomSetupService->softDeleteAll([
+                    'equipment_id' => $equipmentId,
+                ]);
+
+                $remainingQuantity = $data['quantity'];
+            }else{
+                $roomIds = $data['room_ids'] ?? [];
+                $result = $roomSetupService->syncRoomSetupsForEquipment($equipmentId, $roomIds);
+
+                $remainingQuantity = $data['quantity'] - $result['used_quantities'];
+            }
+
+            if($remainingQuantity < 0){
+                throw new \Exception("Số lượng lưu trữ bé hơn số lượng cần dùng");
+            }
+
+            $oldThumbnail = $equipment->thumbnail;
+            $newThumbnail = $data['thumbnail'];
+            $equipment->update([
+                'name' => $data['name'],
+                'description' => $data['description'] ?? null,
+                'quantity' => $data['quantity'],
+                'type' => $type,
+                'thumbnail' => $newThumbnail,
+                'lodging_id' => $data['lodging_id'],
+                'remaining_quantity' => $remainingQuantity
+            ]);
+
+            if($oldThumbnail != $newThumbnail){
+                UploadImageToStorage::dispatch($equipment->id, config('constant.type.equipment'), $newThumbnail);
+            }
+            DB::commit();
+
+            return $equipment->refresh()->load('roomSetups');
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return [
+                'errors' => [[
+                    'message' => $exception->getMessage()
+                ]]
+            ];
+        }
+
     }
 
     public function listByLodging($data, $lodgingId)

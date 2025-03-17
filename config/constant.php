@@ -71,5 +71,12 @@ return [
             'garbage' => "Rác",
             'parking' => "Đổ xe",
         ]
+    ],
+
+    'equipment' => [
+        'type' => [
+            'private' => 1,
+            'public' => 2,
+        ]
     ]
 ];

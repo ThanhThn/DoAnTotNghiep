@@ -21,6 +21,7 @@ class Equipment extends Model
     ];
 
     protected $primaryKey = 'id';
+    protected $keyType = "string";
     public $incrementing = false;
 
     protected $hidden = ['created_at','updated_at'];
@@ -32,5 +33,10 @@ class Equipment extends Model
                 $model->id = Str::uuid();
             }
         });
+    }
+
+    public function roomSetups()
+    {
+        return $this->hasMany(RoomSetup::class);
     }
 }

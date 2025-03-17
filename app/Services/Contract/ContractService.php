@@ -53,7 +53,7 @@ class ContractService
                 'end_date' => $data['end_date'] ?? null,
                 'monthly_rent' => $data['monthly_rent'] ?? null,
                 'deposit_amount' => $data['deposit_amount'],
-                'remain_amount' => $data['deposit_amount'],
+                'remain_amount' => 0,
                 'status' => $status,
                 'lease_duration' => $data['lease_duration'],
                 'quantity' => $quantity,
