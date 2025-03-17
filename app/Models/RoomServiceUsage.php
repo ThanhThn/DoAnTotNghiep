@@ -21,7 +21,7 @@ class RoomServiceUsage extends Model
         'final_index',
         'month_billing',
         'year_billing',
-        'is_finalized_early',
+        'is_need_close',
     ];
 
     protected $primaryKey = "id";

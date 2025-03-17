@@ -19,6 +19,7 @@ class RoomUsageService
             'finalized' => $data['finalized'],
             'month_billing' => $data['month_billing'],
             'year_billing' => $data['year_billing'],
+            'is_need_close' => $data['is_need_close'] ?? false,
         ];
 
         return RoomServiceUsage::create($insertData);

@@ -38,6 +38,7 @@ class IndexedService extends BaseServiceCalculator
                 'initial_index' => $roomService ? $roomService->last_recorded_value : 0,
                 'value' => 0,
                 'finalized' => false,
+                'is_need_close' => true,
                 'month_billing' => $roomUsage['month_billing'],
                 'year_billing' => $roomUsage['year_billing'],
             ]);
@@ -54,6 +55,10 @@ class IndexedService extends BaseServiceCalculator
                 // Gọi đệ quy để kiểm tra tháng tiếp theo
                 return $this->processRoomUsage($room, $totalPrice, $value, $nextMonth, $nextYear, $recursionCount + 1);
             }
+
+            $roomUsage['usage']->is_need_close = true;
+            $roomUsage['usage']->updated_at = $this->now;
+            $roomUsage['usage']->save();
         }
 
 
