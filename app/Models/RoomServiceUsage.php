@@ -17,6 +17,8 @@ class RoomServiceUsage extends Model
         'amount_paid',
         'value',
         'finalized',
+        'initial_index',
+        'final_index',
         'month_billing',
         'year_billing',
         'is_finalized_early',
