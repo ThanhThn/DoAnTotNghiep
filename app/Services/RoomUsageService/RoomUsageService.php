@@ -89,45 +89,49 @@ class RoomUsageService
             ])->get();
 
             $now = Carbon::now();
-            $amountPerPerson = $roomUsage->total_price / $roomUsage->room->current_tenants;
-            foreach ($contracts as $contract) {
-                $paymentAmount = $amountPerPerson * $contract->quantity;
+            $amountPerPerson = ($roomUsage->total_price - $roomUsage->amount_paid) / $roomUsage->room->current_tenants;
 
-                ServicePayment::create([
-                    'room_service_usage_id' => $roomUsage->id,
-                    'contract_id' => $contract->id,
-                    'payment_amount' => $paymentAmount,
-                    'amount_paid' => 0,
-                    'payment_date' => $now,
-                    'last_payment_date' => $now,
-                    'due_date' => $now->clone()->addDays($roomUsage->lodgingService->late_days),
-                ]);
+            if($amountPerPerson > 0){
+                foreach ($contracts as $contract) {
+                    $paymentAmount = $amountPerPerson * $contract->quantity;
 
-                // Lấy tên dịch vụ
-                $nameService = isset($roomUsage->lodgingService->service) ? config("constant.service.name.{$roomUsage->lodgingService->service->name}") : $roomUsage->lodgingService->name;
+                    ServicePayment::create([
+                        'room_service_usage_id' => $roomUsage->id,
+                        'contract_id' => $contract->id,
+                        'payment_amount' => $paymentAmount,
+                        'amount_paid' => 0,
+                        'payment_date' => $now,
+                        'last_payment_date' => $now,
+                        'due_date' => $now->clone()->addDays($roomUsage->lodgingService->late_days),
+                    ]);
 
-                // Lấy thông tin nhà trọ
-                $lodgingName = $roomUsage->room->lodging->name ?? 'Khu trọ không xác định';
-                $lodgingType = $roomUsage->room->lodging->type->name ?? "";
+                    // Lấy tên dịch vụ
+                    $nameService = isset($roomUsage->lodgingService->service) ? config("constant.service.name.{$roomUsage->lodgingService->service->name}") : $roomUsage->lodgingService->name;
 
-                $paymentAmount = rtrim(rtrim(number_format($paymentAmount, 2, ',', '.'), '0'), ',');
+                    // Lấy thông tin nhà trọ
+                    $lodgingName = $roomUsage->room->lodging->name ?? 'Khu trọ không xác định';
+                    $lodgingType = $roomUsage->room->lodging->type->name ?? "";
 
-                $message = [
-                    'title' => "Nhắc nhở thanh toán tiền $nameService tháng {$roomUsage->month_billing} - $lodgingName",
-                    'body' => "Bạn cần thanh toán $paymentAmount đ cho phòng {$roomUsage->room->room_code}, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phí trễ hạn.",
-                    'target_endpoint' => '/rental_history/list',
-                    'type' => config('constant.notification.type.important'),
-                ];
+                    $paymentAmount = rtrim(rtrim(number_format($paymentAmount, 2, ',', '.'), '0'), ',');
 
-                // Gửi thông báo
-                $notificationService = new NotificationService();
-                $notificationService->createNotification(
-                    $message,
-                    config('constant.object.type.user'),
-                    $contract->user_id,
-                    $contract->user_id
-                );
+                    $message = [
+                        'title' => "Nhắc nhở thanh toán tiền $nameService tháng {$roomUsage->month_billing} - $lodgingName",
+                        'body' => "Bạn cần thanh toán $paymentAmount đ cho phòng {$roomUsage->room->room_code}, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phí trễ hạn.",
+                        'target_endpoint' => '/rental_history/list',
+                        'type' => config('constant.notification.type.important'),
+                    ];
+
+                    // Gửi thông báo
+                    $notificationService = new NotificationService();
+                    $notificationService->createNotification(
+                        $message,
+                        config('constant.object.type.user'),
+                        $contract->user_id,
+                        $contract->user_id
+                    );
+                }
             }
+
 
             DB::commit();
             return $roomUsage;
