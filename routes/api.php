@@ -120,3 +120,10 @@ Route::group(['prefix' => 'rental_history', 'namespace' => 'App\Http\Controllers
     Route::post('list', 'RentalHistoryController@listRentalHistory')->middleware('jwt.verify');
 });
 
+
+// RoomUsage
+Route::group(['prefix' => 'room_usage', 'namespace' => 'App\Http\Controllers'], function ($route) {
+   Route::get('list_need_close', 'RoomUsageController@listUsageNeedCloseByLodging')->middleware('jwt.verify');
+
+   Route::post('close_room_usage', 'RoomUsageController@closeRoomUsage')->middleware('jwt.verify');
+});

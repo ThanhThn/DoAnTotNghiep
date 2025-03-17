@@ -35,9 +35,25 @@ class RoomServiceUsage extends Model
                 $model->id  = Str::uuid();
             }
         });
+
+        static::updating(function ($model) {
+            if(!empty($model->initial_index) && !empty($model->final_index) && $model->final_index < $model->initial_index){
+                throw new \Exception('Cannot update model: final_index smaller than initial_index.');
+            }
+
+            if($model->value < 0){
+                throw new \Exception('Cannot update model: Value must be greater than 0.');
+            }
+        });
     }
 
     public function room() {
-        return $this->belongsTo(Room::class, 'room_id');
+        return $this->belongsTo(Room::class, 'room_id')->with('lodging');
     }
+
+    public function lodgingService()
+    {
+        return $this->belongsTo(LodgingService::class, 'lodging_service_id');
+    }
+
 }
