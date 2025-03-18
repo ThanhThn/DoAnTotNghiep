@@ -45,16 +45,18 @@ class RoomSetupService
             ->whereNotIn('room_id', $roomIds)
             ->delete();
 
-        $existingRoomSetups = RoomSetup::withoutTrashed()
+        $existingRoomSetups = RoomSetup::withTrashed()
             ->where('equipment_id', $equipmentId)
             ->whereIn('room_id', $roomIds)
             ->get()->keyBy('room_id');
+
 
         $roomSetupData = [];
         foreach ($roomIds as $roomId) {
             $existingRoomSetup = $existingRoomSetups->get($roomId);
 
             if($existingRoomSetup){
+
                 if($existingRoomSetup->trashed()){
                     $existingRoomSetup->restore();
                 }
