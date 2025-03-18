@@ -14,8 +14,8 @@ class UpdateEquipmentRequest extends BaseRequest
             'quantity' => 'required|integer',
             'type' => 'required|integer|in:1,2,3',
             'lodging_id' => 'required|uuid|exists:lodgings,id',
-            'room_ids' => 'required|array',
-            'room_ids.*' => 'required|uuid|exists:rooms,id',
+            'room_ids' => 'nullable|array',
+            'room_ids.*' => 'required_with:room_ids|uuid|exists:rooms,id',
         ];
 
         if ($this->hasFile('thumbnail')) {

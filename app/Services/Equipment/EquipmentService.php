@@ -5,7 +5,9 @@ namespace App\Services\Equipment;
 use App\Jobs\UploadImageToStorage;
 use App\Models\Equipment;
 use App\Models\RoomSetup;
+use App\Services\Image\ImageService;
 use App\Services\RoomSetup\RoomSetupService;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class EquipmentService
@@ -93,19 +95,25 @@ class EquipmentService
 
             $oldThumbnail = $equipment->thumbnail;
             $newThumbnail = $data['thumbnail'];
+
+
+            if ($oldThumbnail != $newThumbnail && is_string($newThumbnail)) {
+                UploadImageToStorage::dispatch($equipment->id, config('constant.type.equipment'), $newThumbnail);
+            }
+
+            if($newThumbnail instanceof UploadedFile){
+                $newThumbnail = ImageService::uploadImage($newThumbnail, config('constant.type.equipment'), $equipment->id);
+            }
             $equipment->update([
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
                 'quantity' => $data['quantity'],
                 'type' => $type,
-//                'thumbnail' => $newThumbnail,
+                'thumbnail' => $newThumbnail,
                 'lodging_id' => $data['lodging_id'],
                 'remaining_quantity' => $remainingQuantity
             ]);
 
-//            if($oldThumbnail != $newThumbnail){
-//                UploadImageToStorage::dispatch($equipment->id, config('constant.type.equipment'), $newThumbnail);
-//            }
             DB::commit();
 
             return $equipment->refresh()->load('roomSetups.room');

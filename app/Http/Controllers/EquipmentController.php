@@ -10,6 +10,7 @@ use App\Services\Equipment\EquipmentService;
 use App\Services\Lodging\LodgingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 
 class EquipmentController extends Controller
@@ -62,6 +63,7 @@ class EquipmentController extends Controller
     public function update(UpdateEquipmentRequest $request)
     {
         $data = $request->all();
+
         $userId = Auth::id();
         if(!LodgingService::isOwnerLodging($data['lodging_id'], $userId)){
             return response()->json([
