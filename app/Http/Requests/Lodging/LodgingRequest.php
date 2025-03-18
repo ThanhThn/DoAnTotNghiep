@@ -4,7 +4,7 @@ namespace App\Http\Requests\Lodging;
 
 use App\Http\Requests\BaseRequest;
 
-class DetailLodgingRequest extends BaseRequest
+class LodgingRequest extends BaseRequest
 {
     public function rules(){
         return [

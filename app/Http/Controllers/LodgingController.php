@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Lodging\CreateLodgingRequest;
-use App\Http\Requests\Lodging\DetailLodgingRequest;
+use App\Http\Requests\Lodging\LodgingRequest;
 use App\Http\Requests\Lodging\OverviewRequest;
 use App\Http\Requests\Lodging\UpdateLodgingRequest;
 use App\Services\Lodging\LodgingService;
@@ -73,7 +73,7 @@ class LodgingController extends Controller
         ];
     }
 
-    function detail(DetailLodgingRequest $request, $lodgingId)
+    function detail(LodgingRequest $request, $lodgingId)
     {
         $service = new LodgingService();
         $result = $service->detailLodging($lodgingId);
@@ -107,6 +107,31 @@ class LodgingController extends Controller
             'body' => [[
                 'data' => $result
             ]]
+        ]);
+    }
+
+
+    function softDelete(LodgingRequest $request, $lodgingId)
+    {
+        $useId = Auth::id();
+        if(!LodgingService::isOwnerLodging($lodgingId, $useId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [
+                    [
+                        'message' => 'Unauthorized'
+                    ]
+                ]
+            ]);
+        }
+
+        $service = new LodgingService();
+        $result = $service->softDelete($lodgingId);
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
         ]);
     }
 }

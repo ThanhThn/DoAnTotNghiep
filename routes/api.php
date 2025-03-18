@@ -36,6 +36,7 @@ Route::group(['prefix' => 'lodging', 'namespace' => 'App\Http\Controllers'], fun
     Route::post('create', 'LodgingController@create')->middleware('jwt.verify');
     Route::get('detail/{lodgingId}', 'LodgingController@detail');
     Route::post('update', 'LodgingController@update')->middleware('jwt.verify');
+    Route::get('delete/{lodgingId}', 'LodgingController@softDelete')->middleware('jwt.verify');
 
     Route::post('overview', 'LodgingController@overview')->middleware('jwt.verify');
 });

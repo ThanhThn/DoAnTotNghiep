@@ -13,6 +13,17 @@ use Carbon\Carbon;
 class LodgingService
 {
 
+    function softDelete($lodgingId)
+    {
+        try{
+            Lodging::find($lodgingId)->delete();
+            return true;
+        }catch (\Exception $exception){
+            return false;
+        }
+
+    }
+
     function detailLodging($lodgingId)
     {
         return Lodging::with(['province', 'district', 'ward', 'type'])->find($lodgingId);
