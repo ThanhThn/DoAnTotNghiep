@@ -98,14 +98,14 @@ class EquipmentService
                 'description' => $data['description'] ?? null,
                 'quantity' => $data['quantity'],
                 'type' => $type,
-                'thumbnail' => $newThumbnail,
+//                'thumbnail' => $newThumbnail,
                 'lodging_id' => $data['lodging_id'],
                 'remaining_quantity' => $remainingQuantity
             ]);
 
-            if($oldThumbnail != $newThumbnail){
-                UploadImageToStorage::dispatch($equipment->id, config('constant.type.equipment'), $newThumbnail);
-            }
+//            if($oldThumbnail != $newThumbnail){
+//                UploadImageToStorage::dispatch($equipment->id, config('constant.type.equipment'), $newThumbnail);
+//            }
             DB::commit();
 
             return $equipment->refresh()->load('roomSetups.room');
