@@ -15,7 +15,7 @@ class LodgingService
 
     function detailLodging($lodgingId)
     {
-        return Lodging::with(['province', 'district', 'ward'])->find($lodgingId);
+        return Lodging::with(['province', 'district', 'ward', 'type'])->find($lodgingId);
     }
 
     function updateLodging($data)
