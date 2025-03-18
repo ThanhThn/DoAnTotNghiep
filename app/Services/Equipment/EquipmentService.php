@@ -108,7 +108,7 @@ class EquipmentService
             }
             DB::commit();
 
-            return $equipment->refresh()->load('roomSetups');
+            return $equipment->refresh()->load('roomSetups.room');
         }catch (\Exception $exception){
             DB::rollBack();
             return [
