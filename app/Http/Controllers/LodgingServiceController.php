@@ -53,7 +53,7 @@ class LodgingServiceController extends Controller
             ]);
         }
 
-        if(!(new LodgingService())->get($lodgingId)){
+        if(!(new LodgingService())->detailLodging($lodgingId)){
             return response()->json([
                 'status' => JsonResponse::HTTP_NOT_FOUND,
                 'errors' => [[

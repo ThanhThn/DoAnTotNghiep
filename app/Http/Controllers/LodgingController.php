@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Lodging\CreateLodgingRequest;
+use App\Http\Requests\Lodging\DetailLodgingRequest;
 use App\Http\Requests\Lodging\OverviewRequest;
+use App\Http\Requests\Lodging\UpdateLodgingRequest;
 use App\Services\Lodging\LodgingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -69,5 +71,42 @@ class LodgingController extends Controller
                 'data' => $service->overview($data)
             ]
         ];
+    }
+
+    function detail(DetailLodgingRequest $request, $lodgingId)
+    {
+        $service = new LodgingService();
+        $result = $service->detailLodging($lodgingId);
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
+        ]);
+    }
+
+
+    function update(UpdateLodgingRequest $request)
+    {
+        $data = $request->all();
+        $userId = Auth::id();
+        if(!LodgingService::isOwnerLodging($data['id'], $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $service = new LodgingService();
+        $result = $service->updateLodging($data);
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [[
+                'data' => $result
+            ]]
+        ]);
     }
 }

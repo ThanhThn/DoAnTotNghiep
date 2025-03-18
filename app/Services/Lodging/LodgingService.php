@@ -13,9 +13,44 @@ use Carbon\Carbon;
 class LodgingService
 {
 
-    function get($lodgingId)
+    function detailLodging($lodgingId)
     {
-        return Lodging::find($lodgingId);
+        return Lodging::with(['province', 'district', 'ward'])->find($lodgingId);
+    }
+
+    function updateLodging($data)
+    {
+        $lodging = $this->detailLodging($data['id']);
+
+        $fields = [
+            'name',
+            'address',
+            'province_id',
+            'district_id',
+            'ward_id',
+            'latitude',
+            'longitude',
+            'type_id',
+            'payment_date',
+            'late_days',
+            'area_room_default',
+            'price_room_default',
+            'phone_contact' => 'phone',
+            'email_contact' => 'email',
+        ];
+
+        $updateData = [];
+
+        foreach ($fields as $dbField => $inputField) {
+
+            if (is_string($dbField)) {
+                $updateData[$dbField] = $data[$inputField] ?? $lodging->$dbField;
+            } else {
+                $updateData[$inputField] = $data[$inputField] ?? $lodging->$inputField;
+            }
+        }
+        $lodging->update($updateData);
+        return $this->detailLodging($lodging->id);
     }
 
     function listByUserID($userId)

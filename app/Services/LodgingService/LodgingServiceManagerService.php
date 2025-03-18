@@ -14,7 +14,7 @@ class LodgingServiceManagerService
 {
     public function create($data)
     {
-        $lodging = (new LodgingService())->get($data['lodging_id']);
+        $lodging = (new LodgingService())->detailLodging($data['lodging_id']);
         $insertData = [
             'lodging_id' => $data['lodging_id'],
             'service_id' => $data['service_id'] ?? null,
