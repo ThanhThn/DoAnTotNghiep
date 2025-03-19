@@ -6,6 +6,7 @@ use App\Models\Token;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
@@ -43,17 +44,19 @@ class JWTMiddleware
                     ]]
                 ], JsonResponse::HTTP_UNAUTHORIZED);
             }
-            JWTAuth::parseToken()->authenticate();
 
-            $check = Token::where('token', $token[1])->first();
-            if(!$check){
-                return response()->json([
-                    'status' => JsonResponse::HTTP_UNAUTHORIZED,
-                    'errors' => [[
-                        'message' => 'Token not found',
-                    ]]
-                ], JsonResponse::HTTP_UNAUTHORIZED);
+            $token = JWTAuth::getToken();
+            $payload = JWTAuth::manager()->decode($token);
+            $userId = $payload->get('sub');
+            $jti = $payload->get('jti');
+            $key = "blacklist_{$userId}_{$jti}";
+
+            if (Redis::get($key)) {
+                throw new TokenInvalidException();
             }
+
+            JWTAuth::setToken($token)->authenticate();
+
         }catch (\Exception $exception){
             if($exception instanceof  TokenInvalidException){
                 return response()->json([

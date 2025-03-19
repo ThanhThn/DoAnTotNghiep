@@ -10,17 +10,20 @@ use Illuminate\Support\Facades\Log;
 Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers\Auth\User'], function ($route) {
     Route::post('register', 'AuthController@register');
     Route::post('login', 'AuthController@login');
+    Route::get('logout', 'AuthController@logout')->middleware('jwt.verify');
+    Route::get('refresh', 'AuthController@refresh');
 });
 
 // User
 Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers', 'middleware' => ['jwt.verify']], function ($route) {
     Route::get('info', 'UserController@info');
-    Route::post('update', 'UserController@update')->middleware('jwt.verify');
+    Route::post('update', 'UserController@update');
 
     Route::group(['prefix' => 'client'], function ($route) {
-        Route::get('list_lodging_and_rooms', 'ClientController@listLodgingAndRooms')->middleware('jwt.verify');
+        Route::get('list_lodging_and_rooms', 'ClientController@listLodgingAndRooms');
     });
 });
+
 
 //General
 Route::group(['prefix' => 'general', 'namespace' => 'App\Http\Controllers'], function ($route) {
