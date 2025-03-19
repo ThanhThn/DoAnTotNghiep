@@ -104,9 +104,9 @@ class LodgingController extends Controller
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
-            'body' => [[
+            'body' => [
                 'data' => $result
-            ]]
+            ]
         ]);
     }
 
