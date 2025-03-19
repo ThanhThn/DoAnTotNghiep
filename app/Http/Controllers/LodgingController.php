@@ -130,7 +130,7 @@ class LodgingController extends Controller
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => [
-                'data' => $result
+                'data' => "Xoá nhà cho thuê thành công"
             ]
         ]);
     }
