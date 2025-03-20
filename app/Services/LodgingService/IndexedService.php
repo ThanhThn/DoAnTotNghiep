@@ -43,7 +43,7 @@ class IndexedService extends BaseServiceCalculator
                 'year_billing' => $roomUsage['year_billing'],
                 'unit_id' => $this->lodgingService->unit_id,
                 'service_id' => $this->lodgingService->service_id,
-                'service_name' => $this->lodgingService->service_name
+                'service_name' => $this->lodgingService->name
             ]);
         }else{
             if ($this->now->day == $this->lodgingService->payment_date && $roomUsage['usage']->finalized) {
