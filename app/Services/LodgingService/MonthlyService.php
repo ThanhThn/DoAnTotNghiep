@@ -38,6 +38,9 @@ class MonthlyService extends BaseServiceCalculator
                 'finalized' => $this->now->day == $this->lodgingService->payment_date && $recursionCount < 1,
                 'month_billing' => $roomUsage['month_billing'],
                 'year_billing' => $roomUsage['year_billing'],
+                'unit_id' => $this->lodgingService->unit_id,
+                'service_id' => $this->lodgingService->service_id,
+                'service_name' => $this->lodgingService->service_name
             ]);
         } else {
 

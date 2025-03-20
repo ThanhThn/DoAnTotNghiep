@@ -22,6 +22,9 @@ class RoomServiceUsage extends Model
         'month_billing',
         'year_billing',
         'is_need_close',
+        'unit_id',
+        'service_id',
+        'service_name',
     ];
 
     protected $primaryKey = "id";
@@ -54,6 +57,15 @@ class RoomServiceUsage extends Model
     public function lodgingService()
     {
         return $this->belongsTo(LodgingService::class, 'lodging_service_id')->with(['unit', 'service']);
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id');
+    }
+
+    public function service(){
+        return $this->belongsTo(Service::class, 'service_id');
     }
 
 }

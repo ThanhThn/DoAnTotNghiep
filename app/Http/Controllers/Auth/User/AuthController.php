@@ -97,9 +97,11 @@ class AuthController extends Controller
     public function refresh()
     {
         try {
-            $payload = JWTAuth::parseToken()->getPayload();
-            $newToken = JWTAuth::parseToken()->refresh();
+            $token = JWTAuth::parseToken();
 
+            $newToken = $token->refresh();
+
+            $payload = $token->getPayload();
             $this->addBlacklist($payload);
             return $this->respondWithToken($newToken);
         } catch (\Exception $exception) {
@@ -107,12 +109,12 @@ class AuthController extends Controller
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [['message' => 'Refresh token expired']],
-            ]);}
+            ], JsonResponse::HTTP_UNAUTHORIZED);}
 
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [['message' => 'Something went wrong']],
-            ]);
+            ], JsonResponse::HTTP_UNAUTHORIZED);
         }
     }
 

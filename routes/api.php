@@ -137,3 +137,8 @@ Route::group(['prefix' => 'room_usage', 'namespace' => 'App\Http\Controllers'], 
 
    Route::post('close_room_usage', 'RoomUsageController@closeRoomUsage')->middleware('jwt.verify');
 });
+
+
+Route::group(['prefix' => 'service_payment', 'namespace' => 'App\Http\Controllers', 'middleware' => 'jwt.verify'], function ($route) {
+    Route::post('list', 'ServicePaymentController@list');
+});
