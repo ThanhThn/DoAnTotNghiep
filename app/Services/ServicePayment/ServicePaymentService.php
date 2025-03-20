@@ -9,7 +9,7 @@ class ServicePaymentService
 {
     public function listServicePaymentByContract($data)
     {
-        $servicePayments = ServicePayment::with('roomServiceUsage')->where('contract_id', $data['contract_id']);
+        $servicePayments = ServicePayment::with('roomServiceUsage:id,month_billing,year_billing,service_id,service_name,unit_id,initial_index,final_index')->where('contract_id', $data['contract_id']);
 
 
         $total = $servicePayments->count();
