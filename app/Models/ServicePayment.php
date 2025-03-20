@@ -24,6 +24,8 @@ class ServicePayment extends Model
     protected $keyType = "string";
     public $incrementing = false;
 
+    protected $hidden = ['created_at', 'updated_at'];
+
     protected static function boot(){
         parent::boot();
         static::creating(function ($model) {
@@ -35,6 +37,6 @@ class ServicePayment extends Model
 
     public function roomServiceUsage()
     {
-        return $this->belongsTo(RoomServiceUsage::class, 'room_service_usage_id')->with(['service', 'room']);
+        return $this->belongsTo(RoomServiceUsage::class, 'room_service_usage_id')->with(['service', 'unit']);
     }
 }

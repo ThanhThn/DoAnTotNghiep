@@ -31,6 +31,8 @@ class RoomServiceUsage extends Model
     protected $keyType = "string";
     public $incrementing = false;
 
+    protected $hidden = ['created_at','updated_at'];
+
     protected static function boot(){
         parent::boot();
         static::creating(function ($model) {
