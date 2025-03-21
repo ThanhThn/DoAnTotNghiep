@@ -42,15 +42,25 @@ class Room extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            if(empty($model->id)){
+            if (empty($model->id)) {
                 $model->id = Str::uuid();
             }
-        });
 
-        static::creating(function ($model) {
-            if($model->current_tenants > $model->max_tenants){
+            if ($model->current_tenants > $model->max_tenants) {
                 throw new \Exception('Cannot create model: max tenants limit reached.');
             }
+
+            $lodging = Lodging::find($model->lodging_id);
+            $channel = Channel::create([
+                'room_id' => $model->id,
+            ]);
+
+            ChannelMember::create([
+                'channel_id' => $channel->id,
+                'user_id' => $lodging->user_id,
+                'role' => 'manager',
+                'joined_at' => now(),
+            ]);
         });
     }
 

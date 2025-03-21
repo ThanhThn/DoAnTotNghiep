@@ -62,7 +62,62 @@ class Contract extends Model
                 $model->id = $id;
                 $model->code = Helper::generateUniqueCode($id, $model->room_id);
             }
+
+            if($model->status == config('constant.contract.status.active')){
+                self::addChannelMember($model);
+            }
         });
+
+        static::updating(function ($model) {
+            if ($model->status == config('constant.contract.status.active')) {
+                self::addChannelMember($model);
+            } else {
+                self::removeChannelMember($model);
+            }
+        });
+    }
+
+    protected static function addChannelMember($model)
+    {
+        $channel = Channel::where('room_id', $model->room_id)->first();
+        if (!$channel) {
+           return;
+        }
+
+        ChannelMember::firstOrCreate(
+            [
+                'channel_id' => $channel->id,
+                'user_id' => $model->user_id,
+                'role' => 'user',
+            ],
+            [
+                'joined_at' => now(),
+            ]
+        );
+    }
+
+    protected static function removeChannelMember($model)
+    {
+        $channel = Channel::where('room_id', $model->room_id)->first();
+        if (!$channel) {
+            return;
+        }
+
+        $activeContracts = Contract::where([
+            'room_id' => $model->room_id,
+            'status' => config('constant.contract.status.active'),
+            'user_id' => $model->user_id,
+        ])->where('id', '!=', $model->id)->count();
+
+        if($activeContracts !=  0){
+            return;
+        }
+
+        ChannelMember::where([
+            'channel_id' => $channel->id,
+            'user_id' => $model->user_id,
+            'role' => 'user',
+        ])->delete();
     }
 
     public function room()
