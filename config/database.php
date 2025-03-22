@@ -97,6 +97,20 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        'pgsqlReplica' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST_REPLICA', '127.0.0.1'),
+            'port' => env('DB_PORT_REPLICA', '5433'),
+            'database' => env('DB_DATABASE_REPLICA', 'laravel'),
+            'username' => env('DB_USERNAME_REPLICA', 'postgres'),
+            'password' => env('DB_PASSWORD_REPLICA', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'schema' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),

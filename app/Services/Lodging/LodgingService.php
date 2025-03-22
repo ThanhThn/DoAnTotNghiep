@@ -66,7 +66,7 @@ class LodgingService
 
     function listByUserID($userId)
     {
-        $lodging = Lodging::with(['province','ward', 'district'])->where('user_id', $userId)
+        $lodging = Lodging::on('pgsqlReplica')->with(['province','ward', 'district'])->where('user_id', $userId)
             ->where('is_enabled', true)->get();
         return $lodging;
     }
