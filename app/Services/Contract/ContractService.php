@@ -133,7 +133,7 @@ class ContractService
 
     public function detail($id, $connection = "pgsql")
     {
-        return Contract::on($connection)->find($id);
+        return Contract::on($connection)->with('room')->find($id);
     }
 
     public function calculateContract($contract, $amountNeedPayment, $lateDays)
@@ -194,7 +194,7 @@ class ContractService
 
     public function update($data)
     {
-        $contract = $this->detail($data['contract_id'])->load('room');
+        $contract = $this->detail($data['contract_id']);
 
         if($contract->room->lodging_id != $data['lodging_id']){
             return [
@@ -281,7 +281,7 @@ class ContractService
             }
 
             DB::commit();
-            return $this->detail($contract->id)->load('room');
+            return $this->detail($contract->id);
         }catch (\Exception $exception) {
             DB::rollback();
             return [

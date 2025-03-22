@@ -73,7 +73,7 @@ class ContractController extends Controller
         $service  = new ContractService();
         $result = $service->detail($contractId, 'pgsqlReplica');
 
-        if(!RoomService::isOwnerRoom($result->room->id, $userId) && !ContractService::isContractOwner($contractId, $userId)){
+        if(!RoomService::isOwnerRoom($result->room->id, $userId) && $result->user_id != $userId){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [[
