@@ -50,15 +50,14 @@ class Room extends Model
                 throw new \Exception('Cannot create model: max tenants limit reached.');
             }
 
-            $lodging = Lodging::find($model->lodging_id);
             $channel = Channel::create([
                 'room_id' => $model->id,
             ]);
 
             ChannelMember::create([
                 'channel_id' => $channel->id,
-                'user_id' => $lodging->user_id,
-                'role' => 'manager',
+                'member_id' => $model->lodging_id,
+                'member_type' => config('constant.object.type.lodging'),
                 'joined_at' => now(),
             ]);
         });

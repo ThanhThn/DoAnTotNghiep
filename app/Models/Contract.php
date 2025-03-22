@@ -87,8 +87,8 @@ class Contract extends Model
         ChannelMember::firstOrCreate(
             [
                 'channel_id' => $channel->id,
-                'user_id' => $model->user_id,
-                'role' => 'user',
+                'member_id' => $model->user_id,
+                'member_type' => config('constant.object.type.user'),
             ],
             [
                 'joined_at' => now(),
@@ -115,8 +115,8 @@ class Contract extends Model
 
         ChannelMember::where([
             'channel_id' => $channel->id,
-            'user_id' => $model->user_id,
-            'role' => 'user',
+            'member_id' => $model->user_id,
+            'member_type' => config('constant.object.type.user'),
         ])->delete();
     }
 

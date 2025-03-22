@@ -142,3 +142,7 @@ Route::group(['prefix' => 'room_usage', 'namespace' => 'App\Http\Controllers'], 
 Route::group(['prefix' => 'service_payment', 'namespace' => 'App\Http\Controllers', 'middleware' => 'jwt.verify'], function ($route) {
     Route::post('list', 'ServicePaymentController@list');
 });
+
+Route::group(['prefix' =>  'channel', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('list', 'ChannelController@list')->middleware('jwt.verify');
+});

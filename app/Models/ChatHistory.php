@@ -5,22 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class ChannelMember extends Model
+class ChatHistory extends Model
 {
-    protected $table = 'channel_members';
+    protected $table = 'chat_histories';
     protected $fillable = [
         'id',
         'channel_id',
-        'member_id',
-        'member_type',
-        'joined_at'
+        'sender_id',
+        'sender_role',
+        'context',
+        'status'
     ];
 
     protected $keyType = "string";
     public $incrementing = false;
     protected $primaryKey = 'id';
 
-    protected $hidden = ['created_at','updated_at'];
+    protected $hidden = ['updated_at'];
 
 
     protected static function boot(){

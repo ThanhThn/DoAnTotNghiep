@@ -29,6 +29,16 @@ class Channel extends Model
         });
     }
 
+    public function latestMessage()
+    {
+        return $this->hasOne(ChatHistory::class)->latest();
+    }
+
+    public function members()
+    {
+        return $this->hasMany(ChannelMember::class);
+    }
+
     public function room(){
         return $this->belongsTo(Room::class);
     }
