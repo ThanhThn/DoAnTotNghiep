@@ -99,7 +99,7 @@ class ContractService
 
     public function listContract($data){
 
-        $contracts = Contract::select([
+        $contracts = Contract::on('pgsqlReplica')->select([
             'id', 'user_id', 'room_id', 'start_date', 'end_date',
             'monthly_rent', 'status', 'lease_duration', 'full_name', 'code'
         ])
@@ -131,9 +131,9 @@ class ContractService
         ];
     }
 
-    public function detail($id)
+    public function detail($id, $connection = "pgsql")
     {
-        return Contract::with('room')->find($id);
+        return Contract::on($connection)->find($id);
     }
 
     public function calculateContract($contract, $amountNeedPayment, $lateDays)
@@ -194,7 +194,7 @@ class ContractService
 
     public function update($data)
     {
-        $contract = $this->detail($data['contract_id']);
+        $contract = $this->detail($data['contract_id'])->load('room');
 
         if($contract->room->lodging_id != $data['lodging_id']){
             return [
@@ -281,7 +281,7 @@ class ContractService
             }
 
             DB::commit();
-            return $this->detail($contract->id);
+            return $this->detail($contract->id)->load('room');
         }catch (\Exception $exception) {
             DB::rollback();
             return [
