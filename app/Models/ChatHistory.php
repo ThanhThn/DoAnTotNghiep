@@ -12,7 +12,7 @@ class ChatHistory extends Model
         'id',
         'channel_id',
         'sender_id',
-        'sender_role',
+        'sender_type',
         'context',
         'status'
     ];
@@ -30,6 +30,13 @@ class ChatHistory extends Model
             if(empty($model->id)){
                 $model->id = Str::uuid();
             }
+            $model->status = 1;
         });
     }
+
+    public function channel()
+    {
+        return $this->belongsTo(Channel::class);
+    }
+
 }

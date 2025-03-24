@@ -31,4 +31,14 @@ class ChannelMember extends Model
             }
         });
     }
+
+    public function channel()
+    {
+        return $this->belongsTo(Channel::class);
+    }
+
+    public function chatHistories()
+    {
+        return $this->hasMany(ChatHistory::class, 'channel_id', 'channel_id');
+    }
 }

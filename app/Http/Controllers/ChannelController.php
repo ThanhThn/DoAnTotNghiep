@@ -31,7 +31,7 @@ class ChannelController extends Controller
             return response()->json($response, JsonResponse::HTTP_OK);
         }
 
-        if($memberType == config('constant.object.type.lodging' && !LodgingService::isOwnerLodging($memberId, $userId))){
+        if($memberType == config('constant.object.type.lodging') && !LodgingService::isOwnerLodging($memberId, $userId)){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [[
