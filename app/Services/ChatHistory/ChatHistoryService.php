@@ -2,6 +2,7 @@
 
 namespace App\Services\ChatHistory;
 
+use App\Events\ChatEvent;
 use App\Models\Channel;
 use App\Models\ChannelMember;
 use App\Models\ChatHistory;
@@ -48,6 +49,9 @@ class ChatHistoryService
                 'text' => $message
             ],
         ]);
+
+        event(new ChatEvent('new', $chat));
+
         return $chat;
     }
 }

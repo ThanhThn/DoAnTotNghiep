@@ -71,6 +71,11 @@ class LodgingService
         return $lodging;
     }
 
+    static function lodgingIdsOfUser($userId)
+    {
+        return Lodging::where('user_id', $userId)->pluck('lodging_id')->toArray();
+    }
+
     function create($data, $userId)
     {
         $user = User::find($userId);

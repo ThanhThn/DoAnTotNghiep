@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Services\Lodging\LodgingService;
+use App\Services\ChannelMember\ChannelMemberService;
 
 Route::post('/broadcasting/auth', function (Request $request) {
     $response = Broadcast::auth($request);
@@ -30,3 +31,6 @@ Broadcast::channel('feedback.{objectType}.{objectId}', function ($user, $objectT
     };
 });
 
+Broadcast::channel('chat.{channelId}', function ($user, $channelId) {
+    return ChannelMemberService::isUserOrLodgingInChannel($user->id, $channelId);
+});
