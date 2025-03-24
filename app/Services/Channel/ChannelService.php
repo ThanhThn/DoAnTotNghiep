@@ -24,7 +24,7 @@ class ChannelService
             $query->where(['member_id' => $memberId, 'member_type' => $memberType]);
         })
             ->with([
-                'latestMessage', 'room.lodging'
+                'latestMessage.sender', 'room.lodging'
             ])
             ->get();
 
