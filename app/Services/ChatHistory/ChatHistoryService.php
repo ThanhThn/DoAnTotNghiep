@@ -50,7 +50,7 @@ class ChatHistoryService
             ],
         ]);
 
-        event(new ChatEvent('new', $chat));
+        event(new ChatEvent('new', $chat->load('sender')));
 
         return $chat;
     }
