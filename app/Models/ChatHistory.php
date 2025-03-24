@@ -13,7 +13,7 @@ class ChatHistory extends Model
         'channel_id',
         'sender_id',
         'sender_type',
-        'context',
+        'content',
         'status'
     ];
 
@@ -22,6 +22,10 @@ class ChatHistory extends Model
     protected $primaryKey = 'id';
 
     protected $hidden = ['updated_at'];
+
+    protected $casts = [
+        'content' => 'array'
+    ];
 
 
     protected static function boot(){
