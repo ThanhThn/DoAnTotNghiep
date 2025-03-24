@@ -5,7 +5,10 @@ namespace App\Services\ChatHistory;
 use App\Models\Channel;
 use App\Models\ChannelMember;
 use App\Models\ChatHistory;
+use App\Models\Lodging;
+use App\Models\User;
 use App\Services\ChannelMember\ChannelMemberService;
+use Carbon\Carbon;
 
 class ChatHistoryService
 {
@@ -24,7 +27,8 @@ class ChatHistoryService
 
         $channelMember = (new ChannelMemberService())->detail($memberId, $memberType, $channelId);
 
-        $query = ChatHistory::where('channel_id', $channelId)->where('created_at', "<=", $channelMember->joined_at);
+        $query = ChatHistory::on('pgsqlReplica')->with([
+            'sender'])->where('channel_id', $channelId)->where('created_at', ">=", $channelMember->joined_at);
         $total = $query->count();
         $query = $query->orderBy('created_at', 'desc')->offset($offset)->limit($limit)->get();
 

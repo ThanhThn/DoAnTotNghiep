@@ -38,6 +38,11 @@ class ChatHistory extends Model
         });
     }
 
+    public function sender()
+    {
+        return $this->morphTo();
+    }
+
     public function channel()
     {
         return $this->belongsTo(Channel::class);
