@@ -56,7 +56,7 @@ class RoomServiceManagerService
                 ];
             })->toArray();
 
-            RoomService::insert($dataInsert);
+            self::insert($dataInsert);
         }
 
         return true;

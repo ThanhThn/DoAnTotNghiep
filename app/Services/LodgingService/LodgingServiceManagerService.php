@@ -9,6 +9,7 @@ use App\Services\Lodging\LodgingService;
 use App\Models\LodgingService as Model;
 use App\Services\RoomService\RoomServiceManagerService;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class LodgingServiceManagerService
 {
@@ -25,7 +26,19 @@ class LodgingServiceManagerService
             'price_per_unit' => $data['price_per_unit'],
         ];
         try{
-        return Model::create($insertData);}
+            $lodgingService = Model::create($insertData);
+            $roomService = new RoomServiceManagerService();
+
+            if(isset($data['room_ids'])){
+                $insertData= array_map(fn ($roomId) => [
+                    "id" => Str::uuid(),
+                    "room_id" => $roomId,
+                    'lodging_service_id' => $lodgingService->id,
+                    'last_recorded_value' => 0,
+                ], $data['room_ids']);
+                $roomService->insert($insertData);
+            }
+        }
         catch (\Exception $exception){
             return [
                 'errors' => [[
