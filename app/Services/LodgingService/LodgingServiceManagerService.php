@@ -38,6 +38,8 @@ class LodgingServiceManagerService
                 ], $data['room_ids']);
                 $roomService->insert($insertData);
             }
+
+            return $lodgingService;
         }
         catch (\Exception $exception){
             return [
