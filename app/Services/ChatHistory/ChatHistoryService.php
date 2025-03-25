@@ -3,6 +3,7 @@
 namespace App\Services\ChatHistory;
 
 use App\Events\ChatEvent;
+use App\Events\ObjectEvent;
 use App\Models\Channel;
 use App\Models\ChannelMember;
 use App\Models\ChatHistory;
@@ -50,7 +51,14 @@ class ChatHistoryService
             ],
         ]);
 
-        event(new ChatEvent('new', $chat->load('sender')));
+        $chat = $chat->load('sender');
+        event(new ChatEvent('new', $chat));
+
+        $members = ChannelMember::select('member_id', 'member_type')->where('channel_id', $channelId)->get();
+
+        if ($members->isNotEmpty()) {
+            event(new ObjectEvent($members, 'channels', $chat));
+        }
 
         return $chat;
     }

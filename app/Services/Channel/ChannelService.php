@@ -27,10 +27,24 @@ class ChannelService
 
         $total = $query->count();
 
-        $query = $query->with(['latestMessage.sender', 'room.lodging'
-        ])->offset($offset)->limit($limit)->get()->sortByDesc(function ($channel) {
-                return $channel->latest_message->created_at ?? $channel->created_at;
-            })->values();
+        $query = $query->leftJoin('chat_histories', function ($join) {
+            $join->on('channels.id', '=', 'chat_histories.channel_id')
+                ->where('chat_histories.created_at', function ($subQuery) {
+                    $subQuery->selectRaw('MAX(created_at)')
+                        ->from('chat_histories as ch2')
+                        ->whereColumn('ch2.channel_id', 'channels.id');
+                });
+        })
+            ->leftJoin('channel_members', function ($join) use ($memberId, $memberType) {
+                $join->on('channels.id', '=', 'channel_members.channel_id')
+                    ->where(['channel_members.member_id' => $memberId, 'channel_members.member_type' => $memberType]);
+            })
+            ->select('channels.*')
+            ->with(['latestMessage.sender', 'room.lodging'])
+            ->orderByRaw('COALESCE(chat_histories.created_at, channel_members.joined_at) DESC')
+            ->offset($offset)
+            ->limit($limit)
+            ->get();
 //            ->map(function ($channel) use ($memberId) {
 //                $channel->viewed = !Interaction::on("pgsqlReplica")
 //                    ->where('object_id_a', $channel->id)
