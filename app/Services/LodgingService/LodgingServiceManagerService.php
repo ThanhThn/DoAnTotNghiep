@@ -59,29 +59,9 @@ class LodgingServiceManagerService
 
     public function detail($id)
     {
-        $service = Model::with(['service', 'unit'])->find($id);
-
-        $rooms = Room::select('id', 'room_code')->where('lodging_id', $service->lodging_id)
-            ->withExists([
-                'services as is_usage_service' => function ($query) use ($id) {
-                    $query->where('lodging_service_id', $id);
-                }
-            ])
-            ->with(['roomServices' => function ($query) use ($service) {
-                $query->where('lodging_service_id', $service->id);
-            }])
-            ->get();
-
-        $rooms->transform(function ($room) {
-            if($room->is_usage_service){
-//                dd(optional($room->roomServices->first()));
-                $room->is_enabled_service = optional($room->roomServices->first())->is_enabled;
-            }
-            unset($room->roomServices);
-            return $room;
-        });
-
-        $service->setRelation('rooms', $rooms);
+        $service = Model::with(['service', 'unit', 'roomServices' => function ($query) {
+            $query->where('is_enabled', true);
+        }])->find($id);
         return $service;
     }
 

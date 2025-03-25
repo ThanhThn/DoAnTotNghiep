@@ -168,6 +168,6 @@ class LodgingService
     }
 
     static function isOwnerLodging($lodgingId, $userId){
-        return Lodging::where(['id' => $lodgingId, 'user_id' => $userId])->exists();
+        return Lodging::on('pgsqlReplica')->where(['id' => $lodgingId, 'user_id' => $userId])->exists();
     }
 }
