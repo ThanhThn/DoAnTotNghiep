@@ -3,6 +3,7 @@
 namespace App\Services\Channel;
 
 use App\Models\Channel;
+use App\Models\ChannelMember;
 
 class ChannelService
 {
@@ -20,20 +21,16 @@ class ChannelService
         $memberId = $this->_memberId;
         $memberType = $this->_memberType;
         // Lấy danh sách các channel mà member đã tham gia
-        $query = Channel::whereHas('members', function ($query) use ($memberId, $memberType) {
+        $query = Channel::on('pgsqlReplica')->whereHas('members', function ($query) use ($memberId, $memberType) {
             $query->where(['member_id' => $memberId, 'member_type' => $memberType]);
-        })
-            ->with([
-                'latestMessage.sender', 'room.lodging'
-            ])
-            ->get();
+        });
 
         $total = $query->count();
 
-        $query = $query->sortByDesc(function ($channel) {
+        $query = $query->with(['latestMessage.sender', 'room.lodging'
+        ])->offset($offset)->limit($limit)->get()->sortByDesc(function ($channel) {
                 return $channel->latest_message->created_at ?? null;
-            })
-            ->slice($offset, $limit)
+            });
 //            ->map(function ($channel) use ($memberId) {
 //                $channel->viewed = !Interaction::on("pgsqlReplica")
 //                    ->where('object_id_a', $channel->id)
@@ -42,7 +39,6 @@ class ChannelService
 //                    ->exists();
 //                return $channel;
 //            })
-            ->values()->all();
 
         return [
             'total' => $total,

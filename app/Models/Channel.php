@@ -17,7 +17,7 @@ class Channel extends Model
     public $incrementing = false;
     protected $primaryKey = 'id';
 
-    protected $hidden = ['created_at','updated_at'];
+    protected $hidden = ['updated_at'];
 
 
     protected static function boot(){
