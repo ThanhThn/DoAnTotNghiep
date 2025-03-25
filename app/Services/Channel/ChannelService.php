@@ -39,8 +39,16 @@ class ChannelService
                 $join->on('channels.id', '=', 'channel_members.channel_id')
                     ->where(['channel_members.member_id' => $memberId, 'channel_members.member_type' => $memberType]);
             })
-            ->select('channels.*')
-            ->with(['latestMessage.sender', 'room.lodging'])
+            ->select('channels.*', 'channel_members.joined_at')
+            ->with(['latestMessage' => function ($query) use ($memberId, $memberType) {
+                $query->whereExists(function ($subQuery) use ($memberId, $memberType) {
+                    $subQuery->selectRaw(1)
+                        ->from('channel_members')
+                        ->whereColumn('channel_members.channel_id', 'chat_histories.channel_id')
+                        ->where(['member_id' => $memberId, 'member_type' => $memberType])
+                        ->whereColumn('chat_histories.created_at', '>=', 'channel_members.joined_at');
+                })->with('sender');
+            }, 'room.lodging'])
             ->orderByRaw('COALESCE(
     CASE WHEN channel_members.joined_at > chat_histories.created_at THEN NULL
          ELSE chat_histories.created_at
