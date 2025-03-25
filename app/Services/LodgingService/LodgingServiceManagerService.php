@@ -59,7 +59,7 @@ class LodgingServiceManagerService
 
     public function detail($id)
     {
-        $service = Model::with(['service', 'unit', 'roomServices' => function ($query) {
+        $service = Model::with(['service', 'unit', 'roomServices.room' => function ($query) {
             $query->where('is_enabled', true);
         }])->find($id);
         return $service;
