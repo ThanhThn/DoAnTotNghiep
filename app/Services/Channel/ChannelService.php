@@ -41,7 +41,12 @@ class ChannelService
             })
             ->select('channels.*')
             ->with(['latestMessage.sender', 'room.lodging'])
-            ->orderByRaw('COALESCE(chat_histories.created_at, channel_members.joined_at) DESC')
+            ->orderByRaw('COALESCE(
+    CASE WHEN channel_members.joined_at > chat_histories.created_at THEN NULL
+         ELSE chat_histories.created_at
+    END,
+    channel_members.joined_at
+) DESC')
             ->offset($offset)
             ->limit($limit)
             ->get();
