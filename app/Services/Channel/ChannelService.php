@@ -30,7 +30,7 @@ class ChannelService
         $query = $query->with(['latestMessage.sender', 'room.lodging'
         ])->offset($offset)->limit($limit)->get()->sortByDesc(function ($channel) {
                 return $channel->latest_message->created_at ?? $channel->created_at;
-            });
+            })->values();
 //            ->map(function ($channel) use ($memberId) {
 //                $channel->viewed = !Interaction::on("pgsqlReplica")
 //                    ->where('object_id_a', $channel->id)
