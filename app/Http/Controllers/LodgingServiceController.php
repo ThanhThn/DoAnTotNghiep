@@ -53,7 +53,8 @@ class LodgingServiceController extends Controller
             ]);
         }
 
-        if(!(new LodgingService())->detailLodging($lodgingId)){
+        $lodging = (new LodgingService())->detailLodging($lodgingId);
+        if(!$lodging){
             return response()->json([
                 'status' => JsonResponse::HTTP_NOT_FOUND,
                 'errors' => [[
@@ -65,7 +66,7 @@ class LodgingServiceController extends Controller
 
         $userId = Auth::id();
 
-        if(!LodgingService::isOwnerLodging( $lodgingId, $userId)) {
+        if($lodging->user_id != $userId) {
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [[
