@@ -43,8 +43,13 @@ class RoomServiceManagerService
             ->whereNotIn('room_id', $roomIds)
             ->update(['is_enabled' => false]);
 
+        RoomService::where('lodging_service_id', $lodgingServiceId)
+            ->whereIn('room_id', $roomIds)
+            ->update(['is_enabled' => true]);
+
         // Lấy danh sách room_id cần thêm mới
         $roomIdNotUsage = array_diff($roomIds, $existedRoomIds);
+
 
         if (!empty($roomIdNotUsage)) {
             $dataInsert = collect($roomIdNotUsage)->map(function ($roomId) use ($lodgingServiceId) {
