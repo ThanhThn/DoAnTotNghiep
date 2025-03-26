@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class RoomService extends Model
 {
+    use SoftDeletes;
     protected $table = 'room_services';
     protected $fillable = [
         'id',
@@ -16,6 +18,7 @@ class RoomService extends Model
         'is_enabled'
     ];
 
+    protected $dates = ['deleted_at'];
     protected $hidden = ['created_at','updated_at'];
     protected $keyType = 'string';
     public $incrementing = false;

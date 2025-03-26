@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LodgingService extends Model
 {
+    use SoftDeletes;
     protected $table = 'lodging_services';
 
     protected $fillable = [
@@ -25,6 +27,7 @@ class LodgingService extends Model
     protected $keyType = 'string';
     public $incrementing = false;
     protected $primaryKey = 'id';
+    protected $dates = ['deleted_at'];
 
     protected $casts = [
         'price_per_unit' => 'decimal:2',
@@ -43,6 +46,10 @@ class LodgingService extends Model
             if (empty($model->id)) {
                 $model->id = Str::uuid();
             }
+        });
+
+        static::deleting(function ($model) {
+            RoomService::where('lodging_service_id', $model->id)->delete();
         });
     }
 

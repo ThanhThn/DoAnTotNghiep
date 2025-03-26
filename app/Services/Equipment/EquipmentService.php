@@ -4,6 +4,7 @@ namespace App\Services\Equipment;
 
 use App\Jobs\UploadImageToStorage;
 use App\Models\Equipment;
+use App\Models\Room;
 use App\Models\RoomSetup;
 use App\Services\Image\ImageService;
 use App\Services\RoomSetup\RoomSetupService;
@@ -126,6 +127,24 @@ class EquipmentService
             ];
         }
 
+    }
+
+    public function softDelete($id)
+    {
+        try {
+            $model = Equipment::findOrFail($id);
+            $model->delete();
+            return true;
+        } catch (\Exception $exception) {
+            return [
+                'success' => false,
+                'errors' => [
+                    [
+                        'message' => $exception->getMessage(),
+                    ]
+                ]
+            ];
+        }
     }
 
     public function listByLodging($data, $lodgingId)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Room\DeleteRoomRequest;
 use App\Http\Requests\Room\RoomRequest;
 use App\Http\Requests\Room\FilterRoomRequest;
 use App\Models\Lodging;
@@ -137,5 +138,36 @@ class RoomController extends Controller
             ]
         ]);
 
+    }
+
+    public function delete(DeleteRoomRequest $request)
+    {
+        $data = $request->all();
+        $userId = Auth::id();
+
+        if(!RoomService::isOwnerRoom($data['room_id'], $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $service = new RoomService();
+        $result = $service->softDelete($data['room_id']);
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => 'Xoá phòng thành công!'
+            ]
+        ]);
     }
 }

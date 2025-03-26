@@ -3,6 +3,7 @@
 namespace App\Services\Room;
 
 use App\Models\Lodging;
+use App\Models\LodgingService as Model;
 use App\Models\Room;
 use App\Models\RoomService as ModelsRoomService;
 use App\Services\RoomService\RoomServiceManagerService;
@@ -193,6 +194,24 @@ class RoomService
             DB::rollBack();
             return [
                 'errors' => [['message' => $exception->getMessage()]]
+            ];
+        }
+    }
+
+    public function softDelete($id)
+    {
+        try {
+            $model = Room::findOrFail($id);
+            $model->delete();
+            return true;
+        } catch (\Exception $exception) {
+            return [
+                'success' => false,
+                'errors' => [
+                    [
+                        'message' => $exception->getMessage(),
+                    ]
+                ]
             ];
         }
     }

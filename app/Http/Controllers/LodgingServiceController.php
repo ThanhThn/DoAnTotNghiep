@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Equipment\DeleteEquipmentRequest;
+use App\Http\Requests\LodgingService\DeleteLodgingServiceRequest;
 use App\Http\Requests\LodgingService\LodgingServiceRequest;
 use App\Services\Lodging\LodgingService;
 use App\Services\LodgingService\LodgingServiceManagerService;
@@ -138,6 +140,37 @@ class LodgingServiceController extends Controller
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => $result
+        ]);
+    }
+
+    public function delete(DeleteLodgingServiceRequest $request)
+    {
+        $data = $request->all();
+        $userId = Auth::id();
+
+        if(!LodgingService::isOwnerLodging($data['lodging_id'], $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $service = new LodgingServiceManagerService();
+        $result = $service->softDelete($data['id']);
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => 'Xoá dịch vụ thành công!'
+            ]
         ]);
     }
 }

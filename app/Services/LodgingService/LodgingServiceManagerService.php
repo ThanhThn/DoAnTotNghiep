@@ -10,6 +10,7 @@ use App\Models\LodgingService as Model;
 use App\Services\RoomService\RoomServiceManagerService;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Mockery\Exception;
 
 class LodgingServiceManagerService
 {
@@ -116,6 +117,23 @@ class LodgingServiceManagerService
         return $results;
     }
 
+    public function softDelete($id)
+    {
+        try {
+            $model = Model::findOrFail($id);
+            $model->delete();
+            return true;
+        } catch (\Exception $exception) {
+            return [
+                'success' => false,
+                'errors' => [
+                    [
+                        'message' => $exception->getMessage(),
+                    ]
+                ]
+            ];
+        }
+    }
     public function getServiceCalculator(Model $lodgingService): ?BaseServiceCalculator
     {
         $lodgingService->load('unit');

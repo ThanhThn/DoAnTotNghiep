@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Equipment\CreateEquipmentRequest;
+use App\Http\Requests\Equipment\DeleteEquipmentRequest;
 use App\Http\Requests\Equipment\DetailEquipmentRequest;
 use App\Http\Requests\Equipment\ListEquipmentRequest;
 use App\Http\Requests\Equipment\UpdateEquipmentRequest;
@@ -89,6 +90,37 @@ class EquipmentController extends Controller
             'status' => JsonResponse::HTTP_OK,
             'body' => [
                 'data' => $result
+            ]
+        ]);
+    }
+
+    public function delete(DeleteEquipmentRequest $request)
+    {
+        $data = $request->all();
+        $userId = Auth::id();
+
+        if(!LodgingService::isOwnerLodging($data['lodging_id'], $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $service = new EquipmentService();
+        $result = $service->softDelete($data['equipment_id']);
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => 'Xoá trang thiết bị thành công!'
             ]
         ]);
     }

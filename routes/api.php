@@ -75,6 +75,7 @@ Route::group(['prefix' => 'lodging_service' , 'namespace' => 'App\Http\Controlle
     Route::post('update', 'LodgingServiceController@update')->middleware('jwt.verify');
 
     Route::get('list', 'LodgingServiceController@list');
+    Route::delete('delete', 'LodgingServiceController@delete')->middleware('jwt.verify');
 });
 
 //Room
@@ -84,6 +85,8 @@ Route::group(['prefix' => 'room', 'namespace' => 'App\Http\Controllers'], functi
     Route::post('filter', 'RoomController@filter');
     Route::get('detail/{id}', 'RoomController@detail');
     Route::post('update', 'RoomController@update')->middleware('jwt.verify');
+
+    Route::delete('delete', 'RoomController@delete')->middleware('jwt.verify');
 });
 
 //Contract
@@ -122,6 +125,8 @@ Route::group(['prefix' => 'equipment', 'namespace' => 'App\Http\Controllers'] , 
     Route::post('update','EquipmentController@update')->middleware('jwt.verify');
 
     Route::get('list', 'EquipmentController@listByLodging');
+
+    Route::delete('delete', 'EquipmentController@delete')->middleware('jwt.verify');
 });
 
 

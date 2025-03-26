@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Room extends Model
 {
+    use SoftDeletes;
     protected $table = 'rooms';
 
     protected $fillable = [
@@ -24,6 +26,7 @@ class Room extends Model
       'late_days',
     ];
     protected $hidden = ['created_at','updated_at', 'is_enabled'];
+    protected $dates = ['deleted_at'];
 
     protected $casts = [
         'area' => 'float',
@@ -60,6 +63,11 @@ class Room extends Model
                 'member_type' => config('constant.object.type.lodging'),
                 'joined_at' => now(),
             ]);
+        });
+
+        static::deleting(function ($model) {
+            RoomService::where('room_id', $model->id)->delete();
+            RoomSetup::where('room_id', $model->id)->delete();
         });
     }
 

@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Equipment extends Model
 {
+    use SoftDeletes;
     protected $table = 'equipments';
 
     protected $fillable = [
@@ -20,6 +22,7 @@ class Equipment extends Model
         'lodging_id'
     ];
 
+    protected $dates = ['deleted_at'];
     protected $primaryKey = 'id';
     protected $keyType = "string";
     public $incrementing = false;
@@ -32,6 +35,10 @@ class Equipment extends Model
             if(empty($model->id)){
                 $model->id = Str::uuid();
             }
+        });
+
+        static::deleting(function ($model) {
+           RoomService::where('equipment_id', $model->id)->delete();
         });
     }
 
