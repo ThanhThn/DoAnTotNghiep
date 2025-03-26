@@ -20,7 +20,7 @@ class LodgingServiceRequest extends BaseRequest
             'price_per_unit' => 'required|numeric|min:0',
             'room_ids' => 'nullable|array',
             'room_ids.*' => [
-                'required_with:room_ids',
+                'nullable',
                 'uuid',
                 Rule::exists('rooms', 'id')->where(function ($query) {
                     return $query->where('lodging_id', $this->input('lodging_id'));

@@ -59,8 +59,8 @@ class LodgingServiceManagerService
 
     public function detail($id)
     {
-        $service = Model::with(['service', 'unit', 'roomServices.room' => function ($query) {
-            $query->where('is_enabled', true);
+        $service = Model::with(['service', 'unit', 'roomServices' => function ($query) {
+            $query->where('is_enabled', true)->with('room');
         }])->find($id);
         return $service;
     }
@@ -91,7 +91,7 @@ class LodgingServiceManagerService
 
 
             // Nếu có room_ids, đồng bộ danh sách
-            if (!empty($data['room_ids'])) {
+            if (isset($data['room_ids'])) {
                 $roomService = new RoomServiceManagerService();
                 $roomService->updateAndCreateByLodgingService($data['room_ids'], $id);
             }
