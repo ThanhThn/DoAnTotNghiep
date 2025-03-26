@@ -26,17 +26,27 @@ class JWTMiddleware
 
         try {
 
-            $payload = JWTAuth::setToken($token)->getPayload();
+            $payload = JWTAuth::parseToken()->getPayload();
             $userId = $payload->get('sub');
-
-            $user = User::on('pgsqlReplica')->find($userId);
-            Auth::setUser($user);
 
             $key = "blacklist_{$userId}_{$payload->get('jti')}";
             $blacklisted = Redis::get($key);
 
             if ($blacklisted) {
                 throw new TokenInvalidException();
+            }
+
+
+            $cacheKey = 'user:'.$userId;
+            $cachedUser = Redis::get($cacheKey);
+            if ($cachedUser) {
+                $user = unserialize($cachedUser);
+                Auth::setUser($user);
+            }else{
+                $user = User::on('pgsqlReplica')->find($userId);
+                Auth::setUser($user);
+
+                Redis::setex($cacheKey, 3600, serialize($user));
             }
         } catch (\Exception $e) {
             return $this->handleException($e);
