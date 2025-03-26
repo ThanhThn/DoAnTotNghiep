@@ -38,7 +38,7 @@ class Equipment extends Model
         });
 
         static::deleting(function ($model) {
-           RoomService::where('equipment_id', $model->id)->delete();
+           RoomSetup::where('equipment_id', $model->id)->delete();
         });
     }
 
