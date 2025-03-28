@@ -8,6 +8,7 @@ use App\Services\Notification\NotificationService;
 use App\Services\Token\TokenService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use function tests\data;
 
 class RentalHistoryService
 {
@@ -81,6 +82,17 @@ class RentalHistoryService
             'total' => $total,
             'data' => $rentalHistories,
         ];
+    }
+
+    function sumDebtByContract($contractId)
+    {
+        $total = RentalHistory::select('payment_amount', 'amount_paid')->where(['contract_id' => $contractId])
+            ->whereIn('status', [config('constant.payment.status.partial'), config('constant.payment.status.unpaid')])
+            ->get()
+            ->sum(function ($rentalHistory) {
+            return $rentalHistory->payment_amount - $rentalHistory->amount_paid;
+        });
+        return $total;
     }
 
     function statisticalAmount($month, $year, $lodgingId)

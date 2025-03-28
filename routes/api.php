@@ -98,6 +98,8 @@ Route::group(['prefix' => 'contract', 'namespace' => 'App\Http\Controllers'], fu
     Route::get('detail/{contractId}', 'ContractController@detail')->middleware('jwt.verify');
 
     Route::post('update', 'ContractController@update')->middleware('jwt.verify');
+
+    Route::get('debt/{contractId}', 'ContractController@debt');
 });
 
 //Feedback

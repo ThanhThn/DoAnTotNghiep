@@ -28,7 +28,8 @@ class Contract extends Model
         'identity_card',
         'date_of_birth',
         'relatives',
-        'code'
+        'code',
+        'has_been_billed'
     ];
 
     protected $keyType = "string";

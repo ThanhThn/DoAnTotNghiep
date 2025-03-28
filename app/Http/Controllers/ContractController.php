@@ -90,6 +90,19 @@ class ContractController extends Controller
         ]);
     }
 
+    public function debt(DetailContractRequest $request, $contractId)
+    {
+        $service  = new ContractService();
+        $result = $service->debtContract($contractId);
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
+        ]);
+    }
+
     public function update(UpdateContractRequest $request)
     {
         $data = $request->only(['lodging_id', 'contract_id', 'status', 'start_date', 'lease_duration', 'remain_amount', 'deposit_amount', 'monthly_rent', 'quantity', 'gender', 'address', 'identity_card', 'date_of_birth', 'full_name', "relatives"]);

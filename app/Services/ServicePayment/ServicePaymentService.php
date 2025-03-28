@@ -35,4 +35,15 @@ class ServicePaymentService
             'data' => $servicePayments,
         ];
     }
+
+    function sumDebtByContract($contractId)
+    {
+        $total = ServicePayment::select('payment_amount', 'amount_paid')->where(['contract_id' => $contractId])
+            ->whereColumn('payment_amount', '>', 'amount_paid')
+            ->get()
+            ->sum(function ($rentalHistory) {
+                return $rentalHistory->payment_amount - $rentalHistory->amount_paid;
+            });
+        return $total;
+    }
 }

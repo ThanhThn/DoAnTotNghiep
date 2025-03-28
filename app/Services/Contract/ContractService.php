@@ -8,6 +8,7 @@ use App\Models\Room;
 use App\Models\User;
 use App\Services\RentalHistory\RentalHistoryService;
 use App\Services\Room\RoomService;
+use App\Services\ServicePayment\ServicePaymentService;
 use App\Services\User\UserService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -292,6 +293,19 @@ class ContractService
                 ]]
             ];
         }
+    }
+
+    public function debtContract($id){
+        $rentalPaymentService = new RentalHistoryService();
+        $servicePaymentService = new ServicePaymentService();
+
+        $roomDebt = $rentalPaymentService->sumDebtByContract($id);
+        $serviceDebt = $servicePaymentService->sumDebtByContract($id);
+
+        return [
+            'room' => $roomDebt,
+            'service' => $serviceDebt,
+        ];
     }
 
     static function isContractOwner($contract_id, $user_id)
