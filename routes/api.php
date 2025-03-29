@@ -76,6 +76,8 @@ Route::group(['prefix' => 'lodging_service' , 'namespace' => 'App\Http\Controlle
 
     Route::get('list', 'LodgingServiceController@list');
     Route::delete('delete', 'LodgingServiceController@delete')->middleware('jwt.verify');
+
+    Route::get('list_by_room', 'LodgingServiceController@listByRoom');
 });
 
 //Room
@@ -158,4 +160,8 @@ Route::group(['prefix' => 'chat', 'namespace' => 'App\Http\Controllers'], functi
     Route::post('list', 'ChatHistoryController@list')->middleware('jwt.verify');
 
     Route::post('create', 'ChatHistoryController@create')->middleware('jwt.verify');
+});
+
+Route::group(['prefix' => 'payment', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('payment_by_contract', 'PaymentController@paymentByContract')->middleware('jwt.verify');
 });

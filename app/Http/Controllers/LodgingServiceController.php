@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BaseRequest;
 use App\Http\Requests\Equipment\DeleteEquipmentRequest;
 use App\Http\Requests\LodgingService\DeleteLodgingServiceRequest;
 use App\Http\Requests\LodgingService\LodgingServiceRequest;
@@ -140,6 +141,22 @@ class LodgingServiceController extends Controller
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => $result
+        ]);
+    }
+
+    public function listByRoom(BaseRequest $request)
+    {
+        $request->validate([
+            'room_id' => 'required|uuid|exists:rooms,id'
+        ]);
+
+        $service = new LodgingServiceManagerService();
+        $result = $service->listByRoom($request['room_id']);
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
         ]);
     }
 

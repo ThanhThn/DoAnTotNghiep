@@ -106,6 +106,16 @@ class LodgingServiceManagerService
     }
 
 
+    public function listByRoom($roomId)
+    {
+        $service = Model::whereHas('roomServices', function ($query) use ($roomId) {
+            $query->where(['room_id' => $roomId, 'is_enabled' => true]);
+        })->with(['service', 'unit', 'roomServices' => function ($query) use ($roomId){
+            $query->where(['room_id' => $roomId, 'is_enabled' => true]);
+        }])->get();
+        return $service;
+    }
+
     public function list()
     {
         $results = Model::whereHas('roomServices', function ($query) {
@@ -134,6 +144,7 @@ class LodgingServiceManagerService
             ];
         }
     }
+
     public function getServiceCalculator(Model $lodgingService): ?BaseServiceCalculator
     {
         $lodgingService->load('unit');

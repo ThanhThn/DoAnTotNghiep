@@ -10,6 +10,7 @@ class ServicePayment extends Model
     protected $table = 'service_payments';
 
     protected $fillable = [
+        'id',
         'contract_id',
         'room_service_usage_id',
         'payment_amount',

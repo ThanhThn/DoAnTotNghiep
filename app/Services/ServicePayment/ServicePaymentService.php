@@ -2,8 +2,11 @@
 
 namespace App\Services\ServicePayment;
 
+use App\Models\Contract;
 use App\Models\RoomServiceUsage;
 use App\Models\ServicePayment;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ServicePaymentService
 {
@@ -45,5 +48,44 @@ class ServicePaymentService
                 return $rentalHistory->payment_amount - $rentalHistory->amount_paid;
             });
         return $total;
+    }
+
+    function paymentByContract($contractId, $serviceId, $amount, $method)
+    {
+        try{
+            DB::beginTransaction();
+            $bill = ServicePayment::where(['contract_id' => $contractId, 'id' => $serviceId])->first();
+
+            $amountToBePaid = $bill->payment_amount - $bill->amount_paid;
+
+            $amountPaid = min($amountToBePaid, $amount);
+            $refund = max(0, $amount - $amountToBePaid);
+
+            $bill->update([
+                'amount_paid' => $bill->amount_paid + $amountPaid,
+                'payment_method' => $method,
+                'last_payment_date' => Carbon::now()
+            ]);
+
+            // Cập nhật số tiền đã thanh toán trong RoomServiceUsage
+            RoomServiceUsage::where('id', $bill->room_service_usage_id)->increment('amount_paid', $amountPaid);
+
+            // Nếu có số dư, cập nhật số tiền còn lại trong hợp đồng
+            if ($refund > 0) {
+                Contract::where('id', $contractId)->update([
+                    'remain_amount' => DB::raw('remain_amount + ' . $refund),
+                ]);
+            }
+
+            DB::commit();
+            return $bill->refresh();
+        }catch (\Exception $exception) {
+            DB::rollBack();
+            return [
+                'errors' => [[
+                    'message' => $exception->getMessage(),
+                ]]
+            ];
+        }
     }
 }

@@ -132,11 +132,14 @@ class ContractService
         ];
     }
 
-    public function detail($id, $connection = "pgsql")
+    public function detail($id, $connection = "pgsql", $hasLodging = false)
     {
         return Contract::on($connection)
-            ->with(['room' => function ($query) {
-            $query->without('lodging');}])->find($id);
+            ->with(['room' => function ($query) use ($hasLodging) {
+                if (!$hasLodging) {
+                    $query->without('lodging');
+                }
+            }])->find($id);
     }
 
     public function calculateContract($contract, $amountNeedPayment, $lateDays)
