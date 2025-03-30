@@ -33,11 +33,18 @@ class RoomPayment extends PaymentService
             foreach ($rentalHistory as $history) {
                 $amountToBePaid = $history->payment_amount - $history->amount_paid;
 
-                $amountPaid = min($amountToBePaid, $amount);
+                $amountPaid = $history->amount_paid + min($amountToBePaid, $amount);
                 $amount = max(0, $amount - $amountToBePaid);
 
+                $status = match (true) {
+                    $amountPaid == 0 => config('constant.payment.status.unpaid'),
+                    $amountPaid < $history->payment_amount => config('constant.payment.status.partial'),
+                    default => config('constant.payment.status.paid'),
+                };
+
                 $history->update([
-                    'amount_paid' => $history->amount_paid + $amountPaid,
+                    'status' => $status,
+                    'amount_paid' => $amountPaid,
                     'payment_method' => $paymentMethod,
                     'last_payment_date' => Carbon::now()
                 ]);
