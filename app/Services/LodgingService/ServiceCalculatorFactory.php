@@ -2,6 +2,7 @@
 
 namespace App\Services\LodgingService;
 
+use App\Models\Contract;
 use App\Models\LodgingService;
 use App\Models\Room;
 use App\Models\RoomServiceUsage;
@@ -12,7 +13,7 @@ use App\Services\Token\TokenService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-abstract class BaseServiceCalculator
+abstract class ServiceCalculatorFactory
 {
     protected LodgingService $lodgingService;
     protected $now;
@@ -26,6 +27,8 @@ abstract class BaseServiceCalculator
     }
 
     abstract public function calculateCost();
+
+    abstract public function processRoomUsageForContract(Room $room, Contract $contract, $usageAmount, $paymentMethod ,$currentValue = 0, $extractData = []);
 
     abstract function processRoomUsage($room, $totalPrice, $value, $monthBilling = null, $yearBilling = null, $recursionCount = 0);
 
@@ -64,43 +67,48 @@ abstract class BaseServiceCalculator
         ];
     }
 
-    protected function createPaymentAndNotify($room, $contract, $paymentAmount, $roomUsage, $monthBilling)
+    protected function createPaymentAndNotify($room, $contract, $paymentAmount, $roomUsage, $monthBilling , $amountPaid = 0, $paymentMethod = null)
     {
         // Lưu thanh toán vào bảng ServicePayment
         ServicePayment::create([
             'room_service_usage_id' => $roomUsage->id,
             'contract_id' => $contract->id,
             'payment_amount' => $paymentAmount,
-            'amount_paid' => 0,
+            'amount_paid' => $amountPaid,
             'payment_date' => $this->now,
             'last_payment_date' => $this->now,
+            'payment_method' => $paymentMethod,
             'due_date' => $this->now->clone()->addDays($this->lodgingService->late_days),
         ]);
 
-        // Lấy tên dịch vụ
-        $nameService = isset($this->lodgingService->service) ? config("constant.service.name.{$this->lodgingService->service->name}") : $this->lodgingService->name;
 
-        // Lấy thông tin nhà trọ
-        $lodgingName = $this->lodgingService->lodging->name ?? 'Khu trọ không xác định';
-        $lodgingType = $this->lodgingService->lodging->type->name ?? "";
+        if($paymentAmount > $amountPaid){
+            // Lấy tên dịch vụ
+            $nameService = isset($this->lodgingService->service) ? config("constant.service.name.{$this->lodgingService->service->name}") : $this->lodgingService->name;
 
-        $paymentAmount = rtrim(rtrim(number_format($paymentAmount, 2, ',', '.'), '0'), ',');
-        // Nội dung thông báo rõ ràng hơn
-        $message = [
-            'title' => "Nhắc nhở thanh toán tiền $nameService tháng {$monthBilling} - $lodgingName",
-            'body' => "Bạn cần thanh toán $paymentAmount đ cho phòng {$room->room_code}, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phí trễ hạn.",
-            'target_endpoint' => '/rental_history/list',
-            'type' => config('constant.notification.type.important'),
-        ];
+            // Lấy thông tin nhà trọ
+            $lodgingName = $this->lodgingService->lodging->name ?? 'Khu trọ không xác định';
+            $lodgingType = $this->lodgingService->lodging->type->name ?? "";
 
-        // Gửi thông báo
-        $notificationService = new NotificationService();
-        $notificationService->createNotification(
-            $message,
-            config('constant.object.type.user'),
-            $contract->user_id,
-            $contract->user_id
-        );
+            $paymentAmount = rtrim(rtrim(number_format($paymentAmount, 2, ',', '.'), '0'), ',');
+
+
+            $message = [
+                'title' => "Nhắc nhở thanh toán tiền $nameService tháng {$monthBilling} - $lodgingName",
+                'body' => "Bạn cần thanh toán $paymentAmount đ cho phòng {$room->room_code}, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phí trễ hạn.",
+                'target_endpoint' => '/rental_history/list',
+                'type' => config('constant.notification.type.important'),
+            ];
+
+            // Gửi thông báo
+            $notificationService = new NotificationService();
+            $notificationService->createNotification(
+                $message,
+                config('constant.object.type.user'),
+                $contract->user_id,
+                $contract->user_id
+            );
+        }
     }
 
 

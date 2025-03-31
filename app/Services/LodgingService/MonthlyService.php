@@ -2,11 +2,17 @@
 
 namespace App\Services\LodgingService;
 
+use App\Helpers\Helper;
+use App\Models\Contract;
 use App\Models\Room;
 use App\Models\RoomServiceUsage;
+use App\Services\RentalHistory\RentalHistoryService;
+use App\Services\RoomService\RoomServiceManagerService;
+use App\Services\RoomUsageService\RoomUsageService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
-class MonthlyService extends BaseServiceCalculator
+class MonthlyService extends ServiceCalculatorFactory
 {
     public function calculateCost()
     {
@@ -76,5 +82,75 @@ class MonthlyService extends BaseServiceCalculator
             $this->createPaymentAndNotify($room, $contract, $amountPayment * $contract->quantity, $roomUsage, $roomUsage['month_billing']);
         }
         return 0;
+    }
+
+    public function processRoomUsageForContract(Room $room, Contract $contract, $usageAmount, $paymentMethod, $currentValue = 0, $extractData = [])
+    {
+        try{
+            DB::beginTransaction();
+
+
+            $roomUsage = $this->findRoomUsage($room, $extractData['month_billing'] ?? null, $extractData['year_billing'] ?? null);
+
+
+            $paymentDateLast = Carbon::create($roomUsage['year_billing'], $roomUsage['month_billing'], $this->lodgingService->payment_date);
+
+
+            // Tính toán thời gian thuê (tháng, ngày)
+            $durationService = Helper::calculateDuration($paymentDateLast, $this->now, $paymentDateLast->isSameDay($this->now));
+
+            // Tính số tiền thuê phòng
+            if (!empty($extractData['is_monthly_billing'])) {
+                $paymentAmountService = $room->price * $durationService['months'];
+
+                // Nếu số ngày dương, tính thêm một tháng tiền thuê
+                if ($durationService['days'] > 0) {
+                    $paymentAmountService += $room->price;
+                }
+            } else {
+                $dailyRate = $room->price / $this->now->daysInMonth;
+                $paymentAmountService = ($room->price * $durationService['months']) + ($dailyRate * $durationService['days']);
+            }
+
+            $tenants = max($room->current_tenants, 1);
+            $paymentAmount = ($paymentAmountService / $tenants) * $contract->quantity;
+            $amountPaid = max(0, min($paymentAmount, $usageAmount));
+
+            if(!$roomUsage['usage']) {
+                $roomUsageService = new RoomUsageService();
+                $dataRoomUsage = [
+                    'room_id' => $room->id,
+                    'lodging_service_id' => $this->lodgingService->id,
+                    'total_price' => $this->lodgingService->price_per_unit,
+                    'amount_paid' => $amountPaid,
+                    'value' => 1,
+                    'finalized' => false,
+                    'month_billing' => $this->now->month,
+                    'year_billing' => $this->now->year,
+                    'is_need_close' => false,
+                    'final_index' => $currentValue,
+                    'unit_id' => $this->lodgingService->unit_id,
+                    'service_id' => $this->lodgingService->service_id,
+                    'service_name' => $this->lodgingService->name
+                ];
+
+                $usage = $roomUsageService->createRoomUsage($dataRoomUsage);
+            }else{
+                $roomUsage['usage']->update([
+                    'amount_paid' => $roomUsage['usage']->amount_paid + $amountPaid,
+                ]);
+            }
+
+            $this->createPaymentAndNotify($room, $contract, $paymentAmount, $usage, $this->now->month, $amountPaid, $paymentMethod);
+
+            DB::commit();
+
+            return $usageAmount - $amountPaid;
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return ["errors" => [[
+                'message' => $exception->getMessage(),
+            ]]];
+        }
     }
 }

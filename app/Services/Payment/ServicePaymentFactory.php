@@ -2,10 +2,10 @@
 
 namespace App\Services\Payment;
 
-use App\Services\Payment\PaymentService;
+use App\Services\Payment\PaymentServiceFactory;
 use App\Services\ServicePayment\ServicePaymentService;
 
-class ServicePayment extends PaymentService
+class ServicePaymentFactory extends PaymentServiceFactory
 {
 
     function processPaymentByContract(string $contractId, ?string $relatedId, float $amount, string $paymentMethod, $extraData = [])

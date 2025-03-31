@@ -66,7 +66,6 @@ class LodgingServiceManagerService
         return $service;
     }
 
-
     public function update($id, $data)
     {
         try {
@@ -145,7 +144,7 @@ class LodgingServiceManagerService
         }
     }
 
-    public function getServiceCalculator(Model $lodgingService): ?BaseServiceCalculator
+    public function getServiceCalculator(Model $lodgingService): ?ServiceCalculatorFactory
     {
         $lodgingService->load('unit');
         return match ($lodgingService->unit->name) {
@@ -155,4 +154,5 @@ class LodgingServiceManagerService
             default => throw new \InvalidArgumentException("Unknown service type: " . $lodgingService->type->name),
         };
     }
+
 }

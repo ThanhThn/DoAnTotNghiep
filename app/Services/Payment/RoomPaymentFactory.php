@@ -4,11 +4,11 @@ namespace App\Services\Payment;
 
 use App\Models\Contract;
 use App\Models\RentalHistory;
-use App\Services\Payment\PaymentService;
+use App\Services\Payment\PaymentServiceFactory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class RoomPayment extends PaymentService
+class RoomPaymentFactory extends PaymentServiceFactory
 {
 
     function processPaymentByContract(string $contractId, ?string $relatedId, float $amount, string $paymentMethod, $extraData = [])

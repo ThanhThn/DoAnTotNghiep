@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use Carbon\Carbon;
+
 class Helper
 {
     static function encrypt($data)
@@ -23,5 +25,28 @@ class Helper
         $merged = strtoupper(substr(hash('sha256', $val1 . $val2), 0, 6));
 
         return $merged;
+    }
+
+    static function calculateDuration($fromDate, $toDate, $isCutoffTime = false) {
+        $fromMoment = Carbon::parse($fromDate);
+        $toMoment = Carbon::parse($toDate);
+
+        if ($fromMoment->isSameDay($toMoment)) {
+            return !$isCutoffTime
+                ? ['months' => 1, 'days' => 0]
+                : ['months' => 0, 'days' => 1];
+        }
+
+        $months = ($toMoment->year - $fromMoment->year) * 12 + ($toMoment->month - $fromMoment->month);
+
+        // Tính số ngày
+        $days = $toMoment->day - $fromMoment->day;
+        if ($days < 0) {
+            $lastMonthDays = $fromMoment->copy()->subMonth()->daysInMonth;
+            $days += $lastMonthDays;
+            return ['months' => $months - 1, 'days' => $days]; // Giảm 1 tháng nếu phải cộng ngày
+        }
+
+        return ['months' => $months, 'days' => $days];
     }
 }

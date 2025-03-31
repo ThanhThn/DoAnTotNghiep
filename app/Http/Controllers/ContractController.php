@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Contract\CreateContractRequest;
+use App\Http\Requests\Contract\CreateFinalBillRequest;
 use App\Http\Requests\Contract\DetailContractRequest;
 use App\Http\Requests\Contract\ListContractRequest;
 use App\Http\Requests\Contract\UpdateContractRequest;
@@ -128,6 +129,37 @@ class ContractController extends Controller
             'status' => JsonResponse::HTTP_OK,
             'body' => [
                 'data' => $result
+            ]
+        ]);
+    }
+
+    public function createFinalBill(CreateFinalBillRequest $request)
+    {
+        $data = $request->all();
+
+        $userId = Auth::id();
+        if(!RoomService::isOwnerRoom($data['room_id'], $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' =>  'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $service  = new ContractService();
+        $result = $service->createFinalBillForContract($data);
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => "Tạo quyết toán thành công!"
             ]
         ]);
     }

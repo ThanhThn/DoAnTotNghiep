@@ -2,13 +2,18 @@
 
 namespace App\Services\LodgingService;
 
+use App\Models\Contract;
+use App\Models\Room;
 use App\Models\RoomService;
 use App\Models\RoomServiceUsage;
-use App\Services\LodgingService\BaseServiceCalculator;
+use App\Services\LodgingService\ServiceCalculatorFactory;
 use App\Services\Notification\NotificationService;
+use App\Services\RoomService\RoomServiceManagerService;
+use App\Services\RoomUsageService\RoomUsageService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
-class IndexedService extends BaseServiceCalculator
+class IndexedService extends ServiceCalculatorFactory
 {
     public function calculateCost()
     {
@@ -78,5 +83,73 @@ class IndexedService extends BaseServiceCalculator
         $notificationService->createNotification($message, config('constant.object.type.lodging'), $this->lodgingService->lodging->id, $this->lodgingService->lodging->user_id);
 
         return 0;
+    }
+
+    public function processRoomUsageForContract(Room $room, Contract $contract, $usageAmount, $paymentMethod, $currentValue = 0, $extractData = [])
+    {
+        try{
+            DB::beginTransaction();
+
+            $roomService = new RoomServiceManagerService();
+
+            $service = $roomService->detailByRoomAndService($room->id, $this->lodgingService->id);
+
+            if($service->last_recorded_value <= $currentValue) {
+                return $usageAmount;
+            }
+
+            $roomUsage = $this->findRoomUsage($room);
+
+            $difIndex = $currentValue - $service->last_recorded_value;
+
+            $totalPrice = $this->lodgingService->price_per_unit * $difIndex;
+            $paymentAmount = ($totalPrice / $room->current_tenants) * $contract->quantity;
+            $amountPaid = max(0, min($paymentAmount, $usageAmount));
+
+            if(!$roomUsage['usage']) {
+                $roomUsageService = new RoomUsageService();
+                $dataRoomUsage = [
+                    'room_id' => $room->id,
+                    'lodging_service_id' => $this->lodgingService->id,
+                    'total_price' => $totalPrice,
+                    'amount_paid' => $amountPaid,
+                    'value' => $difIndex,
+                    'finalized' => false,
+                    'month_billing' => $roomUsage['month_billing'],
+                    'year_billing' => $roomUsage['year_billing'],
+                    'is_need_close' => false,
+                    'initial_index' => $service->last_recorded_value ?? 0,
+                    'final_index' => $currentValue,
+                    'unit_id' => $this->lodgingService->unit_id,
+                    'service_id' => $this->lodgingService->service_id,
+                    'service_name' => $this->lodgingService->name
+                ];
+
+                $usage = $roomUsageService->createRoomUsage($dataRoomUsage);
+            }else{
+                $roomUsage['usage']->update([
+                    'total_price' => $roomUsage['usage']->total_price + $totalPrice,
+                    'value' => $roomUsage['usage']->value + $difIndex,
+                    'amount_paid' => $roomUsage['usage']->amount_paid + $amountPaid,
+                    'final_index' => $currentValue,
+                ]);
+            }
+
+            $service->update([
+                "last_recorded_value" => $currentValue,
+            ]);
+
+            $this->createPaymentAndNotify($room, $contract, $paymentAmount, $usage, $this->now->month, $amountPaid, $paymentMethod);
+
+            DB::commit();
+
+            return $usageAmount - $amountPaid;
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return ["errors" => [[
+                'message' => $exception->getMessage(),
+            ]]];
+        }
+
     }
 }

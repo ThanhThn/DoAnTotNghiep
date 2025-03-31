@@ -2,12 +2,15 @@
 
 namespace App\Services\Contract;
 
+use App\Helpers\Helper;
 use App\Models\Contract;
 use App\Models\RentalHistory;
 use App\Models\Room;
 use App\Models\User;
+use App\Services\LodgingService\LodgingServiceManagerService;
 use App\Services\RentalHistory\RentalHistoryService;
 use App\Services\Room\RoomService;
+use App\Services\RoomService\RoomServiceManagerService;
 use App\Services\ServicePayment\ServicePaymentService;
 use App\Services\User\UserService;
 use Carbon\Carbon;
@@ -309,6 +312,91 @@ class ContractService
             'room' => $roomDebt,
             'service' => $serviceDebt,
         ];
+    }
+
+    public function createFinalBillForContract($data)
+    {
+        try{
+            DB::beginTransaction();
+            // Lấy thông tin hợp đồng và phòng
+            $contract = $this->detail($data['contract_id']);
+            $room = $contract->room;
+            $now = Carbon::now();
+
+            // Số tiền cọc còn lại sau khi trừ khoản hoàn trả
+            $usableAmount = $contract->deposit_amount - $data['deposit_amount_refund'];
+
+            // Lấy lịch sử thanh toán cuối cùng
+            $rentalHistoryService = new RentalHistoryService();
+            $lastHistory = $rentalHistoryService->getLastHistory($data['contract_id']);
+            $paymentDateLast = Carbon::parse($lastHistory->payment_date);
+
+            // Tính toán thời gian thuê (tháng, ngày)
+            $durationRoom = Helper::calculateDuration($paymentDateLast, $now, $paymentDateLast->isSameDay($now));
+
+            // Tính số tiền thuê phòng
+            if (!empty($data['is_monthly_billing'])) {
+                $paymentAmountRoom = $room->price * $durationRoom['months'];
+
+                // Nếu số ngày dương, tính thêm một tháng tiền thuê
+                if ($durationRoom['days'] > 0) {
+                    $paymentAmountRoom += $room->price;
+                }
+            } else {
+                $dailyRate = $room->price / $now->daysInMonth;
+                $paymentAmountRoom = ($room->price * $durationRoom['months']) + ($dailyRate * $durationRoom['days']);
+            }
+
+            // Tính số tiền thanh toán dựa trên số người thuê hiện tại
+            $tenants = max($room->current_tenants, 1);
+            $paymentAmount = ($paymentAmountRoom / $tenants) * $contract->quantity;
+
+            // Xác định trạng thái thanh toán
+            $paymentStatus = $usableAmount >= $paymentAmount
+                ? config('constant.payment.status.paid')
+                : ($usableAmount <= 0
+                    ? config('constant.payment.status.unpaid')
+                    : config('constant.payment.status.partial'));
+
+            // Xác định phương thức thanh toán
+            $paymentMethod = $usableAmount > 0 ? config('constant.payment.method.system') : null;
+
+
+            // Tạo lịch sử thanh toán
+            $rentalHistoryService->createRentalHistory([
+                'contract_id' => $data['contract_id'],
+                'payment_amount' => $paymentAmount,
+                'amount_paid' => max(min($usableAmount, $paymentAmount), 0),
+                'status' => $paymentStatus,
+                'payment_method' => $paymentMethod,
+                'due_date' => $now->clone()->addDays($room->late_days),
+            ]);
+
+            $usableAmount -= $paymentAmount;
+
+            $roomService = new RoomServiceManagerService();
+
+            $result = $roomService->createBillForContract($data['contract_id'], $contract->room_id, $data['services'], $usableAmount, [
+                'is_monthly_billing' => $data['is_monthly_billing'] ?? null
+            ]);
+
+            if(isset($result['errors'])){
+                throw new \Exception($result['errors'][0]['message']);
+            }
+
+            $contract->update([
+                'remain_amount' => $contract->remain_amount + $data['deposit_amount_refund'] + max($result, 0),
+                'has_been_billed' => true,
+            ]);
+
+            DB::commit();
+            return  true;
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return ["errors" => [[
+                'message' => $exception->getMessage(),
+            ]]];
+        }
     }
 
     static function isContractOwner($contract_id, $user_id)

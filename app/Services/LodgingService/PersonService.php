@@ -2,12 +2,16 @@
 
 namespace App\Services\LodgingService;
 
+use App\Models\Contract;
 use App\Models\Room;
 use App\Models\RoomServiceUsage;
+use App\Services\RoomService\RoomServiceManagerService;
+use App\Services\RoomUsageService\RoomUsageService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class PersonService extends BaseServiceCalculator
+class PersonService extends ServiceCalculatorFactory
 {
     public function calculateCost()
     {
@@ -79,4 +83,58 @@ class PersonService extends BaseServiceCalculator
         return 0;
     }
 
+    public function processRoomUsageForContract(Room $room, Contract $contract, $usageAmount, $paymentMethod, $currentValue = 0, $extractData = [])
+    {
+        try{
+            DB::beginTransaction();
+
+            if($contract->quantity <= 0) {
+                return $usageAmount;
+            }
+
+
+            $roomUsage = $this->findRoomUsage($room);
+
+            $totalPrice = $this->lodgingService->price_per_unit * $contract->quantity;
+            $amountPaid = max(0, min($totalPrice, $usageAmount));
+
+            if(!$roomUsage['usage']){
+                $roomUsageService = new RoomUsageService();
+                $dataRoomUsage = [
+                    'room_id' => $room->id,
+                    'lodging_service_id' => $this->lodgingService->id,
+                    'total_price' => $totalPrice,
+                    'amount_paid' => $amountPaid,
+                    'value' => $contract->quantity,
+                    'finalized' => false,
+                    'month_billing' => $roomUsage['month_billing'],
+                    'year_billing' => $roomUsage['year_billing'],
+                    'is_need_close' => false,
+
+                    'unit_id' => $this->lodgingService->unit_id,
+                    'service_id' => $this->lodgingService->service_id,
+                    'service_name' => $this->lodgingService->name
+                ];
+
+                $usage = $roomUsageService->createRoomUsage($dataRoomUsage);
+            }else{
+                $roomUsage['usage']->update([
+                    'total_price' => $roomUsage['usage']->total_price + $totalPrice,
+                    'value' => $roomUsage['usage']->value + $contract->quantity,
+                    'amount_paid' => $roomUsage['usage']->amount_paid + $amountPaid,
+                ]);
+            }
+
+            $this->createPaymentAndNotify($room, $contract, $totalPrice, $usage, $this->now->month, $amountPaid, $paymentMethod);
+
+            DB::commit();
+
+            return $usageAmount - $amountPaid;
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return ["errors" => [[
+                'message' => $exception->getMessage(),
+            ]]];
+        }
+    }
 }

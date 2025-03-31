@@ -12,7 +12,6 @@ use function tests\data;
 
 class RentalHistoryService
 {
-
     function createRentalHistory($data)
     {
         $insertData = [
@@ -103,5 +102,11 @@ class RentalHistoryService
             ->selectRaw('SUM(payment_amount) as total_payment, SUM(amount_paid) as total_paid')
             ->first();
         return $rental;
+    }
+
+    function  getLastHistory($contractId)
+    {
+        return RentalHistory::on('pgsqlReplica')->where('contract_id', $contractId)->orderBy('payment_date', 'desc')->first();
+
     }
 }

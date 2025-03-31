@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Payment\PaymentContractRequest;
 use App\Services\Contract\ContractService;
 use App\Services\Lodging\LodgingService;
-use App\Services\Payment\ServicePayment;
+use App\Services\Payment\ServicePaymentFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +28,7 @@ class PaymentController extends Controller
             ]);
         }
 
-        $service = new ServicePayment();
+        $service = new ServicePaymentFactory();
         $result = $service->paymentByContract($data);
 
         if(!$result){
