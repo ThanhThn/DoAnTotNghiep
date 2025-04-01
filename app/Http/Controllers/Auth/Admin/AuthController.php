@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Auth\User;
+namespace App\Http\Controllers\Auth\Admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginAdminRequest;
 use App\Http\Requests\Auth\LoginUserRequest;
 use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Models\User;
@@ -22,60 +23,17 @@ use function PHPUnit\Framework\throwException;
 
 class AuthController extends BaseAuthController
 {
-    public function register(RegisterUserRequest $request)
-    {
-        $data = $request->all();
-        $password = Helper::decrypt($data["password"]);
-        $device = request()->header('User-Agent');
-
-        $user = (new UserService())->create([
-            'email' => $data['email'],
-            'password' => Hash::make($password),
-            'phone' => $data['phone'],
-        ]);
-
-        $token = JWTAuth::fromUser($user);
-        TokenService::insert([
-            'token' => $token,
-            'user_id' => $user->id,
-            'device' => $device,
-            'token_type' => config('constant.token.type.login')
-        ]);
-        if($data['token']){
-            TokenService::insert([
-                'token' => $data['token'],
-                'user_id' => Auth::id(),
-                'device' => $device,
-                'token_type' => config('constant.token.type.notify')
-            ]);
-        }
-        return $this->respondWithToken($token);
-    }
-
-
-    public function login(LoginUserRequest $request){
+    public function login(LoginAdminRequest $request){
         $data = $request->all();
         $password = Helper::decrypt($data["password"]);
 
-        $device = request()->header('User-Agent');
-
-        $token = JWTAuth::attempt(['phone' => $data['phone'], 'password' => $password]);
-
+        $token = Auth::guard('admin')->attempt(['email' => $data['email'], 'password' => $password]);
 
         if(!$token){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
-                'errors' => [["message" => "Phone number or password is incorrect"]],
+                'errors' => [["message" => "Email or password is incorrect"]],
             ], JsonResponse::HTTP_OK);
-        }
-
-        if(isset($data['token'])){
-            TokenService::insert([
-                'token' => $data['token'],
-                'user_id' => Auth::id(),
-                'device' => $device,
-                'token_type' => config('constant.token.type.notify')
-            ]);
         }
 
         return $this->respondWithToken($token);
@@ -85,7 +43,7 @@ class AuthController extends BaseAuthController
     {
         $payload = JWTAuth::parseToken()->getPayload();
 
-        $this->addBlacklist($payload);
+        $this->addBlacklist($payload, "admin");
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
@@ -102,10 +60,11 @@ class AuthController extends BaseAuthController
         try {
             $token = JWTAuth::parseToken();
 
-            $newToken = $token->refresh();
+            $newToken = Auth::guard('admin')->refresh();
+
             $payload = $token->getPayload();
 
-            if($this->checkBlacklist($payload)){
+            if($this->checkBlacklist($payload, "admin")){
                 throw new TokenInvalidException();
             }
 
@@ -118,8 +77,7 @@ class AuthController extends BaseAuthController
                 throw new TokenExpiredException();
             }
 
-
-            $this->addBlacklist($payload);
+            $this->addBlacklist($payload, "admin");
             return $this->respondWithToken($newToken);
         } catch (\Exception $exception) {
             if($exception instanceof TokenExpiredException){
@@ -134,10 +92,12 @@ class AuthController extends BaseAuthController
                     'errors' => [['message' => 'Refresh token invalid']],
                 ]);
             }
+
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [['message' => 'Something went wrong']],
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
     }
+
 }

@@ -5,20 +5,19 @@ namespace App\Http\Requests\User;
 use App\Http\Requests\BaseRequest;
 use Illuminate\Support\Facades\Auth;
 
-class UpdateUserRequest extends BaseRequest
+class CreateUserRequest extends BaseRequest
 {
     function rules(): array
     {
-        $userID = Auth::id();
         return [
             'full_name' => 'required|string',
             'identity_card' => 'required|string',
-            'phone' => 'required|string|unique:users,phone,'. $userID,
+            'phone' => 'required|string|unique:users,phone',
             'email' => 'nullable|email',
-            'password' => 'nullable|string',
-            'gender' => 'nullable|boolean',
-            'date_of_birth' => 'nullable|date',
-            'address' => 'nullable|string',
+            'password' => 'required|string',
+            'gender' => 'required|boolean',
+            'date_of_birth' => 'required|date',
+            'address' => 'required|string',
             'relatives' => 'nullable|array',
             'relatives.*.full_name' => 'required_with:relative|string',
             'relatives.*.phone' => 'required_with:relative|string',

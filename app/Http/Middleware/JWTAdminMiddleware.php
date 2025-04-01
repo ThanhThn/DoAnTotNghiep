@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AdminUser;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +15,7 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class JWTMiddleware
+class JWTAdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
@@ -29,7 +30,7 @@ class JWTMiddleware
             $payload = JWTAuth::parseToken()->getPayload();
             $userId = $payload->get('sub');
 
-            $key = "blacklist_{$userId}_{$payload->get('jti')}";
+            $key = "blacklist_admin_{$userId}_{$payload->get('jti')}";
             $blacklisted = Redis::get($key);
 
             if ($blacklisted) {
@@ -37,13 +38,14 @@ class JWTMiddleware
             }
 
 
-            $cacheKey = 'user:'.$userId;
+            $cacheKey = 'user_admin:'.$userId;
             $cachedUser = Redis::get($cacheKey);
             if ($cachedUser) {
                 $user = unserialize($cachedUser);
                 Auth::setUser($user);
             }else{
-                $user = User::on('pgsqlReplica')->findOrFail($userId);
+                $user = AdminUser::on('pgsqlReplica')->findOrFail($userId);
+
                 Auth::setUser($user);
 
                 Redis::setex($cacheKey, 3600, serialize($user));

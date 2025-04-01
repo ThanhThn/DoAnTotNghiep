@@ -42,7 +42,7 @@ class User extends Authenticatable implements JWTSubject
      * @var list<string>
      */
     protected $hidden = [
-        'password', 'remember_token','token', 'created_at', 'updated_at',
+        'password', 'remember_token','token',
         'email_verified_at'
     ];
 
@@ -66,6 +66,10 @@ class User extends Authenticatable implements JWTSubject
         parent::boot();
         static::creating(function ($model) {
             $model->id = Str::uuid();
+        });
+
+        static::deleting(function ($model) {
+           Lodging::where('user_id', $model->id)->delete();
         });
     }
 
