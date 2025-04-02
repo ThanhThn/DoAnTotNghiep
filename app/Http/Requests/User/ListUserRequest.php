@@ -12,15 +12,15 @@ class ListUserRequest extends BaseRequest
         return [
             "limit" => "nullable|integer|min:0",
             "offset" => "nullable|integer|min:0",
-            "filter" => "nullable|array",
+            "filters" => "nullable|array",
 
-            "filter.name" => "nullable|string",
-            "filter.email" => "nullable|email",
-            "filter.gender" => "nullable|boolean",
-            "filter.identity_card" => "nullable|string",
-            "filter.phone" => "nullable|string",
-            "filter.address" => "nullable|string",
-            "filter.date_of_birth" => "nullable|date",
+            "filters.name" => "nullable|string",
+            "filters.email" => "nullable|email",
+            "filters.gender" => "nullable|boolean",
+            "filters.identity_card" => "nullable|string",
+            "filters.phone" => "nullable|string",
+            "filters.address" => "nullable|string",
+            "filters.date_of_birth" => "nullable|date",
         ];
     }
 }
