@@ -7,13 +7,15 @@ use Illuminate\Support\Facades\Auth;
 
 class UpdateUserAdminRequest extends BaseRequest
 {
+
     function rules(): array
     {
+        $id = $this->input('id');
         return [
             'id' => 'required|uuid|exists:users,id',
             'full_name' => 'required|string',
             'identity_card' => 'required|string',
-            'phone' => 'required|string|unique:users,phone,id',
+            'phone' => 'required|string|unique:users,phone,'. $id,
             'email' => 'nullable|email',
             'password' => 'nullable|string',
             'gender' => 'nullable|boolean',
