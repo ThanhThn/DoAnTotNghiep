@@ -108,4 +108,24 @@ class LodgingController extends Controller
         ]);
     }
 
+    function restore(LodgingRequest $request, $lodgingId)
+    {
+        $service = new LodgingService();
+        $result = $service->restore($lodgingId);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => "Khôi phục thành công!"
+            ]
+        ]);
+    }
+
 }

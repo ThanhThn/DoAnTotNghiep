@@ -39,6 +39,23 @@ class LodgingService
         }
     }
 
+    function restore($lodgingId)
+    {
+        try {
+            $lodging = Lodging::withTrashed()->find($lodgingId);
+
+            if (!$lodging) {
+                throw new \Exception("Lodging not found");
+            }
+
+            $lodging->restore();
+            return true;
+        } catch (\Exception $exception) {
+            return ["errors" => [["message" => $exception->getMessage()]]];
+        }
+    }
+
+
 
     function detailLodging($lodgingId)
     {

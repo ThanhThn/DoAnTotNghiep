@@ -23,4 +23,5 @@ Route::group(['prefix' => 'lodging', 'namespace' => 'App\Http\Controllers\Admin'
     Route::get('detail/{$lodgingId}', 'LodgingController@detail');
     Route::post('update', 'LodgingController@update');
     Route::delete('delete/{$lodgingId}', 'LodgingController@delete');
+    Route::put('restore/{$lodgingId}', 'LodgingController@restore');
 });
