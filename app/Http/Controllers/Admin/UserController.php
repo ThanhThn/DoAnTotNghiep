@@ -7,7 +7,7 @@ use App\Http\Requests\User\ListUserRequest;
 use App\Http\Requests\User\UpdateUserAdminRequest;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Routing\Controller;
+use App\Http\Controllers\Controller;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\Hash;
 

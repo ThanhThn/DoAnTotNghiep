@@ -8,6 +8,7 @@ class CreateLodgingRequest extends BaseRequest
 {
     public function rules(){
         return [
+            'user_id' => 'nullable|uuid|exists:users,id',
             'name' => 'required|string',
             'address' => 'nullable|string',
             'province_id' => 'required|integer|exists:provinces,id',

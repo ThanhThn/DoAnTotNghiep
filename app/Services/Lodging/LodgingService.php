@@ -24,12 +24,28 @@ class LodgingService
 
     }
 
+    function hardDelete($lodgingId)
+    {
+        try {
+            $lodging = Lodging::withTrashed()->find($lodgingId);
+            if (!$lodging) {
+                throw new \Exception("Lodging not found");
+            }
+
+            $lodging->forceDelete();
+            return true;
+        } catch (\Exception $exception) {
+            return ["errors" => [["message" => $exception->getMessage()]]];
+        }
+    }
+
+
     function detailLodging($lodgingId)
     {
         return Lodging::with(['province', 'district', 'ward', 'type'])->find($lodgingId);
     }
 
-    function updateLodging($data)
+    function updateLodging($data, $isAdmin = false)
     {
         $lodging = $this->detailLodging($data['id']);
 
@@ -49,6 +65,10 @@ class LodgingService
             'phone_contact' => 'phone',
             'email_contact' => 'email',
         ];
+
+        if($isAdmin){
+            $fields[] = 'user_id';
+        }
 
         $updateData = [];
 
@@ -71,6 +91,36 @@ class LodgingService
         return $lodging;
     }
 
+    function list($data)
+    {
+        $lodgings = Lodging::query();
+        if($data['is_trash']){
+            $lodgings->onlyTrashed();
+        }
+
+        if(isset($data['filters'])){
+            if(isset($data['filters']['name'])){
+                $lodgings = $lodgings->where('full_name', 'ilike', '%'.$data['filters']['name'].'%');
+            }
+
+            if(isset($data['filters']['address'])){
+                $lodgings = $lodgings->where('address', 'like', '%'.$data['filters']['address'].'%');
+            }
+
+            if(isset($data['filters']['type_id'])){
+                $lodgings = $lodgings->where('type_id', $data['filters']['type_id']);
+            }
+        }
+
+        $total = $lodgings->count();
+        $lodgings = $lodgings->limit($data['limit'] ?? 10)->offset($data['offset'] ?? 0)->get();
+
+        return [
+            'total' => $total,
+            'data' => $lodgings,
+        ];
+    }
+
     static function lodgingIdsOfUser($userId)
     {
         return Lodging::where('user_id', $userId)->pluck('lodging_id')->toArray();
@@ -78,7 +128,7 @@ class LodgingService
 
     function create($data, $userId)
     {
-        $user = User::find($userId);
+        $user = User::on("pgsqlReplica")->find($userId);
 
         if(!$user) {
             return [
@@ -118,7 +168,6 @@ class LodgingService
             default => $this->overviewRoom($data),
         };
     }
-
 
     public function statistical($data)
     {

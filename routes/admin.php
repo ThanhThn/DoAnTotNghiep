@@ -15,3 +15,12 @@ Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers\Admin', '
     Route::post('update', 'UserController@update');
     Route::delete('delete/{userId}', 'UserController@delete');
 });
+
+Route::group(['prefix' => 'lodging', 'namespace' => 'App\Http\Controllers\Admin', 'middleware' => 'jwt_admin.verify'], function ($route) {
+
+    Route::post('list', 'LodgingController@list');
+    Route::post('create', 'LodgingController@create');
+    Route::get('detail/{$lodgingId}', 'LodgingController@detail');
+    Route::post('update', 'LodgingController@update');
+    Route::delete('delete/{$lodgingId}', 'LodgingController@delete');
+});

@@ -8,6 +8,7 @@ class UpdateLodgingRequest extends BaseRequest
 {
     public function rules(){
         return [
+            'user_id' => 'nullable|uuid|exists:users,id',
             'id' => 'required|uuid|exists:lodgings,id',
             'name' => 'required|string',
             'address' => 'nullable|string',
