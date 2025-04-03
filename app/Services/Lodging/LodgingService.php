@@ -110,7 +110,7 @@ class LodgingService
 
     function list($data)
     {
-        $lodgings = Lodging::query();
+        $lodgings = Lodging::on('pgsqlReplica')->with(['province','ward', 'district', 'type', 'user']);
         if($data['is_trash']){
             $lodgings->onlyTrashed();
         }

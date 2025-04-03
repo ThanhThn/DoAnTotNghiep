@@ -82,4 +82,9 @@ class Lodging extends Model
     {
         return $this->belongsTo(LodgingType::class, 'type_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id')->select(['id', 'full_name', 'email', 'phone']);
+    }
 }
