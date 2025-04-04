@@ -172,6 +172,7 @@ class LodgingService
             'price_room_default' => $data['price_room_default'] ?? null,
             'phone_contact' => $data['phone_contact'] ?? $data['phone'] ??  $user->phone ?? null,
             'email_contact' => $data['email_contact'] ?? $data['email'] ?? $user->email ?? null,
+            'is_enabled' => $data['is_enabled'] ?? true,
         ];
 
         $lodging = Lodging::create($insertData);
