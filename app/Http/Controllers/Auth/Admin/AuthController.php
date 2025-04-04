@@ -48,9 +48,7 @@ class AuthController extends BaseAuthController
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body'  => [
-                'data' => [
-                    'message' => 'Successfully logged out'
-                ]
+                'data' => 'Successfully logged out'
             ]
         ]);
     }
