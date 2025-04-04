@@ -118,7 +118,7 @@ class LodgingService
 
         if(isset($data['filters'])){
             if(isset($data['filters']['name'])){
-                $lodgings = $lodgings->where('full_name', 'ilike', '%'.$data['filters']['name'].'%');
+                $lodgings = $lodgings->where('full', 'ilike', '%'.$data['filters']['name'].'%');
             }
 
             if(isset($data['filters']['address'])){
