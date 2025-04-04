@@ -18,6 +18,8 @@ class CreateLodgingRequest extends BaseRequest
             'longitude' => 'nullable|string',
             'phone' => 'nullable|string|min:10|max:10',
             'email' => 'nullable|email',
+            'phone_contact' => 'nullable|string|min:10|max:10',
+            'email_contact' => 'nullable|email',
             'type_id' => 'required|integer|exists:lodging_types,id',
             'payment_date' => 'required|integer|between:1,28',
             'late_days' => 'required|integer|min:0',

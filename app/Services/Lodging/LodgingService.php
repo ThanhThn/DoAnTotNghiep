@@ -79,8 +79,9 @@ class LodgingService
             'late_days',
             'area_room_default',
             'price_room_default',
-            'phone_contact' => 'phone',
-            'email_contact' => 'email',
+            'is_enabled',
+            'phone_contact' => $isAdmin ? 'phone_contact' : 'phone',
+            'email_contact' => $isAdmin ? 'email_contact' :'email',
         ];
 
         if($isAdmin){
@@ -169,8 +170,8 @@ class LodgingService
             'late_days' => $data['late_days'] ?? null,
             'area_room_default' => $data['area_room_default'] ?? null,
             'price_room_default' => $data['price_room_default'] ?? null,
-            'phone_contact' => $data['phone'] ?? ($user->phone ?? null),
-            'email_contact' => $data['email'] ?? ($user->email ?? null),
+            'phone_contact' => $data['phone_contact'] ?? $data['phone'] ??  $user->phone ?? null,
+            'email_contact' => $data['email_contact'] ?? $data['email'] ?? $user->email ?? null,
         ];
 
         $lodging = Lodging::create($insertData);
