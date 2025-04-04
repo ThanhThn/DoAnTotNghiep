@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'auth', 'namespace' => 'App\Http\Controllers\Auth\Admin'], function ($route) {
     Route::post('login', 'AuthController@login');
-    Route::get('logout', 'AuthController@logout')->middleware('jwt.verify');
+    Route::get('logout', 'AuthController@logout')->middleware('jwt_admin.verify');
     Route::get('refresh', 'AuthController@refresh');
 });
 
