@@ -10,7 +10,9 @@ use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Models\User;
 use App\Services\Token\TokenService;
 use App\Services\User\UserService;
+
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -81,11 +83,16 @@ class AuthController extends BaseAuthController
         return $this->respondWithToken($token);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        $payload = JWTAuth::parseToken()->getPayload();
+        $data = $request->all();
+        $token = JWTAuth::parseToken();
 
-        $this->addBlacklist($payload);
+        $token->invalidate(true);
+
+        if(isset($data['token'])){
+            TokenService::removeToken(Auth::id(), config('constant.token.type.notify'), $data['token']);
+        }
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
@@ -100,24 +107,9 @@ class AuthController extends BaseAuthController
         try {
             $token = JWTAuth::parseToken();
 
-            $newToken = $token->refresh();
-            $payload = $token->getPayload();
+            $newToken = Auth::guard('admin')->refresh();
 
-            if($this->checkBlacklist($payload)){
-                throw new TokenInvalidException();
-            }
-
-
-
-            $iat = $payload->get('iat');
-            $refreshExpiry = $iat + (config('jwt.refresh_ttl') * 60);
-
-            if (now()->timestamp > $refreshExpiry) {
-                throw new TokenExpiredException();
-            }
-
-
-            $this->addBlacklist($payload);
+            $token->invalidate(true);
             return $this->respondWithToken($newToken);
         } catch (\Exception $exception) {
             if($exception instanceof TokenExpiredException){

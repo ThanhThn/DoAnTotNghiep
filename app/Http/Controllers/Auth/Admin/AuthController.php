@@ -28,7 +28,6 @@ class AuthController extends BaseAuthController
         $password = Helper::decrypt($data["password"]);
 
         $token = Auth::guard('admin')->attempt(['email' => $data['email'], 'password' => $password]);
-
         if(!$token){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
@@ -41,9 +40,9 @@ class AuthController extends BaseAuthController
 
     public function logout()
     {
-        $payload = JWTAuth::parseToken()->getPayload();
+        $token = JWTAuth::parseToken();
 
-        $this->addBlacklist($payload, "admin");
+        $token->invalidate(true);
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
@@ -60,22 +59,7 @@ class AuthController extends BaseAuthController
 
             $newToken = Auth::guard('admin')->refresh();
 
-            $payload = $token->getPayload();
-
-            if($this->checkBlacklist($payload, "admin")){
-                throw new TokenInvalidException();
-            }
-
-
-
-            $iat = $payload->get('iat');
-            $refreshExpiry = $iat + (config('jwt.refresh_ttl') * 60);
-
-            if (now()->timestamp > $refreshExpiry) {
-                throw new TokenExpiredException();
-            }
-
-            $this->addBlacklist($payload, "admin");
+            $token->invalidate(true);
             return $this->respondWithToken($newToken);
         } catch (\Exception $exception) {
             if($exception instanceof TokenExpiredException){

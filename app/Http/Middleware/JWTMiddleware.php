@@ -29,14 +29,6 @@ class JWTMiddleware
             $payload = JWTAuth::parseToken()->getPayload();
             $userId = $payload->get('sub');
 
-            $key = "blacklist_{$userId}_{$payload->get('jti')}";
-            $blacklisted = Redis::get($key);
-
-            if ($blacklisted) {
-                throw new TokenInvalidException();
-            }
-
-
             $cacheKey = 'user:'.$userId;
             $cachedUser = Redis::get($cacheKey);
             if ($cachedUser) {
