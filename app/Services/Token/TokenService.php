@@ -21,4 +21,13 @@ class TokenService
             'token_type' => $typeToken
         ])->get()->pluck('token')->toArray();
     }
+
+    static function removeToken($userId, $typeToken, $token)
+    {
+        Token::where([
+            'user_id' => $userId,
+            'token_type' => $typeToken,
+            'token' => $token
+        ])->delete();
+    }
 }

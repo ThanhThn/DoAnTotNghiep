@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 Route::group(['prefix' => 'auth', 'namespace' => 'App\Http\Controllers\Auth\User'], function ($route) {
     Route::post('register', 'AuthController@register');
     Route::post('login', 'AuthController@login');
-    Route::get('logout', 'AuthController@logout')->middleware('jwt.verify');
+    Route::post('logout', 'AuthController@logout')->middleware('jwt.verify');
     Route::get('refresh', 'AuthController@refresh');
 });
 

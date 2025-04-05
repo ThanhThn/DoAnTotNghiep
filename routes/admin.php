@@ -25,3 +25,8 @@ Route::group(['prefix' => 'lodging', 'namespace' => 'App\Http\Controllers\Admin'
     Route::delete('delete/{lodgingId}', 'LodgingController@delete');
     Route::put('restore/{lodgingId}', 'LodgingController@restore');
 });
+
+Route::group(['prefix' => 'dashboard', 'namespace' => 'App\Http\Controllers\Admin', 'middleware' => 'jwt_admin.verify'], function ($route) {
+
+    Route::post('overview', 'DashboardController@overview');
+});

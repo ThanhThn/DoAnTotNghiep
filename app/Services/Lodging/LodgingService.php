@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\RentalHistory\RentalHistoryService;
 use App\Services\RoomUsageService\RoomUsageService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Redis;
 
 class LodgingService
 {
@@ -33,6 +34,11 @@ class LodgingService
             }
 
             $lodging->forceDelete();
+            $scope = Redis::zscore('dashboard', 'current_lodgings');
+            if($scope != null){
+                $scope -= 1;
+                Redis::zadd('dashboard', $scope, 'current_lodgings');
+            }
             return true;
         } catch (\Exception $exception) {
             return ["errors" => [["message" => $exception->getMessage()]]];
@@ -176,6 +182,12 @@ class LodgingService
         ];
 
         $lodging = Lodging::create($insertData);
+
+        $scope = Redis::zscore('dashboard', 'current_lodgings');
+        if($scope != null){
+            $scope += 1;
+            Redis::zadd('dashboard', $scope, 'current_lodgings');
+        }
 //        dd($lodging);
         return $lodging;
     }

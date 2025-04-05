@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Models\Lodging;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redis;
 
 class UserService
 {
@@ -38,7 +39,13 @@ class UserService
 
     public  function create($data)
     {
-        return User::create($data);
+        $user = User::create($data);
+        $scope = Redis::zscore('dashboard', 'current_users');
+        if($scope != null){
+            $scope += 1;
+            Redis::zadd('dashboard', $scope, 'current_users');
+        }
+        return $user;
     }
 
     public function listByAdmin($data)
@@ -89,6 +96,11 @@ class UserService
             $user = User::findOrFail($this->_userId);
 
             $user->delete();
+            $scope = Redis::zscore('dashboard', 'current_users');
+            if($scope != null){
+                $scope -= 1;
+                Redis::zadd('dashboard', $scope, 'current_users');
+            }
             return true;
         }catch (\Exception $exception){
             return ['errors' => [[
