@@ -5,6 +5,10 @@ Route::group(['prefix' => 'auth', 'namespace' => 'App\Http\Controllers\Auth\Admi
     Route::post('login', 'AuthController@login');
     Route::get('logout', 'AuthController@logout')->middleware('jwt_admin.verify');
     Route::get('refresh', 'AuthController@refresh');
+
+    Route::post("request_otp", "AuthController@requestOTP");
+    Route::post("verify_otp", "AuthController@verifyOTP");
+    Route::post("reset_password", "AuthController@resetPassword");
 });
 
 Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers\Admin', 'middleware' => 'jwt_admin.verify'], function ($route) {
