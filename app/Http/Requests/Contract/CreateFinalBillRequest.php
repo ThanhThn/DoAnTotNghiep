@@ -15,7 +15,7 @@ class CreateFinalBillRequest extends BaseRequest
             'end_date' => 'required|date',
             'is_monthly_billing' => 'nullable|boolean',
             'services' => 'nullable|array',
-            'services.id' => 'exists:lodging_services,id',
+            'services.id' => 'required_with:services|exists:lodging_services,id',
             'services.value' => 'nullable|numeric|min:0',
         ];
     }
