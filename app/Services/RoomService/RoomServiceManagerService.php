@@ -7,6 +7,7 @@ use App\Models\Room;
 use App\Models\RoomService;
 use App\Services\Contract\ContractService;
 use App\Services\LodgingService\LodgingServiceManagerService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class RoomServiceManagerService
@@ -79,18 +80,22 @@ class RoomServiceManagerService
 
     public function createBillForContract($contractId, $roomId, array $lodgingServices, $usageAmount, $extractDate = [])
     {
-        $contract = (new ContractService())->detail($contractId);
+        $contract = (new ContractService())->detail($contractId, hasLodging: true);
         try {
             $roomService = RoomService::where('room_id', $roomId)->with('lodgingService')->get();
+
             $lodgingService = new LodgingServiceManagerService();
 
             $usageAmount = max(0, $usageAmount);
+
             foreach ($roomService as $room) {
-                $service = $lodgingService->getServiceCalculator($room->lodging_service);
+                $service = $lodgingService->getServiceCalculator($room->lodgingService);
+
 
                 $filtered = array_filter($lodgingServices, function ($item) use ($room) {
                     return $item['id'] == $room->lodging_service_id;
                 });
+
 
                 $value = !empty($filtered) ? current($filtered)['value'] : 0;
 

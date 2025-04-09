@@ -94,7 +94,8 @@ class IndexedService extends ServiceCalculatorFactory
 
             $service = $roomService->detailByRoomAndService($room->id, $this->lodgingService->id);
 
-            if($service->last_recorded_value <= $currentValue) {
+
+            if($service->last_recorded_value >= $currentValue) {
                 return $usageAmount;
             }
 
@@ -124,8 +125,7 @@ class IndexedService extends ServiceCalculatorFactory
                     'service_id' => $this->lodgingService->service_id,
                     'service_name' => $this->lodgingService->name
                 ];
-
-                $usage = $roomUsageService->createRoomUsage($dataRoomUsage);
+                $roomUsage['usage'] = $roomUsageService->createRoomUsage($dataRoomUsage);
             }else{
                 $roomUsage['usage']->update([
                     'total_price' => $roomUsage['usage']->total_price + $totalPrice,
@@ -139,7 +139,7 @@ class IndexedService extends ServiceCalculatorFactory
                 "last_recorded_value" => $currentValue,
             ]);
 
-            $this->createPaymentAndNotify($room, $contract, $paymentAmount, $usage, $this->now->month, $amountPaid, $paymentMethod);
+            $this->createPaymentAndNotify($room, $contract, $paymentAmount, $roomUsage['usage'], $roomUsage['month_billing'], $amountPaid, $paymentMethod);
 
             DB::commit();
 

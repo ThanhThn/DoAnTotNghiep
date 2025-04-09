@@ -9,6 +9,7 @@ use App\Services\Lodging\LodgingService;
 use App\Models\LodgingService as Model;
 use App\Services\RoomService\RoomServiceManagerService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Mockery\Exception;
 

@@ -97,7 +97,6 @@ class PersonService extends ServiceCalculatorFactory
 
             $totalPrice = $this->lodgingService->price_per_unit * $contract->quantity;
             $amountPaid = max(0, min($totalPrice, $usageAmount));
-
             if(!$roomUsage['usage']){
                 $roomUsageService = new RoomUsageService();
                 $dataRoomUsage = [
@@ -116,7 +115,7 @@ class PersonService extends ServiceCalculatorFactory
                     'service_name' => $this->lodgingService->name
                 ];
 
-                $usage = $roomUsageService->createRoomUsage($dataRoomUsage);
+                $roomUsage['usage'] = $roomUsageService->createRoomUsage($dataRoomUsage);
             }else{
                 $roomUsage['usage']->update([
                     'total_price' => $roomUsage['usage']->total_price + $totalPrice,
@@ -125,7 +124,7 @@ class PersonService extends ServiceCalculatorFactory
                 ]);
             }
 
-            $this->createPaymentAndNotify($room, $contract, $totalPrice, $usage, $this->now->month, $amountPaid, $paymentMethod);
+            $this->createPaymentAndNotify($room, $contract, $totalPrice, $roomUsage['usage'], $roomUsage['month_billing'], $amountPaid, $paymentMethod);
 
             DB::commit();
 

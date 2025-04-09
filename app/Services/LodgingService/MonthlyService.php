@@ -79,7 +79,7 @@ class MonthlyService extends ServiceCalculatorFactory
 
         $amountPayment = ($remainPrice / $room->current_tenants);
         foreach ($room->contracts as $contract) {
-            $this->createPaymentAndNotify($room, $contract, $amountPayment * $contract->quantity, $roomUsage, $roomUsage['month_billing']);
+            $this->createPaymentAndNotify($room, $contract, $amountPayment * $contract->quantity, $roomUsage['usage'], $roomUsage['month_billing']);
         }
         return 0;
     }
@@ -101,15 +101,15 @@ class MonthlyService extends ServiceCalculatorFactory
 
             // Tính số tiền thuê phòng
             if (!empty($extractData['is_monthly_billing'])) {
-                $paymentAmountService = $room->price * $durationService['months'];
+                $paymentAmountService = $this->lodgingService->price_per_unit * $durationService['months'];
 
                 // Nếu số ngày dương, tính thêm một tháng tiền thuê
                 if ($durationService['days'] > 0) {
                     $paymentAmountService += $room->price;
                 }
             } else {
-                $dailyRate = $room->price / $this->now->daysInMonth;
-                $paymentAmountService = ($room->price * $durationService['months']) + ($dailyRate * $durationService['days']);
+                $dailyRate = $this->lodgingService->price_per_unit / $this->now->daysInMonth;
+                $paymentAmountService = ($this->lodgingService->price_per_unit * $durationService['months']) + ($dailyRate * $durationService['days']);
             }
 
             $tenants = max($room->current_tenants, 1);
@@ -134,14 +134,14 @@ class MonthlyService extends ServiceCalculatorFactory
                     'service_name' => $this->lodgingService->name
                 ];
 
-                $usage = $roomUsageService->createRoomUsage($dataRoomUsage);
+                $roomUsage['usage']=$roomUsageService->createRoomUsage($dataRoomUsage);
             }else{
                 $roomUsage['usage']->update([
                     'amount_paid' => $roomUsage['usage']->amount_paid + $amountPaid,
                 ]);
             }
 
-            $this->createPaymentAndNotify($room, $contract, $paymentAmount, $usage, $this->now->month, $amountPaid, $paymentMethod);
+            $this->createPaymentAndNotify($room, $contract, $paymentAmount, $roomUsage['usage'], $roomUsage['month_billing'], $amountPaid, $paymentMethod);
 
             DB::commit();
 
