@@ -8,6 +8,7 @@ use App\Models\RentalHistory;
 use App\Models\Room;
 use App\Models\User;
 use App\Services\LodgingService\LodgingServiceManagerService;
+use App\Services\Payment\ServicePaymentFactory;
 use App\Services\RentalHistory\RentalHistoryService;
 use App\Services\Room\RoomService;
 use App\Services\RoomService\RoomServiceManagerService;
@@ -147,7 +148,7 @@ class ContractService
 
     public function calculateContract($contract, $amountNeedPayment, $lateDays)
     {
-        if($amountNeedPayment == 0) return;
+        if($amountNeedPayment == 0) return null;
 
         $difference = $contract->remain_amount - $amountNeedPayment;
         try{
@@ -397,6 +398,117 @@ class ContractService
                 'message' => $exception->getMessage(),
             ]]];
         }
+    }
+
+    public function paymentAmountRemainByContract($data, $contractId)
+    {
+        $contract = $this->detail($contractId);
+        $debt = $this->debtContract($contractId);
+        $totalDebt = $debt['room'] + $debt['service'];
+        $remainAmount = $contract->remain_amount;
+        if($remainAmount < $totalDebt && $data['type'] == "refund"){
+            return ['errors' => [[
+                'message' => 'Không thể hoàn tiền vì tiền cọc còn lại nhỏ hơn tổng số tiền còn nợ.'
+            ]]];
+        }
+
+        $additionalAmount = $data['type'] === 'refund' ? 0 : $data['amount'];
+        $usageAmount = $remainAmount + $additionalAmount;
+        try {
+            DB::beginTransaction();
+            $paymentService = new ServicePaymentFactory();
+
+            // Thanh toán tiền phòng
+            $resultPaymentRoom = $paymentService->paymentByContract([
+                'payment_type' => 'rent',
+                'rent_payment_type' => 'full',
+                'payment_method' => config("constant.payment.method.system"),
+                'contract_id' => $contractId,
+                'amount' => min($debt['room'], $usageAmount)
+            ]);
+
+            if(isset($resultPaymentRoom['errors'])){
+                throw new \Exception($resultPaymentRoom['errors'][0]['message']);
+            }
+
+            $usageAmount = max($usageAmount - $debt['room'],0);
+
+            //Thanh toán dịch vụ
+            $resultPaymentService  = $paymentService->paymentByContract([
+                'payment_type' => 'service',
+                'service_payment_type' => 'full',
+                'payment_method' => config("constant.payment.method.system"),
+                'contract_id' => $contractId,
+                'amount' => min($debt['service'], $usageAmount)
+            ]);
+
+            if(isset($resultPaymentService['errors'])){
+                throw new \Exception($resultPaymentService['errors'][0]['message']);
+            }
+
+
+            if($data['type'] == "refund"){
+                $contract->update([
+                    'remain_amount' => 0,
+                ]);
+            }
+            else{
+                $contract->update([
+                    'remain_amount' => max($usageAmount - $debt['service'],0)
+                ]);
+            }
+
+            DB::commit();
+            return true;
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return ["errors" => [[
+                'message' => $exception->getMessage(),
+            ]]];
+        }
+
+    }
+
+    public function endContract($contractId, $data)
+    {
+        $contract = $this->detail($contractId);
+        if (!isset($data['skip']['payment'])) {
+            $debt = $this->debtContract($contractId);
+
+            $stillOwesRoom = $debt['room'] != 0;
+            $stillOwesService = $debt['service'] != 0;
+            $hasRemainingDeposit = $contract['remain_amount'] != 0;
+
+            if ($stillOwesRoom || $stillOwesService || $hasRemainingDeposit) {
+                $messages = [];
+
+                if ($stillOwesRoom) {
+                    $messages[] = "Khách thuê còn nợ tiền phòng: " . number_format($debt['room']) . "đ.";
+                }
+
+                if ($stillOwesService) {
+                    $messages[] = "Khách thuê còn nợ tiền dịch vụ: " . number_format($debt['service']) . "đ.";
+                }
+
+                if ($hasRemainingDeposit) {
+                    $messages[] = "Tiền cọc chưa được quyết toán: " . number_format($contract['remain_amount']) . "đ.";
+                }
+
+                return [
+                    'errors' => [$messages]
+                ];
+            }
+    }
+
+        if (!isset($data['skip']['bill']) && !$contract->has_been_billed) {
+            return ['errors' => [['message' => 'Không thể kết thúc hợp đồng vì chưa xuất hóa đơn cuối cùng.']]];
+        }
+
+        $contract->update([
+            'status' => config('constant.contract.status.finished')
+        ]);
+
+        return true;
     }
 
     static function isContractOwner($contract_id, $user_id)

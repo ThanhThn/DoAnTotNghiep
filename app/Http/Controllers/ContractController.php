@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BaseRequest;
 use App\Http\Requests\Contract\CreateContractRequest;
 use App\Http\Requests\Contract\CreateFinalBillRequest;
 use App\Http\Requests\Contract\DetailContractRequest;
@@ -160,6 +161,84 @@ class ContractController extends Controller
             'status' => JsonResponse::HTTP_OK,
             'body' => [
                 'data' => "Tạo quyết toán thành công!"
+            ]
+        ]);
+    }
+
+    public function endContract(BaseRequest $request)
+    {
+        $request->validate([
+            'contract_id' => 'required|exists:contracts,id',
+            'skip'        => 'nullable|array',
+            'skip.*'      => 'nullable|string|in:payment,bill',
+        ]);
+
+        $data = $request->all();
+        $userId = Auth::id();
+
+        $contractService = new ContractService();
+        $contract = $contractService->detail($data['contract_id'], 'pgsqlReplica');
+
+        if(!LodgingService::isOwnerLodging($contract->room->lodging_id, $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $result = $contractService->endContract($data['contract_id'], $data);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body'   => [
+                'data' => "Kết thúc hợp đồng thành công"
+            ]
+        ]);
+    }
+
+    public function paymentAmountByContract(BaseRequest $request)
+    {
+        $request->validate([
+            'type' => 'required|string|in:refund,payment_more',
+            'contract_id' => 'required|exists:contracts,id',
+            'amount' => 'required_if:type,payment_more|numeric|min:0',
+        ]);
+
+        $data = $request->all();
+        $userId = Auth::id();
+        $contractService = new ContractService();
+        $contract = $contractService->detail($data['contract_id'], 'pgsqlReplica');
+        if(!LodgingService::isOwnerLodging($contract->room->lodging_id, $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $result = $contractService->paymentAmountRemainByContract($data, $data['contract_id']);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body'   => [
+                'data' => "Success"
             ]
         ]);
     }
