@@ -472,7 +472,7 @@ class ContractService
     public function endContract($contractId, $data)
     {
         $contract = $this->detail($contractId);
-        if (!isset($data['skip']['payment'])) {
+        if (!isset($data['skip']) || !in_array('payment', $data['skip'])) {
             $debt = $this->debtContract($contractId);
 
             $stillOwesRoom = $debt['room'] != 0;
@@ -503,7 +503,7 @@ class ContractService
             }
     }
 
-        if (!isset($data['skip']['bill']) && !$contract->has_been_billed) {
+        if ((!isset($data['skip']) || !in_array('payment', $data['skip'])) && !$contract->has_been_billed) {
             return ['errors' => [['message' => 'Không thể kết thúc hợp đồng vì chưa xuất hóa đơn cuối cùng.']]];
         }
 
