@@ -168,6 +168,7 @@ class ContractController extends Controller
     public function endContract(BaseRequest $request)
     {
         $request->validate([
+            'end_date'    => 'nullable|date',
             'contract_id' => 'required|exists:contracts,id',
             'skip'        => 'nullable|array',
             'skip.*'      => 'nullable|string|in:payment,bill',

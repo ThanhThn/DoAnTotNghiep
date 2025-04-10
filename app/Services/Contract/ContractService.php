@@ -505,7 +505,8 @@ class ContractService
         }
 
         $contract->update([
-            'status' => config('constant.contract.status.finished')
+            'status' => config('constant.contract.status.finished'),
+            'end_date' => $data['end_date'] ?? Carbon::now(),
         ]);
 
         return true;
