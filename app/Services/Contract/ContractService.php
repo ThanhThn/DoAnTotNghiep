@@ -377,14 +377,18 @@ class ContractService
 
             $usableAmount -= $paymentAmount;
 
-            $roomService = new RoomServiceManagerService();
+            if(isset($data['services'])){
+                $roomService = new RoomServiceManagerService();
 
-            $result = $roomService->createBillForContract($data['contract_id'], $contract->room_id, $data['services'], $usableAmount, [
-                'is_monthly_billing' => $data['is_monthly_billing'] ?? null
-            ]);
+                $result = $roomService->createBillForContract($data['contract_id'], $contract->room_id, $data['services'], $usableAmount, [
+                    'is_monthly_billing' => $data['is_monthly_billing'] ?? null
+                ]);
 
-            if(isset($result['errors'])){
-                throw new \Exception($result['errors'][0]['message']);
+                if(isset($result['errors'])){
+                    throw new \Exception($result['errors'][0]['message']);
+                }
+            }else{
+                $result = $usableAmount;
             }
 
             $contract->update([
