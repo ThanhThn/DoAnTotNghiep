@@ -518,6 +518,10 @@ class ContractService
             'end_date' => $data['end_date'] ?? Carbon::now(),
         ]);
 
+        Room::where("room_id", $contract->room_id)->update([
+            "current_tenants" =>  DB::raw("current_tenants - " . (int)$contract->quantity)
+        ]);
+
         return true;
     }
 
