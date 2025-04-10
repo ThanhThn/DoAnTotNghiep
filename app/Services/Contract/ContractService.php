@@ -503,7 +503,7 @@ class ContractService
             }
     }
 
-        if ((!isset($data['skip']) || !in_array('payment', $data['skip'])) && !$contract->has_been_billed) {
+        if ((!isset($data['skip']) || !in_array('bill', $data['skip'])) && !$contract->has_been_billed) {
             return ['errors' => [['message' => 'Không thể kết thúc hợp đồng vì chưa xuất hóa đơn cuối cùng.']]];
         }
 
