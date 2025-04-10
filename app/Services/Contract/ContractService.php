@@ -330,7 +330,9 @@ class ContractService
             // Lấy lịch sử thanh toán cuối cùng
             $rentalHistoryService = new RentalHistoryService();
             $lastHistory = $rentalHistoryService->getLastHistory($data['contract_id']);
-            $paymentDateLast = Carbon::parse($lastHistory->payment_date);
+
+            $paymentDateLast = Carbon::parse($lastHistory ? $lastHistory->payment_date : $contract->start_date);
+
 
             // Tính toán thời gian thuê (tháng, ngày)
             $durationRoom = Helper::calculateDuration($paymentDateLast, $now, $paymentDateLast->isSameDay($now));

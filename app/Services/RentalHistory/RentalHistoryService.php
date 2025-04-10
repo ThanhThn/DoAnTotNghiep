@@ -107,6 +107,5 @@ class RentalHistoryService
     function  getLastHistory($contractId)
     {
         return RentalHistory::on('pgsqlReplica')->where('contract_id', $contractId)->orderBy('payment_date', 'desc')->first();
-
     }
 }
