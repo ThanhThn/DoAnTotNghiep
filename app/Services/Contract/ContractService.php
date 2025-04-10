@@ -495,7 +495,10 @@ class ContractService
                 }
 
                 return [
-                    'errors' => [$messages]
+                    'errors' => array_map(
+                        fn($msg) => ['message' => $msg],
+                        $messages
+                    )
                 ];
             }
     }
