@@ -31,7 +31,7 @@ class ServicePaymentFactory extends PaymentServiceFactory
             foreach ($servicePayment as $payment) {
                 $amountToBePaid = $payment->payment_amount - $payment->amount_paid;
 
-                $result = $service->paymentByContract($contractId, $relatedId, min($amountToBePaid, $amount), $paymentMethod);
+                $result = $service->paymentByContract($contractId, $payment->id, min($amountToBePaid, $amount), $paymentMethod);
 
                 if(isset($result['errors'])){
                     throw new \Exception($result['errors'][0]['message']);
