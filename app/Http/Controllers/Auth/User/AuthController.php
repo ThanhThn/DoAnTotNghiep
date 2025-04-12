@@ -39,16 +39,10 @@ class AuthController extends BaseAuthController
         ]);
 
         $token = JWTAuth::fromUser($user);
-        TokenService::insert([
-            'token' => $token,
-            'user_id' => $user->id,
-            'device' => $device,
-            'token_type' => config('constant.token.type.login')
-        ]);
         if(isset($data['token'])){
             TokenService::insert([
                 'token' => $data['token'],
-                'user_id' => Auth::id(),
+                'user_id' => $user->id,
                 'device' => $device,
                 'token_type' => config('constant.token.type.notify')
             ]);

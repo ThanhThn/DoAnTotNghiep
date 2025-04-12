@@ -11,6 +11,7 @@ class RegisterUserRequest extends BaseRequest
           'phone' => 'required|unique:users,phone',
           'email' => 'required|email',
           'password' => 'required|string',
+          'token' => 'nullable|string',
         ];
     }
 }
