@@ -45,7 +45,7 @@ class AuthController extends BaseAuthController
             'device' => $device,
             'token_type' => config('constant.token.type.login')
         ]);
-        if($data['token']){
+        if(isset($data['token'])){
             TokenService::insert([
                 'token' => $data['token'],
                 'user_id' => Auth::id(),
