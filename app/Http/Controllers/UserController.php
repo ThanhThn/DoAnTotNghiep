@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
+use App\Http\Requests\BaseRequest;
 use App\Http\Requests\User\ListUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Services\User\UserService;
@@ -31,6 +33,30 @@ class UserController extends Controller
             'status' => JsonResponse::HTTP_OK,
             'body' => [
                 'data' => $user
+            ]
+        ]);
+    }
+
+    public function changePassword(BaseRequest $request){
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        $userId = Auth::id();
+        $service = new UserService($userId);
+        $result = $service->changePassword(Helper::decrypt($request->password));
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => "Thay đổi mật khẩu thành công!"
             ]
         ]);
     }

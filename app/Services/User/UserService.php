@@ -7,6 +7,7 @@ use App\Models\Lodging;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
+use Mockery\Exception;
 
 class UserService
 {
@@ -108,4 +109,23 @@ class UserService
             ]]];
         }
     }
+
+    public function changePassword($password)
+    {
+        try {
+            $user = User::findOrFail($this->_userId);
+
+            $user->password = Hash::make($password);
+            $user->save();
+
+            return true;
+        } catch (\Exception $exception) {
+            return [
+                'errors' => [[
+                    'message' => $exception->getMessage(),
+                ]]
+            ];
+        }
+    }
+
 }

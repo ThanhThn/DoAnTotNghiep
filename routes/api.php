@@ -18,6 +18,7 @@ Route::group(['prefix' => 'auth', 'namespace' => 'App\Http\Controllers\Auth\User
 Route::group(['prefix' => 'user', 'namespace' => 'App\Http\Controllers', 'middleware' => ['jwt.verify']], function ($route) {
     Route::get('info', 'UserController@info');
     Route::post('update', 'UserController@update');
+    Route::post('change_password', 'UserController@changePassword');
 
     Route::group(['prefix' => 'client'], function ($route) {
         Route::get('list_lodging_and_rooms', 'ClientController@listLodgingAndRooms');
