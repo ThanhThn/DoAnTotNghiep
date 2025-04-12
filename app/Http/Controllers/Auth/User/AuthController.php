@@ -7,7 +7,9 @@ use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginUserRequest;
 use App\Http\Requests\Auth\RegisterUserRequest;
+use App\Http\Requests\BaseRequest;
 use App\Models\User;
+use App\Services\AuthService;
 use App\Services\Token\TokenService;
 use App\Services\User\UserService;
 
@@ -129,5 +131,95 @@ class AuthController extends BaseAuthController
                 'errors' => [['message' => 'Something went wrong']],
             ], JsonResponse::HTTP_UNAUTHORIZED);
         }
+    }
+
+    public function requestOTP(BaseRequest $request)
+    {
+        $request->validate([
+            'phone' => [
+                'required',
+                'string',
+                'regex:/^(0|\+84)[0-9]{9}$/',
+                'exists:users,phone',
+            ],
+        ]);
+
+        try {
+            $otp  = AuthService::renderOTP($request->phone);
+            Log::info("OTP: $otp");
+
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'body' => [
+                    'data' => 'OTP sent to your email'
+                ]
+            ]);
+        }catch (\Exception $exception){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => [['message' => $exception->getMessage()]],
+            ]);
+        }
+
+    }
+
+    public function verifyOTP(BaseRequest $request)
+    {
+        $request->validate([
+            'phone' => [
+                'required',
+                'string',
+                'regex:/^(0|\+84)[0-9]{9}$/',
+                'exists:users,phone',
+            ],
+            'otp' => 'required|string',
+        ]);
+
+        $result = AuthService::verifyOTP($request->phone, $request->otp);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body'   => [
+                'data' => $result
+            ]
+        ]);
+    }
+
+    public function resetPassword(BaseRequest $request)
+    {
+        $request->validate([
+            'phone' => [
+                'required',
+                'string',
+                'regex:/^(0|\+84)[0-9]{9}$/',
+                'exists:users,phone',
+            ],
+            'token' => 'required|string',
+            'password' => 'required|string',
+        ]);
+        $data = $request->all();
+        $user = User::where("phone", $data['phone'])->first();
+        $result = AuthService::resetPassword($data['phone'], $data['password'], $data["token"], $user);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
+        ]);
     }
 }

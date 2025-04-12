@@ -12,6 +12,10 @@ Route::group(['prefix' => 'auth', 'namespace' => 'App\Http\Controllers\Auth\User
     Route::post('login', 'AuthController@login');
     Route::post('logout', 'AuthController@logout')->middleware('jwt.verify');
     Route::get('refresh', 'AuthController@refresh');
+
+    Route::post("request_otp", "AuthController@requestOTP");
+    Route::post("verify_otp", "AuthController@verifyOTP");
+    Route::post("reset_password", "AuthController@resetPassword");
 });
 
 // User

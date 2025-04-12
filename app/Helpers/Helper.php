@@ -49,4 +49,26 @@ class Helper
 
         return ['months' => $months, 'days' => $days];
     }
+
+    static function formatVietnamNumber($number)
+    {
+
+        $number = preg_replace('/\D/', '', $number);
+
+
+        if (strpos($number, '0') === 0) {
+            return '+84' . substr($number, 1);
+        }
+
+        if (strpos($number, '+84') === 0) {
+            return $number;
+        }
+
+        if (strpos($number, '84') === 0) {
+            return '+' . $number;
+        }
+
+        return $number;
+    }
+
 }
