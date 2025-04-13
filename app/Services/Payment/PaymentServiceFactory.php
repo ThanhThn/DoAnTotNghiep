@@ -108,9 +108,9 @@ abstract class PaymentServiceFactory
             return true;
         }catch (\Exception $exception){
             DB::rollBack();
-            return ['errors' => [
+            return ['errors' => [[
                 'message' => $exception->getMessage()
-            ]];
+            ]]];
         }
 
     }
