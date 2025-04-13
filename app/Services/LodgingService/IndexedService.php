@@ -12,6 +12,7 @@ use App\Services\RoomService\RoomServiceManagerService;
 use App\Services\RoomUsageService\RoomUsageService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class IndexedService extends ServiceCalculatorFactory
 {
@@ -32,6 +33,7 @@ class IndexedService extends ServiceCalculatorFactory
             'room_id' => $room->id,
             'lodging_service_id' => $this->lodgingService->id,
         ])->first();
+
 
         if (!$roomUsage['usage']) {
             // Nếu chưa có, tạo mới

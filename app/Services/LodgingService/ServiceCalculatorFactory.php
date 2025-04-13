@@ -128,9 +128,15 @@ abstract class ServiceCalculatorFactory
 
     protected function getActiveRooms()
     {
+        $lodgingService = $this->lodgingService;
         return Room::where('lodging_id', $this->lodgingService->lodging_id)
             ->whereHas('contracts', function ($query) {
                 $query->where('status', config('constant.contract.status.active'));
+            })
+            ->whereHas('roomServices', function ($query) use($lodgingService) {
+                $query->where([
+                    'lodging_service_id' => $lodgingService->id,
+                    'is_enabled' => true]);
             })
             ->with(['contracts' => function ($query) {
                 $query->where('status', config('constant.contract.status.active'));

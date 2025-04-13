@@ -15,17 +15,11 @@ class RoomUsageService
 {
     public function createRoomUsage($data)
     {
-        $insertData = [
-            'room_id' => $data['room_id'],
-            'lodging_service_id' => $data['lodging_service_id'],
-            'total_price' => $data['total_price'],
-            'amount_paid' => $data['amount_paid'],
-            'value' => $data['value'],
-            'finalized' => $data['finalized'],
-            'month_billing' => $data['month_billing'],
-            'year_billing' => $data['year_billing'],
-            'is_need_close' => $data['is_need_close'] ?? false,
-        ];
+        $insertData = $data;
+
+        if(!isset($data['is_need_close'])){
+            $insertData['is_need_close'] = false;
+        }
 
         return RoomServiceUsage::create($insertData);
     }
