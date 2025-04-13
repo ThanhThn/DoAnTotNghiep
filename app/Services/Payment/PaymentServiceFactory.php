@@ -89,6 +89,9 @@ abstract class PaymentServiceFactory
                 'description' => $msgTo,
             ]);
 
+            $walletTo->balance += $data['amount'];
+            $walletTo->save();
+
             $notifyService = new NotificationService();
 
             // Tạo thông báo biến động số dư
