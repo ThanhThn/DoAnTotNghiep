@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Payment\PaymentByUserRequest;
 use App\Http\Requests\Payment\PaymentContractRequest;
 use App\Services\Contract\ContractService;
 use App\Services\Lodging\LodgingService;
@@ -51,6 +52,29 @@ class PaymentController extends Controller
             'status' => JsonResponse::HTTP_OK,
             'body' => [
                 'data' => 'Thanh toán thành công!'
+            ]
+        ]);
+    }
+
+    function paymentByUser(PaymentByUserRequest $request)
+    {
+        $data = $request->all();
+        $userId = Auth::id();
+        $service = new ServicePaymentFactory();
+
+        $result = $service->paymentByUser($data, $userId);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body'   => [
+                'data' => 'Thanh toán thành công'
             ]
         ]);
     }

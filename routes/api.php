@@ -174,4 +174,6 @@ Route::group(['prefix' => 'chat', 'namespace' => 'App\Http\Controllers'], functi
 
 Route::group(['prefix' => 'payment', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('payment_by_contract', 'PaymentController@paymentByContract')->middleware('jwt.verify');
+
+    Route::post('payment_by_user', 'PaymentController@paymentByUser')->middleware('jwt.verify');
 });

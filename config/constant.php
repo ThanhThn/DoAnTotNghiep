@@ -30,6 +30,15 @@ return [
             'service' => 'service'
         ]
     ],
+    'transaction' => [
+        'type' => [
+            "deposit" => "deposit",
+            "withdraw" => "withdraw",
+            "transfer_in" => "transfer_in",
+            "transfer_out" => "transfer_out",
+            "payment" => "payment"
+        ]
+    ],
     'feedback' => [
         'status' => [
             'submitted' => 1,
@@ -55,6 +64,7 @@ return [
             'system' => 'system',
             'cash' => 'cash',
             'card' => 'card',
+            'transfer' => 'transfer',
         ]
     ],
 
