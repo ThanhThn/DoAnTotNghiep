@@ -38,6 +38,7 @@ abstract class PaymentServiceFactory
 
             $dataPayment = [
                 'amount' => $data['amount'],
+                'payment_type' => $data['object_type'],
                 'payment_method' => config('constant.payment.method.transfer'),
                 'contract_id' => $data['contract_id'],
             ];
