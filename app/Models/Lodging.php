@@ -54,9 +54,16 @@ class Lodging extends Model
     protected static function boot(){
         parent::boot();
         static::creating(function ($model) {
+
+            $id =  Str::uuid();
             if (empty($model->id)) {
-                $model->id = Str::uuid();
+                $model->id = $id;
             }
+
+            Wallet::create([
+                'object_id' => $id,
+                'objecct_type'=> config('constant.object.type.lodging')
+            ]);
         });
 
     }

@@ -25,7 +25,9 @@ return [
         "type" => [
             'user' => 'user',
             'room' => 'room',
-            'lodging' => 'lodging'
+            'lodging' => 'lodging',
+            'rent' => 'rent',
+            'service' => 'service'
         ]
     ],
     'feedback' => [

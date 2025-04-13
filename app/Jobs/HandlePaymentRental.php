@@ -52,7 +52,7 @@ class HandlePaymentRental implements ShouldQueue
             }
 
             if($amountNeedPayment){
-                $contractService->calculateContract($contract, $amountNeedPayment, $room->late_days);
+                $contractService->calculateContract($contract->id, $amountNeedPayment, $room->late_days);
             }
 
             $quantity -= $contract->quantity;

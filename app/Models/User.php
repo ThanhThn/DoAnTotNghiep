@@ -67,12 +67,21 @@ class User extends Authenticatable implements JWTSubject
     protected static function boot(){
         parent::boot();
         static::creating(function ($model) {
-            $model->id = Str::uuid();
+            $id = Str::uuid();
+
+            $model->id = $id;
+
+            Wallet::create([
+                'object_id' => $id,
+                'objecct_type'=> config('constant.object.type.user')
+            ]);
+
         });
 
         static::deleting(function ($model) {
            Lodging::where('user_id', $model->id)->delete();
         });
+
     }
 
     public function getJWTIdentifier()
@@ -83,5 +92,10 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class, 'object_id', 'id');
     }
 }

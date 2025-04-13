@@ -4,6 +4,7 @@ namespace App\Services\LodgingService;
 
 use App\Models\Contract;
 use App\Models\LodgingService;
+use App\Models\PaymentHistory;
 use App\Models\Room;
 use App\Models\RoomServiceUsage;
 use App\Models\ServicePayment;
@@ -70,7 +71,7 @@ abstract class ServiceCalculatorFactory
     protected function createPaymentAndNotify($room, $contract, $paymentAmount, $roomUsage, $monthBilling , $amountPaid = 0, $paymentMethod = null)
     {
         // Lưu thanh toán vào bảng ServicePayment
-        ServicePayment::create([
+        $servicePayment = ServicePayment::create([
             'room_service_usage_id' => $roomUsage->id,
             'contract_id' => $contract->id,
             'payment_amount' => $paymentAmount,
@@ -80,6 +81,19 @@ abstract class ServiceCalculatorFactory
             'payment_method' => $paymentMethod,
             'due_date' => $this->now->clone()->addDays($this->lodgingService->late_days),
         ]);
+
+        if($amountPaid > 0){
+            PaymentHistory::create([
+                'contract_id' => $contract->id,
+                'room_id' => $contract->room_id,
+                'lodging_id' => $room->lodging_id,
+                'object_id' => $servicePayment->id,
+                'object_type' => config('constant.object.type.service'),
+                'amount' => $amountPaid,
+                'payment_method' => config('constant.payment.method.system'),
+                'paid_at' => Carbon::now(),
+            ]);
+        }
 
 
         if($paymentAmount > $amountPaid){

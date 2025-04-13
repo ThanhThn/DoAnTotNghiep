@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Http\Requests\BaseRequest;
 use App\Http\Requests\User\ListUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\User;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,10 +16,11 @@ class UserController extends Controller
 {
     public function info()
     {
+        $user = User::on('pgsqlReplica')->with('wallet')->find(Auth::id());
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => [
-                'data' => Auth::user()
+                'data' => $user
             ]
         ]);
     }

@@ -4,6 +4,7 @@ namespace App\Services\Contract;
 
 use App\Helpers\Helper;
 use App\Models\Contract;
+use App\Models\PaymentHistory;
 use App\Models\RentalHistory;
 use App\Models\Room;
 use App\Models\User;
@@ -146,10 +147,10 @@ class ContractService
             }])->find($id);
     }
 
-    public function calculateContract($contract, $amountNeedPayment, $lateDays)
+    public function calculateContract($contractId, $amountNeedPayment, $lateDays)
     {
         if($amountNeedPayment == 0) return null;
-
+        $contract = $this->detail($contractId);
         $difference = $contract->remain_amount - $amountNeedPayment;
         try{
             DB::beginTransaction();
@@ -177,7 +178,7 @@ class ContractService
                 'payment_amount' => $amountNeedPayment,
                 'amount_paid' => $amountPaid,
                 'status' => $status,
-                'payment_method' =>  $status == config('constant.payment.status.paid') ? config('constant.payment.method.system') : null,
+                'payment_method' =>  $status != config('constant.payment.status.unpaid') ? config('constant.payment.method.system') : null,
                 'payment_date' => $now->copy(),
                 'last_payment_date' => $now->copy(),
                 'due_date' => $now->copy()->addDays($lateDays),
@@ -188,6 +189,20 @@ class ContractService
 
             if (!empty($result['errors'])) {
                 throw new \Exception($result['errors'][0]['message']);
+            }
+
+
+            if($amountPaid > 0){
+                PaymentHistory::create([
+                    'contract_id' => $contract->id,
+                    'room_id' => $contract->room_id,
+                    'lodging_id' => $contract->room->lodging_id,
+                    'object_id' => $result->id,
+                    'object_type' => config('constant.object.type.rent'),
+                    'amount' => $amountPaid,
+                    'payment_method' => config('constant.payment.method.system'),
+                    'paid_at' => Carbon::now(),
+                ]);
             }
 
             DB::commit();

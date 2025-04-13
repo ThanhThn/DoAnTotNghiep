@@ -3,7 +3,9 @@
 namespace App\Services\Payment;
 
 use App\Models\Contract;
+use App\Models\PaymentHistory;
 use App\Models\RentalHistory;
+use App\Services\Contract\ContractService;
 use App\Services\Payment\PaymentServiceFactory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +32,8 @@ class RoomPaymentFactory extends PaymentServiceFactory
                 throw new \Exception("Không tìm thấy lịch sử thanh toán cho hợp đồng này.");
             }
 
+            $contract = (new ContractService())->detail($contractId);
+
             foreach ($rentalHistory as $history) {
                 $amountToBePaid = $history->payment_amount - $history->amount_paid;
 
@@ -49,13 +53,24 @@ class RoomPaymentFactory extends PaymentServiceFactory
                     'last_payment_date' => Carbon::now()
                 ]);
 
+                PaymentHistory::create([
+                    'contract_id' => $contractId,
+                    'room_id' => $contract->room_id,
+                    'lodging_id' => $contract->room->lodging_id,
+                    'object_id' => $history->id,
+                    'object_type' => config('constant.object.type.rent'),
+                    'amount' => min($amountToBePaid, $amount),
+                    'payment_method' => $paymentMethod,
+                    'paid_at' => Carbon::now(),
+                ]);
+
                 if ($amount <= 0) {
                     break;
                 }
             }
 
             if ($amount > 0) {
-                Contract::where('id', $contractId)->update([
+                $contract->update([
                     'remain_amount' => DB::raw('remain_amount + ' . $amount),
                 ]);
             }
