@@ -62,7 +62,7 @@ class Lodging extends Model
 
             Wallet::create([
                 'object_id' => $id,
-                'objecct_type'=> config('constant.object.type.lodging')
+                'object_type'=> config('constant.object.type.lodging')
             ]);
         });
 

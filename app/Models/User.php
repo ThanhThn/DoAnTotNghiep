@@ -73,7 +73,7 @@ class User extends Authenticatable implements JWTSubject
 
             Wallet::create([
                 'object_id' => $id,
-                'objecct_type'=> config('constant.object.type.user')
+                'object_type'=> config('constant.object.type.user')
             ]);
 
         });
