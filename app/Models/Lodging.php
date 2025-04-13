@@ -94,4 +94,9 @@ class Lodging extends Model
     {
         return $this->belongsTo(User::class, 'user_id')->select(['id', 'full_name', 'email', 'phone']);
     }
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class, 'object_id', 'id');
+    }
 }

@@ -65,7 +65,7 @@ class LodgingService
 
     function detailLodging($lodgingId)
     {
-        return Lodging::with(['province', 'district', 'ward', 'type'])->find($lodgingId);
+        return Lodging::with(['province', 'district', 'ward', 'type', 'wallet'])->find($lodgingId);
     }
 
     function updateLodging($data, $isAdmin = false)
@@ -110,7 +110,7 @@ class LodgingService
 
     function listByUserID($userId)
     {
-        $lodging = Lodging::on('pgsqlReplica')->with(['province','ward', 'district'])->where('user_id', $userId)
+        $lodging = Lodging::on('pgsqlReplica')->with(['province','ward', 'district', 'wallet'])->where('user_id', $userId)
             ->where('is_enabled', true)->get();
         return $lodging;
     }
