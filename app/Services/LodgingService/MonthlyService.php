@@ -11,6 +11,7 @@ use App\Services\RoomService\RoomServiceManagerService;
 use App\Services\RoomUsageService\RoomUsageService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MonthlyService extends ServiceCalculatorFactory
 {
@@ -33,9 +34,11 @@ class MonthlyService extends ServiceCalculatorFactory
         $roomUsage = $this->findRoomUsage($room,$monthBilling, $yearBilling);
         $remainPrice = $totalPrice;
 
+        Log::info(json_encode($roomUsage));
+
         if (!$roomUsage['usage']) {
             // Nếu chưa có, tạo mới
-            $roomUsage = $this->roomUsageService->createRoomUsage([
+            $roomUsage['usage'] = $this->roomUsageService->createRoomUsage([
                 'room_id' => $room->id,
                 'lodging_service_id' => $this->lodgingService->id,
                 'total_price' => $totalPrice,
@@ -78,6 +81,7 @@ class MonthlyService extends ServiceCalculatorFactory
         }
 
         $amountPayment = ($remainPrice / $room->current_tenants);
+
         foreach ($room->contracts as $contract) {
             $this->createPaymentAndNotify($room, $contract, $amountPayment * $contract->quantity, $roomUsage['usage'], $roomUsage['month_billing']);
         }
