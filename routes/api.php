@@ -177,3 +177,11 @@ Route::group(['prefix' => 'payment', 'namespace' => 'App\Http\Controllers'], fun
 
     Route::post('payment_by_user', 'PaymentController@paymentByUser')->middleware('jwt.verify');
 });
+
+Route::group(['prefix' => 'wallet', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::get('detail/{walletId}', 'WalletController@detail')->middleware('jwt.verify');
+});
+
+Route::group(['prefix' => 'transaction', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('list_by_wallet', 'TransactionController@listByWallet')->middleware('jwt.verify');
+});

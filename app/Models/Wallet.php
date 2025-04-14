@@ -28,4 +28,9 @@ class Wallet extends Model
             $model->id = Str::uuid();
         });
     }
+
+    public function walletable()
+    {
+        return $this->morphTo(null, 'object_type', 'object_id');
+    }
 }
