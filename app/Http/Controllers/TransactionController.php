@@ -32,9 +32,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
-            'body' => [
-                'data' => $result
-            ]
+            'body' => $result
         ]);
     }
 }
