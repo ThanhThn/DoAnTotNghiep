@@ -37,6 +37,6 @@ class RentalHistory extends Model
 
     public function contract()
     {
-        return $this->belongsTo(Contract::class);
+        return $this->belongsTo(Contract::class)->with('room');
     }
 }

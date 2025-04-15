@@ -8,6 +8,7 @@ use App\Services\Notification\NotificationService;
 use App\Services\Token\TokenService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Mockery\Exception;
 use function tests\data;
 
 class RentalHistoryService
@@ -107,5 +108,33 @@ class RentalHistoryService
     function  getLastHistory($contractId)
     {
         return RentalHistory::on('pgsqlReplica')->where('contract_id', $contractId)->orderBy('payment_date', 'desc')->first();
+    }
+
+    function detail($rentalHistoryId)
+    {
+        try {
+            $history = RentalHistory::on('pgsqlReplica')->with('contract')->findOrFail($rentalHistoryId);
+            return $history;
+        }catch (Exception $exception){
+            return ["errors" => [[
+                "message" => $exception->getMessage(),
+            ]]];
+        }
+    }
+
+    function checkAccessUser($id, $userId) : bool
+    {
+        try {
+            $history = RentalHistory::on('pgsqlReplica')->with('contract')->findOrFail($id);
+
+            $contract = $history->contract;
+            $lodging = $contract->room->lodging;
+            if($contract->user_id == $userId || $lodging->user_id == $userId){
+                return true;
+            }
+            return false;
+        }catch (Exception $exception){
+            return false;
+        }
     }
 }

@@ -147,6 +147,8 @@ Route::group(['prefix' => 'equipment', 'namespace' => 'App\Http\Controllers'] , 
 // Rental
 Route::group(['prefix' => 'rental_history', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('list', 'RentalHistoryController@listRentalHistory')->middleware('jwt.verify');
+
+    Route::get('detail/{rentalHistoryId}', 'RentalHistoryController@detailRentalHistory')->middleware('jwt.verify');
 });
 
 
@@ -160,6 +162,8 @@ Route::group(['prefix' => 'room_usage', 'namespace' => 'App\Http\Controllers'], 
 
 Route::group(['prefix' => 'service_payment', 'namespace' => 'App\Http\Controllers', 'middleware' => 'jwt.verify'], function ($route) {
     Route::post('list', 'ServicePaymentController@list');
+
+    Route::get('detail/{servicePaymentId}', 'ServicePaymentController@detail')->middleware('jwt.verify');
 });
 
 Route::group(['prefix' =>  'channel', 'namespace' => 'App\Http\Controllers'], function ($route) {
@@ -184,4 +188,8 @@ Route::group(['prefix' => 'wallet', 'namespace' => 'App\Http\Controllers'], func
 
 Route::group(['prefix' => 'transaction', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('list_by_wallet', 'TransactionController@listByWallet')->middleware('jwt.verify');
+});
+
+Route::group(['prefix' => 'payment_history', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('list', 'PaymentHistoryController@list')->middleware('jwt.verify');
 });

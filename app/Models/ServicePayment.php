@@ -40,4 +40,10 @@ class ServicePayment extends Model
     {
         return $this->belongsTo(RoomServiceUsage::class, 'room_service_usage_id')->with(['service', 'unit']);
     }
+
+    public function contract()
+    {
+        return $this->belongsTo(Contract::class)->with('room');
+    }
+
 }

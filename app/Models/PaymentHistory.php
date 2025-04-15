@@ -22,7 +22,11 @@ class PaymentHistory extends Model
         'note'
     ];
 
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['updated_at'];
+
+    protected $keyType = "string";
+    protected $primaryKey = "id";
+    public $incrementing = false;
 
     protected static function boot(){
         parent::boot();

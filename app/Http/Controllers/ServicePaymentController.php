@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ServicePayment\DetailServicePaymentRequest;
 use App\Http\Requests\ServicePayment\ListServicePaymentRequest;
 use App\Services\Contract\ContractService;
 use App\Services\Lodging\LodgingService;
@@ -33,6 +34,40 @@ class ServicePaymentController extends Controller
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => $result
+        ]);
+    }
+
+    public function detail(DetailServicePaymentRequest $request, $servicePaymentId)
+    {
+
+        $userId = Auth::id();
+
+        $service = new ServicePaymentService();
+        if(!$service->checkAccessUser($servicePaymentId, $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+
+        $result = $service->detail($servicePaymentId);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result,
+
+            ]
         ]);
     }
 }

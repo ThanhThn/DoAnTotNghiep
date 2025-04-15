@@ -4,14 +4,29 @@ namespace App\Services\ServicePayment;
 
 use App\Models\Contract;
 use App\Models\PaymentHistory;
+use App\Models\RentalHistory;
 use App\Models\RoomServiceUsage;
 use App\Models\ServicePayment;
 use App\Services\Contract\ContractService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Mockery\Exception;
 
 class ServicePaymentService
 {
+    function detail($rentalHistoryId)
+    {
+        try {
+            $history = ServicePayment::on('pgsqlReplica')->with(['contract', 'roomServiceUsage',
+            ])->findOrFail($rentalHistoryId);
+            return $history;
+        }catch (Exception $exception){
+            return ["errors" => [[
+                "message" => $exception->getMessage(),
+            ]]];
+        }
+    }
+
     public function listServicePaymentByContract($data)
     {
         $servicePayments = ServicePayment::with('roomServiceUsage:id,month_billing,year_billing,service_id,service_name,unit_id,initial_index,final_index,value,total_price')->where('contract_id', $data['contract_id']);
@@ -100,6 +115,22 @@ class ServicePaymentService
                     'message' => $exception->getMessage(),
                 ]]
             ];
+        }
+    }
+
+    function checkAccessUser($id, $userId) : bool
+    {
+        try {
+            $history = ServicePayment::on('pgsqlReplica')->with('contract')->findOrFail($id);
+
+            $contract = $history->contract;
+            $lodging = $contract->room->lodging;
+            if($contract->user_id == $userId || $lodging->user_id == $userId){
+                return true;
+            }
+            return false;
+        }catch (Exception $exception){
+            return false;
         }
     }
 }
