@@ -63,7 +63,7 @@ return [
         'method' => [
             'system' => 'system',
             'cash' => 'cash',
-            'card' => 'card',
+            'bank' => 'bank',
             'transfer' => 'transfer',
         ]
     ],

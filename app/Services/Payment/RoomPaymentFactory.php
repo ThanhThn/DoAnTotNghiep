@@ -38,7 +38,6 @@ class RoomPaymentFactory extends PaymentServiceFactory
                 $amountToBePaid = $history->payment_amount - $history->amount_paid;
 
                 $amountPaid = $history->amount_paid + min($amountToBePaid, $amount);
-                $amount = max(0, $amount - $amountToBePaid);
 
                 $status = match (true) {
                     $amountPaid == 0 => config('constant.payment.status.unpaid'),
@@ -63,6 +62,7 @@ class RoomPaymentFactory extends PaymentServiceFactory
                     'payment_method' => $paymentMethod,
                     'paid_at' => Carbon::now(),
                 ]);
+                $amount = max(0, $amount - $amountToBePaid);
 
                 if ($amount <= 0) {
                     break;
