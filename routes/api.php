@@ -128,6 +128,8 @@ Route::group(['prefix' => 'notification', 'namespace' => 'App\Http\Controllers']
     Route::post('create', 'NotificationController@index')->middleware('jwt.verify');
 
     Route::post('list', 'NotificationController@list')->middleware('jwt.verify');
+
+    Route::get('{notificationId}/toggle_read',  'NotificationController@toggleRead');
 });
 
 

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\NewNotification;
+use App\Http\Requests\BaseRequest;
+use App\Http\Requests\Notification\DetailNotificationRequest;
 use App\Http\Requests\Notification\ListNotificationRequest;
 use App\Models\Lodging;
 use App\Services\Lodging\LodgingService;
@@ -44,6 +46,26 @@ class NotificationController extends Controller
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => $result
+        ]);
+    }
+
+    public function toggleRead(DetailNotificationRequest $request, $notificationId){
+
+        $service = new NotificationService();
+        $result = $service->toggleRead($notificationId);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => $result
+            ]
         ]);
     }
 }

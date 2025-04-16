@@ -7,6 +7,7 @@ use App\Models\Notification;
 use App\Models\Token;
 use App\Services\Token\TokenService;
 use Google\Client;
+use Mockery\Exception;
 
 class NotificationService
 {
@@ -145,5 +146,20 @@ class NotificationService
             'total' => $total,
             'data' => $notifications
         ];
+    }
+
+
+    public function toggleRead($id)
+    {
+        try {
+            $notification = Notification::findOrFail($id);
+            $notification->is_seen = !$notification->is_seen;
+            $notification->save();
+            return $notification->refresh();
+        }catch (Exception $exception){
+            return ['errors' => [[
+                "message" => $exception->getMessage(),
+            ]]];
+        }
     }
 }

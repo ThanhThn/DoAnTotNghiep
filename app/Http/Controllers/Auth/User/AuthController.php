@@ -139,7 +139,7 @@ class AuthController extends BaseAuthController
         ]);
 
         try {
-            $otp  = AuthService::renderOTP($request->phone);
+            $otp = AuthService::renderOTP($request->phone);
             Log::info("OTP: $otp");
 
             return response()->json([
