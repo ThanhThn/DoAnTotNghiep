@@ -38,11 +38,11 @@ class PermissionService
             'user_id' => $userId,
             'lodging_id' => $this->_lodgingId,
             'is_enabled' => true
-        ])->get()->pluck('permission')->toArray();
+        ])->orderBy('created_at', 'desc')->get()->pluck('permission')->toArray();
     }
 
     public  function  listRoles($roleIds)
     {
-        return RolePermission::with('permission')->whereIn('role_id', $roleIds)->where('is_enabled', true)->get()->pluck('permission')->toArray();
+        return RolePermission::with('permission')->whereIn('role_id', $roleIds)->where('is_enabled', true)->orderBy('created_at', 'desc')->get()->pluck('permission')->toArray();
     }
 }
