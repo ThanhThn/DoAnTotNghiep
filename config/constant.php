@@ -21,6 +21,11 @@ return [
             'notify' => 2
         ]
     ],
+    "rule" => [
+        'admin' => 'admin',
+        'user' => 'user',
+        'manager' => 'manager',
+    ],
     "object" => [
         "type" => [
             'user' => 'user',

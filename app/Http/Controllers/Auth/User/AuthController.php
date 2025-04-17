@@ -10,6 +10,8 @@ use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Http\Requests\BaseRequest;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\Lodging\LodgingService;
+use App\Services\Notification\NotificationService;
 use App\Services\Token\TokenService;
 use App\Services\User\UserService;
 
@@ -67,6 +69,24 @@ class AuthController extends BaseAuthController
             ], JsonResponse::HTTP_OK);
         }
 
+        $user = Auth::user();
+        if($data['rule'] == config('constant.rule.manager')){
+            $lodgingService = new LodgingService();
+            $result = $lodgingService->listByUserID($user->id);
+            if($result->count() <= 0){
+                return response()->json([
+                    'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                    'errors' => [
+                        ["message" => "Không có nhà cho thuê để quản lý.",
+                        "field" => "rule"]],
+                ]);
+            }
+        }
+
+        $tokenHasRule = JWTAuth::claims([
+            'rule' => $data['rule']
+        ])->fromUser($user);
+
         if(isset($data['token'])){
             TokenService::insert([
                 'token' => $data['token'],
@@ -76,7 +96,7 @@ class AuthController extends BaseAuthController
             ]);
         }
 
-        return $this->respondWithToken($token);
+        return $this->respondWithToken($tokenHasRule);
     }
 
     public function logout(Request $request)
@@ -136,11 +156,20 @@ class AuthController extends BaseAuthController
                 'regex:/^(0|\+84)[0-9]{9}$/',
                 'exists:users,phone',
             ],
+            "token" => "nullable|string"
         ]);
 
         try {
             $otp = AuthService::renderOTP($request->phone);
             Log::info("OTP: $otp");
+
+            if(isset($request->token)){
+                NotificationService::sendNotificationRN([
+                    'title' => 'Xác Thực OTP',
+                    'body' => "Mã xác thực (OTP) của bạn là: $otp. Mã có hiệu lực trong vòng 5 phút.",
+                    'target_url' => "/auth/verify_otp"
+                ], [$request->token]);
+            }
 
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,

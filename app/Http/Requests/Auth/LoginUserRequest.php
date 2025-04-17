@@ -11,6 +11,7 @@ class LoginUserRequest extends BaseRequest
         return [
             'phone' => 'required|string|regex:/[0-9]{10}/|exists:users,phone',
             'password' => 'required|string',
+            'rule' => 'required|string|in:user,manager'
         ];
     }
 }

@@ -11,12 +11,20 @@ use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
     public function info()
     {
         $user = User::on('pgsqlReplica')->with('wallet')->find(Auth::id());
+
+
+        $payload = JWTAuth::parseToken()->getPayload();
+        $rule = $payload->get('rule');
+
+        $user->rule = $rule;
+
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => [
