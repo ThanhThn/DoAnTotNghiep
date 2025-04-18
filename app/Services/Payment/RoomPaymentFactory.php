@@ -7,6 +7,7 @@ use App\Models\PaymentHistory;
 use App\Models\RentalHistory;
 use App\Services\Contract\ContractService;
 use App\Services\Payment\PaymentServiceFactory;
+use App\Services\RoomRentalHistory\RoomRentalHistoryService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +17,7 @@ class RoomPaymentFactory extends PaymentServiceFactory
     function processPaymentByContract(string $contractId, ?string $relatedId, float $amount, string $paymentMethod, $extraData = [])
     {
         try {
+            $roomRentalHistoryService = new RoomRentalHistoryService();
             $rentalHistory = RentalHistory::where('contract_id', $contractId);
 
             if (!isset($extraData['type']) && !$relatedId) {
@@ -51,6 +53,17 @@ class RoomPaymentFactory extends PaymentServiceFactory
                     'payment_method' => $paymentMethod,
                     'last_payment_date' => Carbon::now()
                 ]);
+
+
+                if($history->room_rental_history_id){
+                    $roomRental = $roomRentalHistoryService->detail($history->room_rental_history_id);
+
+                    if ($roomRental) {
+                        $roomRental->amount_paid += min($amountToBePaid, $amount);
+                        $roomRental->save();
+                    }
+                }
+
 
                 PaymentHistory::create([
                     'contract_id' => $contractId,

@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Log;
 
 class RoomRentalHistoryService
 {
+    public function detail($id)
+    {
+        return RoomRentalHistory::find($id);
+    }
+
     public function findHistory(Room $room, $monthBilling = null, $yearBilling = null)
     {
         $billingDay = $room->payment_date;
