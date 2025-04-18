@@ -12,6 +12,7 @@ use App\Services\LodgingService\LodgingServiceManagerService;
 use App\Services\Payment\ServicePaymentFactory;
 use App\Services\RentalHistory\RentalHistoryService;
 use App\Services\Room\RoomService;
+use App\Services\RoomRentalHistory\RoomRentalHistoryService;
 use App\Services\RoomService\RoomServiceManagerService;
 use App\Services\ServicePayment\ServicePaymentService;
 use App\Services\User\UserService;
@@ -147,7 +148,7 @@ class ContractService
             }])->find($id);
     }
 
-    public function calculateContract($contractId, $amountNeedPayment, $lateDays)
+    public function calculateContract($contractId, $amountNeedPayment, $lateDays, $roomRentalId)
     {
         if($amountNeedPayment == 0) return null;
         $contract = $this->detail($contractId);
@@ -182,6 +183,7 @@ class ContractService
                 'payment_date' => $now->copy(),
                 'last_payment_date' => $now->copy(),
                 'due_date' => $now->copy()->addDays($lateDays),
+                'room_rental_history_id' => $roomRentalId,
             ];
 
             $service = new RentalHistoryService();
@@ -379,6 +381,17 @@ class ContractService
             // Xác định phương thức thanh toán
             $paymentMethod = $usableAmount > 0 ? config('constant.payment.method.system') : null;
 
+            // Xử lý tạo hoá đơn chung cho phòng
+            $roomRentalHistoryService = new RoomRentalHistoryService();
+            $roomRental = $roomRentalHistoryService->processRoomRentalHistory($room, amountPaid:  max(min($usableAmount, $paymentAmount), 0), isFinalized: false);
+
+            Log::info($roomRental);
+
+            if(!$roomRental){
+                throw new \Exception('Fail create room rental');
+            }
+
+
 
             // Tạo lịch sử thanh toán
             $rentalHistoryService->createRentalHistory([
@@ -388,6 +401,7 @@ class ContractService
                 'status' => $paymentStatus,
                 'payment_method' => $paymentMethod,
                 'due_date' => $now->clone()->addDays($room->late_days),
+                'room_rental_history_id' => $roomRental->id
             ]);
 
             $usableAmount -= $paymentAmount;

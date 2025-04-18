@@ -79,7 +79,7 @@ class IndexedService extends ServiceCalculatorFactory
         $message = [
             'title' => "Cập nhật chỉ số dịch vụ $nameService",
             'body' => "Vui lòng cập nhật chỉ số mới cho dịch vụ $nameService phòng {$room->room_code}.",
-            'target_endpoint' => '/service_update',
+            'target_endpoint' => "/lodging/$room->lodging_id/service_usage/create",
             'type' => config('constant.notification.type.important'),
         ];
         $notificationService->createNotification($message, config('constant.object.type.lodging'), $this->lodgingService->lodging->id, $this->lodgingService->lodging->user_id);

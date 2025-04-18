@@ -110,7 +110,7 @@ abstract class ServiceCalculatorFactory
             $message = [
                 'title' => "Nhắc nhở thanh toán tiền $nameService tháng {$monthBilling} - $lodgingName",
                 'body' => "Bạn cần thanh toán $paymentAmount đ cho phòng {$room->room_code}, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phí trễ hạn.",
-                'target_endpoint' => '/rental_history/list',
+                'target_endpoint' => "/payment_history/service/$servicePayment->id?redirect_to=user",
                 'type' => config('constant.notification.type.important'),
             ];
 

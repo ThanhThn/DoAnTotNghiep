@@ -24,6 +24,7 @@ class RentalHistoryService
             'payment_date' => $data['payment_date'] ?? now(),
             'last_payment_date' => $data['last_payment_date'] ?? now(),
             'due_date' => $data['due_date'] ?? now(),
+            'room_rental_history_id' => $data['room_rental_history_id'] ?? null,
         ];
 
         try {
@@ -49,7 +50,7 @@ class RentalHistoryService
                 $mess = [
                     'title' => "Nhắc nhở thanh toán tiền trọ tháng $currentMonth",
                     'body' => "Bạn còn thiếu $formattedDif đ tiền trọ tháng $currentMonth cho phòng $roomName, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phát sinh phí trễ hạn.",
-                    'target_endpoint' => '/rental_history/list',
+                    'target_endpoint' => "/payment_history/rental/$rentalHistory->id?redirect_to=user",
                     'type' => config('constant.notification.type.important')
                 ];
                 $notificationService->createNotification($mess, config('constant.object.type.user'),$contract->user_id, $contract->user_id);

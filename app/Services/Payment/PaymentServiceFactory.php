@@ -98,13 +98,13 @@ abstract class PaymentServiceFactory
             $notifyService->createNotification([
                 'title' => 'Biến động số dư',
                 'body' => $msgFrom,
-                'target_endpoint' => "/"
+                'target_endpoint' => "/wallet/$walletFrom->id/transactions",
             ], config('constant.object.type.user'), $userId, $userId);
 
             $notifyService->createNotification([
                 'title' => 'Biến động số dư',
                 'body' => $msgTo,
-                'target_endpoint' => "/"
+                'target_endpoint' =>  "/wallet/$walletTo->id/transactions",
             ], config('constant.object.type.user'), $contract->room->lodging_id, $userId);
 
             DB::commit();

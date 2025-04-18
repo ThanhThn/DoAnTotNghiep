@@ -19,7 +19,8 @@ class RentalHistory extends Model
         'payment_date',
         'last_payment_date',
         'payment_method',
-        'due_date'
+        'due_date',
+        'room_rental_history_id'
     ];
 
     public $incrementing = false;

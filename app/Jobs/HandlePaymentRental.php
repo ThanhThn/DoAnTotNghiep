@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Contract;
 use App\Models\Room;
 use App\Services\Contract\ContractService;
+use App\Services\RoomRentalHistory\RoomRentalHistoryService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -32,7 +33,10 @@ class HandlePaymentRental implements ShouldQueue
             $query->where(['status'  => config('constant.contract.status.active')]);
         }])->find($this->_roomId);
 
-        $roomRent = $room->price;
+        $roomRentalHistoryService = new RoomRentalHistoryService();
+        $roomRent = $roomRentalHistoryService->processRoomRentalHistory($room);
+
+        if(!$roomRent) return;
 
         $contracts = $room->contracts->sortByDesc(fn($contract) => $contract->monthly_rent ?? -1);
         $quantity = $room->current_tenants;
@@ -43,16 +47,16 @@ class HandlePaymentRental implements ShouldQueue
             if($quantity <= 0) break;
 
             if(is_numeric($contract->monthly_rent)){
-                $amountNeedPayment = min($contract->monthly_rent, $roomRent);
-                $roomRent -= $amountNeedPayment;
+                $amountNeedPayment = min($contract->monthly_rent, $roomRent['price']);
+                $roomRent['price'] -= $amountNeedPayment;
             }else{
                 $diff = max(1, $quantity);
-                $amountNeedPayment = ($roomRent / $diff) * $contract->quantity;
-                $roomRent -= $amountNeedPayment;
+                $amountNeedPayment = ($roomRent['price'] / $diff) * $contract->quantity;
+                $roomRent['price'] -= $amountNeedPayment;
             }
 
             if($amountNeedPayment){
-                $contractService->calculateContract($contract->id, $amountNeedPayment, $room->late_days);
+                $contractService->calculateContract($contract->id, $amountNeedPayment, $room->late_days, $roomRent['history']->id);
             }
 
             $quantity -= $contract->quantity;

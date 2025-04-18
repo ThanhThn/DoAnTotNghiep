@@ -89,7 +89,7 @@ class RoomUsageService
                 foreach ($contracts as $contract) {
                     $paymentAmount = $amountPerPerson * $contract->quantity;
 
-                    ServicePayment::create([
+                    $result = ServicePayment::create([
                         'room_service_usage_id' => $roomUsage->id,
                         'contract_id' => $contract->id,
                         'payment_amount' => $paymentAmount,
@@ -111,7 +111,7 @@ class RoomUsageService
                     $message = [
                         'title' => "Nhắc nhở thanh toán tiền $nameService tháng {$roomUsage->month_billing} - $lodgingName",
                         'body' => "Bạn cần thanh toán $paymentAmount đ cho phòng {$roomUsage->room->room_code}, $lodgingType $lodgingName. Vui lòng thanh toán sớm để tránh phí trễ hạn.",
-                        'target_endpoint' => '/rental_history/list',
+                        'target_endpoint' => "/payment_history/service/$result->id?redirect_to=user",
                         'type' => config('constant.notification.type.important'),
                     ];
 
