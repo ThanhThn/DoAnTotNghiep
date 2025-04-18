@@ -61,7 +61,7 @@ class InvoiceService
 
             return [
                 'total' => $total,
-                'result' => $result,
+                'data' => $result,
             ];
 
         } catch (\Exception $exception) {
