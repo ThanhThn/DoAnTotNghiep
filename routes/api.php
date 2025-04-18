@@ -195,3 +195,8 @@ Route::group(['prefix' => 'transaction', 'namespace' => 'App\Http\Controllers'],
 Route::group(['prefix' => 'payment_history', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('list', 'PaymentHistoryController@list')->middleware('jwt.verify');
 });
+
+
+Route::group(['prefix' => 'invoice', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('list', 'InvoiceController@list')->middleware('jwt.verify');
+});

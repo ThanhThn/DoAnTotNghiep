@@ -186,6 +186,14 @@ class ContractService
                 'room_rental_history_id' => $roomRentalId,
             ];
 
+            if($amountPaid > 0){
+                $roomRental = (new RoomRentalHistoryService())->detail($roomRentalId);
+                if ($roomRental) {
+                    $roomRental->amount_paid += $amountPaid;
+                    $roomRental->save();
+                }
+            }
+
             $service = new RentalHistoryService();
             $result = $service->createRentalHistory($dataHistory);
 
