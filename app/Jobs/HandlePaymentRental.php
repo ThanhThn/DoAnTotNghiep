@@ -48,12 +48,12 @@ class HandlePaymentRental implements ShouldQueue
 
             if(is_numeric($contract->monthly_rent)){
                 $amountNeedPayment = min($contract->monthly_rent, $roomRent['price']);
-                $roomRent['price'] -= $amountNeedPayment;
             }else{
                 $diff = max(1, $quantity);
                 $amountNeedPayment = ($roomRent['price'] / $diff) * $contract->quantity;
-                $roomRent['price'] -= $amountNeedPayment;
             }
+
+            $roomRent['price'] -= $amountNeedPayment;
 
             if($amountNeedPayment){
                 $contractService->calculateContract($contract->id, $amountNeedPayment, $room->late_days, $roomRent['history']->id);

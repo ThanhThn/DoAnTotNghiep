@@ -77,7 +77,6 @@ class RoomRentalHistoryService
                 'month_billing' => $history['month_billing'],
                 'year_billing' => $history['year_billing'],
             ]);
-            $remainPrice = $room->price;
         } else {
 
             // Nếu hôm nay là ngày lập hóa đơn và đã finalized -> Kiểm tra tháng tiếp theo
@@ -94,22 +93,18 @@ class RoomRentalHistoryService
                 return $this->processRoomRentalHistory($room, $nextMonth, $nextYear, $recursionCount + 1, $amountPaid, $isFinalized);
             }
 
+
+            $amountPaid = $history['usage']->amount_paid + $amountPaid;
             // Nếu đã có, chỉ cập nhật finalized
-            $history['usage']->finalized = !$isFinalized || ($now->day == $room->payment_date && $recursionCount < 1);
-            $history['usage']->updated_at = $now;
-            $history['usage']->amount_paid = $amountPaid;
-            $history['usage']->save();
-
-            if($history['usage']->total_price === $room->price){
-                return false;
-            }
-            $remainPrice = $room->price - $history['usage']->total_price;
-            $history['usage']->total_price = $room->price;
-            $history['usage']->save();
+            $history['usage']->update([
+                'finalized' => !$isFinalized || ($now->day == $room->payment_date && $recursionCount < 1),
+                'amount_paid' => $amountPaid,
+                'total_price' => $room->price,
+            ]);
         }
-
+        $remainPrice = $room->price - $amountPaid;
         return [
-            'history' => $history['usage'],
+            'history' => $history['usage']->refresh(),
             'price' => $remainPrice
         ];
     }
