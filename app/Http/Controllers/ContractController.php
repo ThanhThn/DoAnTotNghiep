@@ -6,6 +6,7 @@ use App\Http\Requests\BaseRequest;
 use App\Http\Requests\Contract\CreateContractRequest;
 use App\Http\Requests\Contract\CreateFinalBillRequest;
 use App\Http\Requests\Contract\DetailContractRequest;
+use App\Http\Requests\Contract\ListContractByUserRequest;
 use App\Http\Requests\Contract\ListContractRequest;
 use App\Http\Requests\Contract\UpdateContractRequest;
 use App\Models\Lodging;
@@ -242,5 +243,22 @@ class ContractController extends Controller
                 'data' => "Success"
             ]
         ]);
+    }
+
+    public function listByUser(ListContractByUserRequest $request)
+    {
+        $data = $request->all();
+
+        $userId = Auth::id();
+
+        $service =  new ContractService();
+
+        $result = $service->listByUser($data, $userId);
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body'   => $result
+        ]);
+
     }
 }

@@ -111,7 +111,10 @@ Route::group(['prefix' => 'contract', 'namespace' => 'App\Http\Controllers'], fu
     Route::post('create_final_bill', 'ContractController@createFinalBill')->middleware('jwt.verify');
 
     Route::post('end_contract', 'ContractController@endContract')->middleware('jwt.verify');
+
     Route::post('pay_amount', 'ContractController@paymentAmountByContract' )->middleware('jwt.verify');
+
+    Route::post('list_by_user', 'ContractController@listByUser')->middleware('jwt.verify');
 });
 
 //Feedback

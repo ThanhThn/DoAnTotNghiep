@@ -562,6 +562,28 @@ class ContractService
         return true;
     }
 
+    public function listByUser($data, $userId)
+    {
+        $contracts = Contract::on('pgsqlReplica')->with('room')->where("user_id", $userId);
+
+        if(isset($data['status'])){
+            $contracts = $contracts->where("status", $data['status']);
+        }
+
+        $total = $contracts->count();
+        $contracts = $contracts->orderByRaw("
+            COALESCE(
+                end_date,
+                start_date + (INTERVAL '1 month' * lease_duration)
+            ) DESC
+        ")->offset($data['offset'] ?? 0)->limit($data['limit'] ?? 10)->get();
+
+        return [
+            'total' => $total,
+            'data' => $contracts
+        ];
+    }
+
     static function isContractOwner($contract_id, $user_id)
     {
         return Contract::where([
