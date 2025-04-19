@@ -27,6 +27,11 @@ class RentalHistory extends Model
     protected $primaryKey = 'id';
     protected $hidden = ['created_at','updated_at'];
 
+    protected $casts = [
+        'amount_paid' => 'float',
+        'payment_amount' => 'float',
+    ];
+
     protected static function boot(){
         parent::boot();
         static::creating(function ($model) {

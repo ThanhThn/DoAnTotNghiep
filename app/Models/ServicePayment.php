@@ -25,6 +25,12 @@ class ServicePayment extends Model
     protected $keyType = "string";
     public $incrementing = false;
 
+
+    protected $casts = [
+        'amount_paid' => 'float',
+        'payment_amount' => 'float',
+    ];
+
     protected $hidden = ['created_at', 'updated_at'];
 
     protected static function boot(){
