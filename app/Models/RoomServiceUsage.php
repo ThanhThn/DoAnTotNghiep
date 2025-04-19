@@ -31,6 +31,11 @@ class RoomServiceUsage extends Model
     protected $keyType = "string";
     public $incrementing = false;
 
+    protected $casts = [
+        'amount_paid' => 'float',
+        'total_price' => 'float',
+    ];
+
     protected $hidden = ['created_at','updated_at'];
 
     protected static function boot(){
