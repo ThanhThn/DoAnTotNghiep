@@ -391,7 +391,7 @@ class ContractService
 
             // Xử lý tạo hoá đơn chung cho phòng
             $roomRentalHistoryService = new RoomRentalHistoryService();
-            $roomRental = $roomRentalHistoryService->processRoomRentalHistory($room, amountPaid:  max(min($usableAmount, $paymentAmount), 0), isFinalized: false);
+            $roomRental = $roomRentalHistoryService->processRoomRentalHistory($room, amountPaid:  max(min($usableAmount, $paymentAmount), 0), paymentAmount: $paymentAmount ,isFinalized: false,  isFinalizedEarly: true);
 
             Log::info($roomRental);
 

@@ -58,7 +58,7 @@ class RoomRentalHistoryService
         return $history;
     }
 
-    function processRoomRentalHistory($room, $monthBilling = null, $yearBilling = null, $recursionCount = 0, $amountPaid = 0, $isFinalized = true)
+    function processRoomRentalHistory($room, $monthBilling = null, $yearBilling = null, $recursionCount = 0, $amountPaid = 0, $paymentAmount = 0, $isFinalized = true, $isFinalizedEarly = false)
     {
         if ($recursionCount > 1) {
             return false;
@@ -67,15 +67,16 @@ class RoomRentalHistoryService
 
         $history = $this->findHistory($room,$monthBilling, $yearBilling);
 
-        if (!$history['usage']) {
+        if (!$history['usage'] || $history['usage']->is_finalized_early) {
             // Nếu chưa có, tạo mới
             $history['usage'] = $this->create([
                 'room_id' => $room->id,
-                'total_price' => $room->price,
+                'total_price' => $isFinalizedEarly ? $paymentAmount : $room->price,
                 'amount_paid' => $amountPaid,
                 'finalized' => !$isFinalized || ($now->day == $room->payment_date && $recursionCount < 1),
                 'month_billing' => $history['month_billing'],
                 'year_billing' => $history['year_billing'],
+                'is_finalized_early' => $isFinalizedEarly
             ]);
         } else {
 
@@ -90,7 +91,7 @@ class RoomRentalHistoryService
                 }
 
                 // Gọi đệ quy để kiểm tra tháng tiếp theo
-                return $this->processRoomRentalHistory($room, $nextMonth, $nextYear, $recursionCount + 1, $amountPaid, $isFinalized);
+                return $this->processRoomRentalHistory($room, $nextMonth, $nextYear, $recursionCount + 1, $amountPaid, $paymentAmount, $isFinalized, $isFinalizedEarly);
             }
 
 
@@ -100,6 +101,7 @@ class RoomRentalHistoryService
                 'finalized' => !$isFinalized || ($now->day == $room->payment_date && $recursionCount < 1),
                 'amount_paid' => $amountPaid,
                 'total_price' => $room->price,
+                'is_finalized_early' => $isFinalizedEarly
             ]);
         }
         $remainPrice = $room->price - $amountPaid;

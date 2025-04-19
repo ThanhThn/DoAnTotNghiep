@@ -73,4 +73,36 @@ class InvoiceService
         }
     }
 
+    function detail($data)
+    {
+        try {
+            $model = match ($data['type']) {
+                "rent" => RoomRentalHistory::class,
+                "service" => RoomServiceUsage::class,
+                default => throw new \Exception('Loại hoá đơn không hỗ trợ'),
+            };
+
+            $service = (new $model())->on('pgsqlReplica')->with('room')->findOrFail($data['id']);
+
+            if($service->room->lodging_id != $data['lodging_id']){
+                throw new \Exception("Unauthorized");
+            }
+
+            if ($data['type'] === 'rent') {
+                $service = $service->load('rentalHistories');
+            } else {
+                $service = $service->load(['unit', 'service', 'servicePayments']);
+            }
+
+
+            return $service;
+
+        } catch (\Exception $exception) {
+            return [
+                'errors' => [[
+                    'message' => $exception->getMessage(),
+                ]]
+            ];
+        }
+    }
 }

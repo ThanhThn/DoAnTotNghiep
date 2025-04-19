@@ -70,4 +70,9 @@ class RoomServiceUsage extends Model
         return $this->belongsTo(Service::class, 'service_id');
     }
 
+    public function servicePayments()
+    {
+        return $this->hasMany(ServicePayment::class, 'room_service_usage_id')->with('contract');
+    }
+
 }

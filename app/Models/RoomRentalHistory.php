@@ -16,7 +16,8 @@ class RoomRentalHistory extends Model
         'amount_paid',
         'finalized',
         'month_billing',
-        'year_billing'
+        'year_billing',
+        'is_finalized_early'
     ];
 
     protected $primaryKey = "id";
@@ -37,5 +38,10 @@ class RoomRentalHistory extends Model
 
     public function room() {
         return $this->belongsTo(Room::class, 'room_id');
+    }
+
+    public function rentalHistories()
+    {
+        return $this->hasMany(RentalHistory::class, 'room_rental_history_id')->with('contract');
     }
 }
