@@ -53,7 +53,7 @@ class RentalHistoryService
                     'target_endpoint' => "/payment_history/rental/$rentalHistory->id?redirect_to=user",
                     'type' => config('constant.notification.type.important')
                 ];
-                $notificationService->createNotification($mess, config('constant.object.type.user'),$contract->user_id, $contract->user_id);
+                $notificationService->createNotification($mess, config('constant.object.type.user'),$contract->user_id, $contract->user_id, config('constant.rule.user'));
             }
             DB::commit();
             return $rentalHistory;

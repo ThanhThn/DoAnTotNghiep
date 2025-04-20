@@ -107,7 +107,7 @@ class NotificationService
 
     }
 
-    public function createNotification($data, $objectType, $objectId ,$userId)
+    public function createNotification($data, $objectType, $objectId ,$userId, $rule = "user")
     {
         $data['title'] = $data['title'] ?? "Something";
         $data['body'] = $data['body'] ?? "Something";
@@ -124,7 +124,7 @@ class NotificationService
 
         event(new NewNotification($objectId, $objectType, $notification));
 
-        $tokens = TokenService::getTokens($userId, config('constant.token.type.notify'));
+        $tokens = TokenService::getTokens($userId, config('constant.token.type.notify'), $rule);
         if(count($tokens) > 0){
             $this->sendNotificationRN($data, $tokens);
         }

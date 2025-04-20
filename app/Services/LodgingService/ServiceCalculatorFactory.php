@@ -120,7 +120,8 @@ abstract class ServiceCalculatorFactory
                 $message,
                 config('constant.object.type.user'),
                 $contract->user_id,
-                $contract->user_id
+                $contract->user_id,
+                config('constant.rule.user')
             );
         }
     }

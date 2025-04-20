@@ -46,7 +46,8 @@ class AuthController extends BaseAuthController
                 'token' => $data['token'],
                 'user_id' => $user->id,
                 'device' => $device,
-                'token_type' => config('constant.token.type.notify')
+                'token_type' => config('constant.token.type.notify'),
+                'rule' => "user"
             ]);
         }
         return $this->respondWithToken($token);
@@ -92,7 +93,8 @@ class AuthController extends BaseAuthController
                 'token' => $data['token'],
                 'user_id' => Auth::id(),
                 'device' => $device,
-                'token_type' => config('constant.token.type.notify')
+                'token_type' => config('constant.token.type.notify'),
+                'rule' => $data['rule']
             ]);
         }
 

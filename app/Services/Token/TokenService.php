@@ -14,11 +14,12 @@ class TokenService
         return true;
     }
 
-    public static function getTokens($userId, $typeToken)
+    public static function getTokens($userId, $typeToken, $rule)
     {
         return Token::where([
             'user_id' => $userId,
-            'token_type' => $typeToken
+            'token_type' => $typeToken,
+            'rule' => $rule
         ])->get()->pluck('token')->toArray();
     }
 

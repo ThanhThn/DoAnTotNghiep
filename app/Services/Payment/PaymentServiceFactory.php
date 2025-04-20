@@ -99,13 +99,13 @@ abstract class PaymentServiceFactory
                 'title' => 'Biến động số dư',
                 'body' => $msgFrom,
                 'target_endpoint' => "/wallet/$walletFrom->id/transactions",
-            ], config('constant.object.type.user'), $userId, $userId);
+            ], config('constant.object.type.user'), $userId, $userId, config('constant.rule.user'));
 
             $notifyService->createNotification([
                 'title' => 'Biến động số dư',
                 'body' => $msgTo,
                 'target_endpoint' =>  "/wallet/$walletTo->id/transactions",
-            ], config('constant.object.type.lodging'), $contract->room->lodging_id, $userId);
+            ], config('constant.object.type.lodging'), $contract->room->lodging_id, $userId, config('constant.rule.manager'));
 
             DB::commit();
             return true;

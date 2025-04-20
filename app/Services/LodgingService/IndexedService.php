@@ -82,7 +82,7 @@ class IndexedService extends ServiceCalculatorFactory
             'target_endpoint' => "/lodging/$room->lodging_id/service_usage/create",
             'type' => config('constant.notification.type.important'),
         ];
-        $notificationService->createNotification($message, config('constant.object.type.lodging'), $this->lodgingService->lodging->id, $this->lodgingService->lodging->user_id);
+        $notificationService->createNotification($message, config('constant.object.type.lodging'), $this->lodgingService->lodging->id, $this->lodgingService->lodging->user_id, config('constant.rule.manager'));
 
         return 0;
     }

@@ -54,7 +54,7 @@ class FeedbackService
                 'type' => config('constant.notification.type.normal')
             ];
 
-            $notificationService->createNotification($mess, config('constant.object.type.lodging'), $lodging->id, $lodging->user_id);
+            $notificationService->createNotification($mess, config('constant.object.type.lodging'), $lodging->id, $lodging->user_id, config('constant.rule.manager'));
 
             event(new ActiveFeedback($lodging->id, config('constant.object.type.lodging'), $feedback, "new"));
 
@@ -133,7 +133,7 @@ class FeedbackService
                 'type' => config('constant.notification.type.normal')
             ];
 
-            $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback->user_id, $feedback->user_id);
+            $notificationService->createNotification($mess, config('constant.object.type.user'), $feedback->user_id, $feedback->user_id, config('constant.rule.user'));
 
             event(new ActiveFeedback($feedback->user_id, config('constant.object.type.user'), $feedback, "update"));
         }
