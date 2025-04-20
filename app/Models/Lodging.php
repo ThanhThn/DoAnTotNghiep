@@ -29,6 +29,7 @@ class Lodging extends Model
         'price_room_default',
         'phone_contact',
         'email_contact',
+        'config'
     ];
 
     protected $keyType = 'string';
@@ -43,6 +44,7 @@ class Lodging extends Model
         'late_days' => 'integer',
         'payment_date' => 'integer',
         'is_enabled' => 'boolean',
+        'config' => 'array'
     ];
 
     protected $hidden = [

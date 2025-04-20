@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BaseRequest;
 use App\Services\Channel\ChannelService;
+use App\Services\ChannelMember\ChannelMemberService;
 use App\Services\Lodging\LodgingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -47,6 +49,41 @@ class ChannelController extends Controller
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => $result
+        ]);
+    }
+
+    public function leaveChannel(BaseRequest $request)
+    {
+        $request->validate([
+            'channel_id' => 'required|uuid|exists:channels,id',
+            'member_id' => 'nullable|uuid',
+            'member_type' => 'required|in:lodging,user',
+        ]);
+
+        $data = $request->all();
+        $userId = Auth::id();
+
+        $memberType = $data['member_type'] ?? config('constant.object.type.user');
+        $memberId = $data['member_id'] ?? '';
+        $memberId = ($memberType == 'lodging' ? $memberId : $userId);
+
+        if(!ChannelMemberService::isMemberOfChannel($memberId, $memberType, $data['channel_id'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    "message" => 'Unauthorized access.'
+                ]]
+            ]);
+        }
+
+        $service = new ChannelService($memberId, $memberType);
+        $service->leaveChannel($data['channel_id']);
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body'   => [
+                'data' => 'Leave channel successfully.'
+            ]
         ]);
     }
 }

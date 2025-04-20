@@ -13,7 +13,8 @@ class ChannelMember extends Model
         'channel_id',
         'member_id',
         'member_type',
-        'joined_at'
+        'joined_at',
+        'last_left_at'
     ];
 
     protected $keyType = "string";

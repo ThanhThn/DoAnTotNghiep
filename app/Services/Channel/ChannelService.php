@@ -4,6 +4,7 @@ namespace App\Services\Channel;
 
 use App\Models\Channel;
 use App\Models\ChannelMember;
+use Illuminate\Support\Facades\Redis;
 
 class ChannelService
 {
@@ -58,18 +59,49 @@ class ChannelService
             ->offset($offset)
             ->limit($limit)
             ->get();
-//            ->map(function ($channel) use ($memberId) {
-//                $channel->viewed = !Interaction::on("pgsqlReplica")
-//                    ->where('object_id_a', $channel->id)
-//                    ->where('object_id_b', $memberId)
-//                    ->where('interaction_type', config('constants.interaction.unread'))
-//                    ->exists();
-//                return $channel;
-//            })
+
+        // Check Redis first before calculating read status
+        $query = $query->map(function ($channel) use ($memberId) {
+            // Key Redis: user:{memberId}:channel:{channelId}:lastLeftAt
+            $redisKey = "$memberId:channel:{$channel->id}:lastLeftAt";
+
+            // Try to get 'lastLeftAt' from Redis
+            $lastLeftAt = Redis::get($redisKey);
+
+            // If Redis doesn't have it, fetch from DB and update Redis
+            if (!$lastLeftAt) {
+                $lastLeftAt = ChannelMember::on('pgsqlReplica')
+                    ->where('member_id', $memberId)
+                    ->where('channel_id', $channel->id)
+                    ->value('last_left_at');
+
+            }
+
+            // Check if user has read the last message based on 'lastLeftAt'
+            $latestMessageTime = optional($channel->latestMessage)->created_at;
+
+            $channel->is_read = false;
+            if ($latestMessageTime && $lastLeftAt) {
+                $channel->is_read = $latestMessageTime <= $lastLeftAt;
+            }
+
+            return $channel;
+        });
 
         return [
             'total' => $total,
             'data'  => $query
         ];
+    }
+
+    public function leaveChannel($channelId)
+    {
+        $key = $this->_memberId . ":channel:" . $channelId . ":lastLeftAt";
+        $timestamp = now()->timestamp;
+
+        Redis::set($key, $timestamp);
+
+        Redis::expire($key, 24 * 60 * 60); // 5 phút
+        return true;
     }
 }

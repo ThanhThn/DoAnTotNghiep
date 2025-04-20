@@ -173,6 +173,8 @@ Route::group(['prefix' => 'service_payment', 'namespace' => 'App\Http\Controller
 
 Route::group(['prefix' =>  'channel', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('list', 'ChannelController@list')->middleware('jwt.verify');
+
+    Route::post('leave', 'ChannelController@leaveChannel')->middleware('jwt.verify');
 });
 
 Route::group(['prefix' => 'chat', 'namespace' => 'App\Http\Controllers'], function ($route) {

@@ -105,7 +105,7 @@ abstract class PaymentServiceFactory
                 'title' => 'Biến động số dư',
                 'body' => $msgTo,
                 'target_endpoint' =>  "/wallet/$walletTo->id/transactions",
-            ], config('constant.object.type.user'), $contract->room->lodging_id, $userId);
+            ], config('constant.object.type.lodging'), $contract->room->lodging_id, $userId);
 
             DB::commit();
             return true;
