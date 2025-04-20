@@ -4,6 +4,7 @@ namespace App\Services\Channel;
 
 use App\Models\Channel;
 use App\Models\ChannelMember;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
 
 class ChannelService
@@ -75,6 +76,8 @@ class ChannelService
                     ->where('channel_id', $channel->id)
                     ->value('last_left_at');
 
+            }else{
+                $lastLeftAt = Carbon::createFromTimestamp($lastLeftAt);
             }
 
             // Check if user has read the last message based on 'lastLeftAt'
@@ -82,7 +85,7 @@ class ChannelService
 
             $channel->is_read = false;
             if ($latestMessageTime && $lastLeftAt) {
-                $channel->is_read = $latestMessageTime <= $lastLeftAt;
+                $channel->is_read = $latestMessageTime->lte($lastLeftAt);
             }
 
             return $channel;
