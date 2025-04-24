@@ -14,4 +14,12 @@ class RegisterUserRequest extends BaseRequest
           'token' => 'nullable|string',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'phone.required' => 'Số điện thoại là bắt buộc.',
+            'phone.unique'   => 'Số điện thoại này đã được đăng ký.',
+        ];
+    }
 }
