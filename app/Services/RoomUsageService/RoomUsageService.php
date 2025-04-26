@@ -3,7 +3,7 @@
 namespace App\Services\RoomUsageService;
 
 use App\Models\Contract;
-use App\Models\RentalHistory;
+use App\Models\RentPayment;
 use App\Models\RoomServiceUsage;
 use App\Models\ServicePayment;
 use App\Services\Notification\NotificationService;
@@ -90,7 +90,7 @@ class RoomUsageService
                     $paymentAmount = $amountPerPerson * $contract->quantity;
 
                     $result = ServicePayment::create([
-                        'room_service_usage_id' => $roomUsage->id,
+                        'room_service_invoice_id' => $roomUsage->id,
                         'contract_id' => $contract->id,
                         'payment_amount' => $paymentAmount,
                         'amount_paid' => 0,

@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class RoomRentalHistory extends Model
 {
-    protected $table = 'room_rental_histories';
+    protected $table = 'room_rent_invoices';
 
     protected $fillable = [
         'id',
@@ -47,6 +47,6 @@ class RoomRentalHistory extends Model
 
     public function rentalHistories()
     {
-        return $this->hasMany(RentalHistory::class, 'room_rental_history_id')->with('contract');
+        return $this->hasMany(RentPayment::class, 'room_rent_invoice_id')->with('contract');
     }
 }

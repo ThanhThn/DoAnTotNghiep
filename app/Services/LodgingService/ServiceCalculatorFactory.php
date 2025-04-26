@@ -72,7 +72,7 @@ abstract class ServiceCalculatorFactory
     {
         // Lưu thanh toán vào bảng ServicePayment
         $servicePayment = ServicePayment::create([
-            'room_service_usage_id' => $roomUsage->id,
+            'room_service_invoice_id' => $roomUsage->id,
             'contract_id' => $contract->id,
             'payment_amount' => $paymentAmount,
             'amount_paid' => $amountPaid,

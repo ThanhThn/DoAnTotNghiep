@@ -4,7 +4,7 @@ namespace App\Services\Payment;
 
 use App\Models\Contract;
 use App\Models\PaymentHistory;
-use App\Models\RentalHistory;
+use App\Models\RentPayment;
 use App\Services\Contract\ContractService;
 use App\Services\Payment\PaymentServiceFactory;
 use App\Services\RoomRentalHistory\RoomRentalHistoryService;
@@ -18,7 +18,7 @@ class RoomPaymentFactory extends PaymentServiceFactory
     {
         try {
             $roomRentalHistoryService = new RoomRentalHistoryService();
-            $rentalHistory = RentalHistory::where('contract_id', $contractId);
+            $rentalHistory = RentPayment::where('contract_id', $contractId);
 
             if (!isset($extraData['type']) && !$relatedId) {
                 throw new \Exception("Thiếu thông tin quan trọng để thực hiện thanh toán.");
@@ -55,8 +55,8 @@ class RoomPaymentFactory extends PaymentServiceFactory
                 ]);
 
 
-                if($history->room_rental_history_id){
-                    $roomRental = $roomRentalHistoryService->detail($history->room_rental_history_id);
+                if($history->room_rent_invoice_id){
+                    $roomRental = $roomRentalHistoryService->detail($history->room_rent_invoice_id);
 
                     if ($roomRental) {
                         $roomRental->amount_paid += min($amountToBePaid, $amount);

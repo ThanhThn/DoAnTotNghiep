@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('room_rental_histories', function (Blueprint $table) {
+        Schema::table('room_rent_invoices', function (Blueprint $table) {
             $table->boolean('is_finalized_early')->default(false);
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('room_rental_histories', function (Blueprint $table) {
+        Schema::table('room_rent_invoices', function (Blueprint $table) {
             $table->dropColumn('is_finalized_early');
         });
     }

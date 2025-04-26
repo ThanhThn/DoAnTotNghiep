@@ -6,9 +6,9 @@ use Google\Service\HangoutsChat\Resource\Rooms;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class RentalHistory extends Model
+class RentPayment extends Model
 {
-    protected $table = 'rental_histories';
+    protected $table = 'rent_payments';
 
     protected $fillable = [
         'id',
@@ -20,7 +20,7 @@ class RentalHistory extends Model
         'last_payment_date',
         'payment_method',
         'due_date',
-        'room_rental_history_id'
+        'room_rent_invoice_id'
     ];
 
     public $incrementing = false;

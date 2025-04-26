@@ -150,10 +150,10 @@ Route::group(['prefix' => 'equipment', 'namespace' => 'App\Http\Controllers'] , 
 
 
 // Rental
-Route::group(['prefix' => 'rental_history', 'namespace' => 'App\Http\Controllers'], function ($route) {
-    Route::post('list', 'RentalHistoryController@listRentalHistory')->middleware('jwt.verify');
+Route::group(['prefix' => 'rental_payment', 'namespace' => 'App\Http\Controllers'], function ($route) {
+    Route::post('list', 'RentPaymentController@list')->middleware('jwt.verify');
 
-    Route::get('detail/{rentalHistoryId}', 'RentalHistoryController@detailRentalHistory')->middleware('jwt.verify');
+    Route::get('detail/{rentalPaymentId}', 'RentPaymentController@detail')->middleware('jwt.verify');
 });
 
 

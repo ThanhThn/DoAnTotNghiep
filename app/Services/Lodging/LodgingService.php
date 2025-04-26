@@ -6,7 +6,7 @@ use App\Models\Contract;
 use App\Models\Lodging;
 use App\Models\Room;
 use App\Models\User;
-use App\Services\RentalHistory\RentalHistoryService;
+use App\Services\RentPayment\RentPaymentService;
 use App\Services\RoomUsageService\RoomUsageService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
@@ -206,7 +206,7 @@ class LodgingService
         $year = $data['year'] ?? Carbon::now()->year;
 
         $service = (new RoomUsageService())->statisticalAmount($month, $year, $data['lodging_id']);
-        $room = (new RentalHistoryService())->statisticalAmount($month, $year, $data['lodging_id']);
+        $room = (new RentPaymentService())->statisticalAmount($month, $year, $data['lodging_id']);
 
         return [
             'service' => $service,

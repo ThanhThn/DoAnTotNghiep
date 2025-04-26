@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('service_payments', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('contract_id')->index();
-            $table->uuid('room_service_usage_id')->index();
+            $table->uuid('room_service_invoice_id')->index();
             $table->decimal('payment_amount', 10, 2);
             $table->decimal('amount_paid', 10, 2);
             $table->timestamp('payment_date');

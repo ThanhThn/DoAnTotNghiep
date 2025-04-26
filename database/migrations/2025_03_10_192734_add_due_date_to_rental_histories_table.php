@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('rental_histories', function (Blueprint $table) {
+        Schema::table('rent_payments', function (Blueprint $table) {
             $table->timestamp('due_date')->nullable();
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('rental_histories', function (Blueprint $table) {
+        Schema::table('rent_payments', function (Blueprint $table) {
             $table->dropColumn('due_date');
         });
     }

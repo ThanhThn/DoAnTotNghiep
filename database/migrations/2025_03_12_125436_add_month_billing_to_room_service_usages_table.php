@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('room_service_usages', function (Blueprint $table) {
+        Schema::table('room_service_invoices', function (Blueprint $table) {
             $table->integer('month_billing');
             $table->integer('year_billing');
             $table->boolean('is_finalized_early')->default(false);
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('room_service_usages', function (Blueprint $table) {
+        Schema::table('room_service_invoices', function (Blueprint $table) {
             $table->dropColumn('month_billing');
             $table->dropColumn('year_billing');
             $table->dropColumn('is_finalized_early');

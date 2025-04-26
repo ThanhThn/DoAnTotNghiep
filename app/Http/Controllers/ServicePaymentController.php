@@ -6,7 +6,7 @@ use App\Http\Requests\ServicePayment\DetailServicePaymentRequest;
 use App\Http\Requests\ServicePayment\ListServicePaymentRequest;
 use App\Services\Contract\ContractService;
 use App\Services\Lodging\LodgingService;
-use App\Services\RentalHistory\RentalHistoryService;
+use App\Services\RentPayment\RentPaymentService;
 use App\Services\ServicePayment\ServicePaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

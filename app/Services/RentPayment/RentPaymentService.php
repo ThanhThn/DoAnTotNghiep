@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\RentalHistory;
+namespace App\Services\RentPayment;
 
 use App\Models\Contract;
-use App\Models\RentalHistory;
+use App\Models\RentPayment;
 use App\Services\Notification\NotificationService;
 use App\Services\Token\TokenService;
 use Carbon\Carbon;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Mockery\Exception;
 use function tests\data;
 
-class RentalHistoryService
+class RentPaymentService
 {
     function createRentalHistory($data)
     {
@@ -24,12 +24,12 @@ class RentalHistoryService
             'payment_date' => $data['payment_date'] ?? now(),
             'last_payment_date' => $data['last_payment_date'] ?? now(),
             'due_date' => $data['due_date'] ?? now(),
-            'room_rental_history_id' => $data['room_rental_history_id'] ?? null,
+            'room_rent_invoice_id' => $data['room_rent_invoice_id'] ?? null,
         ];
 
         try {
             DB::beginTransaction();
-            $rentalHistory = RentalHistory::create($insertData);
+            $rentalHistory = RentPayment::create($insertData);
 
             if ($data['amount_paid'] < $data['payment_amount']) {
                 $contract = Contract::find($data['contract_id']);
@@ -67,9 +67,9 @@ class RentalHistoryService
         }
     }
 
-    function listRentalHistory($data)
+    function listRentPayment($data)
     {
-        $rentalHistory = RentalHistory::where('contract_id', $data['contract_id']);
+        $rentalHistory = RentPayment::where('contract_id', $data['contract_id']);
 
         if(isset($data['status'])){
             $rentalHistory->where('status', $data['status']);
@@ -87,7 +87,7 @@ class RentalHistoryService
 
     function sumDebtByContract($contractId)
     {
-        $total = RentalHistory::select('payment_amount', 'amount_paid')->where(['contract_id' => $contractId])
+        $total = RentPayment::select('payment_amount', 'amount_paid')->where(['contract_id' => $contractId])
             ->whereIn('status', [config('constant.payment.status.partial'), config('constant.payment.status.unpaid')])
             ->get()
             ->sum(function ($rentalHistory) {
@@ -98,7 +98,7 @@ class RentalHistoryService
 
     function statisticalAmount($month, $year, $lodgingId)
     {
-        $rental = RentalHistory::whereHas('contract.room.lodging', function ($query) use ($lodgingId) {
+        $rental = RentPayment::whereHas('contract.room.lodging', function ($query) use ($lodgingId) {
             $query->where('id', $lodgingId);
         })->whereMonth('payment_date', $month)->whereYear('payment_date', $year)
             ->selectRaw('SUM(payment_amount) as total_payment, SUM(amount_paid) as total_paid')
@@ -108,13 +108,13 @@ class RentalHistoryService
 
     function  getLastHistory($contractId)
     {
-        return RentalHistory::on('pgsqlReplica')->where('contract_id', $contractId)->orderBy('payment_date', 'desc')->first();
+        return RentPayment::on('pgsqlReplica')->where('contract_id', $contractId)->orderBy('payment_date', 'desc')->first();
     }
 
-    function detail($rentalHistoryId)
+    function detail($rentalPaymentId)
     {
         try {
-            $history = RentalHistory::on('pgsqlReplica')->with('contract')->findOrFail($rentalHistoryId);
+            $history = RentPayment::on('pgsqlReplica')->with('contract')->findOrFail($rentalPaymentId);
             return $history;
         }catch (Exception $exception){
             return ["errors" => [[
@@ -126,7 +126,7 @@ class RentalHistoryService
     function checkAccessUser($id, $userId) : bool
     {
         try {
-            $history = RentalHistory::on('pgsqlReplica')->with('contract')->findOrFail($id);
+            $history = RentPayment::on('pgsqlReplica')->with('contract')->findOrFail($id);
 
             $contract = $history->contract;
             $lodging = $contract->room->lodging;

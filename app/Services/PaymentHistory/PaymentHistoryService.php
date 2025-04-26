@@ -3,7 +3,7 @@
 namespace App\Services\PaymentHistory;
 
 use App\Models\PaymentHistory;
-use App\Services\RentalHistory\RentalHistoryService;
+use App\Services\RentPayment\RentPaymentService;
 use App\Services\ServicePayment\ServicePaymentService;
 
 class PaymentHistoryService
@@ -42,7 +42,7 @@ class PaymentHistoryService
     public function checkUserAccess($objectId, $objectType, $userId): bool{
         try{
             $service = match ($objectType){
-                config('constant.object.type.rent') => new RentalHistoryService(),
+                config('constant.object.type.rent') => new RentPaymentService(),
                 config('constant.object.type.service') => new ServicePaymentService(),
                 default => throw new \Exception('Type not supported')
             };

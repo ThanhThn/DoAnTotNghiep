@@ -4,7 +4,7 @@ namespace App\Http\Requests\RentalHistory;
 
 use App\Http\Requests\BaseRequest;
 
-class ListRentalHistoryRequest extends BaseRequest
+class ListRentPaymentRequest extends BaseRequest
 {
     public function rules()
     {

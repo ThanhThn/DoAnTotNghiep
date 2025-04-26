@@ -5,12 +5,12 @@ namespace App\Services\Contract;
 use App\Helpers\Helper;
 use App\Models\Contract;
 use App\Models\PaymentHistory;
-use App\Models\RentalHistory;
+use App\Models\RentPayment;
 use App\Models\Room;
 use App\Models\User;
 use App\Services\LodgingService\LodgingServiceManagerService;
 use App\Services\Payment\ServicePaymentFactory;
-use App\Services\RentalHistory\RentalHistoryService;
+use App\Services\RentPayment\RentPaymentService;
 use App\Services\Room\RoomService;
 use App\Services\RoomRentalHistory\RoomRentalHistoryService;
 use App\Services\RoomService\RoomServiceManagerService;
@@ -183,7 +183,7 @@ class ContractService
                 'payment_date' => $now->copy(),
                 'last_payment_date' => $now->copy(),
                 'due_date' => $now->copy()->addDays($lateDays),
-                'room_rental_history_id' => $roomRentalId,
+                'room_rent_invoice_id' => $roomRentalId,
             ];
 
             if($amountPaid > 0){
@@ -194,7 +194,7 @@ class ContractService
                 }
             }
 
-            $service = new RentalHistoryService();
+            $service = new RentPaymentService();
             $result = $service->createRentalHistory($dataHistory);
 
             if (!empty($result['errors'])) {
@@ -328,7 +328,7 @@ class ContractService
     }
 
     public function debtContract($id){
-        $rentalPaymentService = new RentalHistoryService();
+        $rentalPaymentService = new RentPaymentService();
         $servicePaymentService = new ServicePaymentService();
 
         $roomDebt = $rentalPaymentService->sumDebtByContract($id);
@@ -353,7 +353,7 @@ class ContractService
             $usableAmount = $contract->deposit_amount - $data['deposit_amount_refund'];
 
             // Lấy lịch sử thanh toán cuối cùng
-            $rentalHistoryService = new RentalHistoryService();
+            $rentalHistoryService = new RentPaymentService();
             $lastHistory = $rentalHistoryService->getLastHistory($data['contract_id']);
 
             $paymentDateLast = Carbon::parse($lastHistory ? $lastHistory->payment_date : $contract->start_date);
@@ -409,7 +409,7 @@ class ContractService
                 'status' => $paymentStatus,
                 'payment_method' => $paymentMethod,
                 'due_date' => $now->clone()->addDays($room->late_days),
-                'room_rental_history_id' => $roomRental->id
+                'room_rent_invoice_id' => $roomRental->id
             ]);
 
             $usableAmount -= $paymentAmount;

@@ -9,7 +9,7 @@ class ListPaymentHistoryRequest extends BaseRequest
     public function rules()
     {
         $table = match ($this->object_type){
-            'rent' => 'rental_histories',
+            'rent' => 'rent_payments',
             'service' => 'service_payments',
             default => null
         };

@@ -127,7 +127,7 @@ class Contract extends Model
     }
 
     public function rentalHistories() {
-        return $this->hasMany(RentalHistory::class, 'contract_id');
+        return $this->hasMany(RentPayment::class, 'contract_id');
     }
 
 }

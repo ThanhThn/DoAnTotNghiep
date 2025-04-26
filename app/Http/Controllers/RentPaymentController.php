@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BaseRequest;
-use App\Http\Requests\RentalHistory\DetailRentalHistoryRequest;
-use App\Http\Requests\RentalHistory\ListRentalHistoryRequest;
+use App\Http\Requests\RentalHistory\DetailRentPaymentRequest;
+use App\Http\Requests\RentalHistory\ListRentPaymentRequest;
 use App\Services\Contract\ContractService;
 use App\Services\Lodging\LodgingService;
-use App\Services\RentalHistory\RentalHistoryService;
+use App\Services\RentPayment\RentPaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class RentalHistoryController extends Controller
+class RentPaymentController extends Controller
 {
-    public function listRentalHistory(ListRentalHistoryRequest $request)
+    public function list(ListRentPaymentRequest $request)
     {
         $data = $request->all();
         $userId = Auth::id();
@@ -28,8 +28,8 @@ class RentalHistoryController extends Controller
             ]);
         }
 
-        $service = new RentalHistoryService();
-        $result = $service->listRentalHistory($data);
+        $service = new RentPaymentService();
+        $result = $service->listRentPayment($data);
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
@@ -37,13 +37,13 @@ class RentalHistoryController extends Controller
         ]);
     }
 
-    public function detailRentalHistory(DetailRentalHistoryRequest $request, $rentalHistoryId)
+    public function detail(DetailRentPaymentRequest $request, $rentalPaymentId)
     {
 
         $userId = Auth::id();
 
-        $service = new RentalHistoryService();
-        if(!$service->checkAccessUser($rentalHistoryId, $userId)){
+        $service = new RentPaymentService();
+        if(!$service->checkAccessUser($rentalPaymentId, $userId)){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [[
@@ -53,7 +53,7 @@ class RentalHistoryController extends Controller
         }
 
 
-        $result = $service->detail($rentalHistoryId);
+        $result = $service->detail($rentalPaymentId);
 
         if(isset($result['errors'])){
             return response()->json([

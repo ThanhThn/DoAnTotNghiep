@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('room_service_usages', function (Blueprint $table) {
+        Schema::table('room_service_invoices', function (Blueprint $table) {
             $table->integer('service_id')->nullable();
             $table->string('service_name')->nullable();
             $table->integer('unit_id')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('room_service_usages', function (Blueprint $table) {
+        Schema::table('room_service_invoices', function (Blueprint $table) {
             $table->dropColumn('service_id');
             $table->dropColumn('service_name');
             $table->dropColumn('unit_id');

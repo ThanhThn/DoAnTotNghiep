@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class RoomServiceUsage extends Model
 {
-    protected $table = 'room_service_usages';
+    protected $table = 'room_service_invoices';
 
     protected $fillable = [
         'id',
@@ -77,7 +77,7 @@ class RoomServiceUsage extends Model
 
     public function servicePayments()
     {
-        return $this->hasMany(ServicePayment::class, 'room_service_usage_id')->with('contract');
+        return $this->hasMany(ServicePayment::class, 'room_service_invoice_id')->with('contract');
     }
 
 }

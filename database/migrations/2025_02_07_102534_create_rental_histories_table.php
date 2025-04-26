@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rental_histories', function (Blueprint $table) {
+        Schema::create('rent_payments', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('contract_id')->index();
             $table->decimal('payment_amount', 10);
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rental_histories');
+        Schema::dropIfExists('rent_payments');
     }
 };

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('lodging_service_id');
             $table->uuid('contract_id');
-            $table->uuid('room_service_usage_id');
+            $table->uuid('room_service_invoice_id');
             $table->decimal('total_cost')->comment("Chi phí tổng");
             $table->boolean('finalized')->default(false);
             $table->boolean('is_finalized_early')->default(false);

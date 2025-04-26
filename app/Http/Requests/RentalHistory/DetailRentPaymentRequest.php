@@ -4,18 +4,18 @@ namespace App\Http\Requests\RentalHistory;
 
 use App\Http\Requests\BaseRequest;
 
-class DetailRentalHistoryRequest extends BaseRequest
+class DetailRentPaymentRequest extends BaseRequest
 {
     public function rules(){
         return [
-            'rentalHistoryId' => 'required|uuid|exists:rental_histories,id',
+            'rentalPaymentId' => 'required|uuid|exists:rent_payments,id',
         ];
     }
 
     protected function prepareForValidation()
     {
         $this->merge([
-            'rentalHistoryId' => $this->route('rentalHistoryId'),
+            'rentalPaymentId' => $this->route('rentalPaymentId'),
         ]);
     }
 }

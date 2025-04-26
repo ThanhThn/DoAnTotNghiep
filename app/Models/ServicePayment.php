@@ -12,7 +12,7 @@ class ServicePayment extends Model
     protected $fillable = [
         'id',
         'contract_id',
-        'room_service_usage_id',
+        'room_service_invoice_id',
         'payment_amount',
         'amount_paid',
         'payment_date',
@@ -44,7 +44,7 @@ class ServicePayment extends Model
 
     public function roomServiceUsage()
     {
-        return $this->belongsTo(RoomServiceUsage::class, 'room_service_usage_id')->with(['service', 'unit']);
+        return $this->belongsTo(RoomServiceUsage::class, 'room_service_invoice_id')->with(['service', 'unit']);
     }
 
     public function contract()

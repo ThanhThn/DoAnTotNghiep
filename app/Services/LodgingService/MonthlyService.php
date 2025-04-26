@@ -6,7 +6,7 @@ use App\Helpers\Helper;
 use App\Models\Contract;
 use App\Models\Room;
 use App\Models\RoomServiceUsage;
-use App\Services\RentalHistory\RentalHistoryService;
+use App\Services\RentPayment\RentPaymentService;
 use App\Services\RoomService\RoomServiceManagerService;
 use App\Services\RoomUsageService\RoomUsageService;
 use Carbon\Carbon;

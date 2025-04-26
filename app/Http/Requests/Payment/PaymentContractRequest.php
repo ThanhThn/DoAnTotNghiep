@@ -14,7 +14,7 @@ class PaymentContractRequest extends BaseRequest
           'payment_type' => 'required|in:rent,service',
           'service_payment_id' => 'nullable|required_if:payment_type,service|exists:service_payments,id',
           'rent_payment_type' => 'nullable|required_if:payment_type,rent|in:full,debt',
-          'rental_history_id' => 'nullable|required_if:rent_payment_type,debt|exists:rental_histories,id'
+          'rental_history_id' => 'nullable|required_if:rent_payment_type,debt|exists:rent_payments,id'
         ];
     }
 }

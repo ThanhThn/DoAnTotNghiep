@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rent_payments', function (Blueprint $table) {
-            $table->uuid('room_rent_invoice_id')->nullable();
+            $table->renameColumn('room_rental_history_id', 'room_rent_invoice_id');
+        });
+
+        Schema::table('service_payments', function (Blueprint $table) {
+            $table->renameColumn('room_service_usage_id', 'room_service_invoice_id');
         });
     }
 
@@ -22,7 +26,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rent_payments', function (Blueprint $table) {
-            $table->dropColumn('room_rent_invoice_id');
+            $table->renameColumn('room_rent_invoice_id', 'room_rental_history_id');
+        });
+        Schema::table('service_payments', function (Blueprint $table) {
+            $table->renameColumn('room_service_invoice_id', 'room_service_usage_id');
         });
     }
 };

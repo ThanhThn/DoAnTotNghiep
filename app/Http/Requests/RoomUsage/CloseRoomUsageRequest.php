@@ -10,7 +10,7 @@ class CloseRoomUsageRequest extends BaseRequest
     {
         return [
           'lodging_id' => 'required|uuid|exists:lodgings,id',
-          'room_usage_id' => 'required|uuid|exists:room_service_usages,id',
+          'room_usage_id' => 'required|uuid|exists:room_service_invoices,id',
           'final_index' => 'required|numeric'
         ];
     }

@@ -4,7 +4,7 @@ namespace App\Services\ServicePayment;
 
 use App\Models\Contract;
 use App\Models\PaymentHistory;
-use App\Models\RentalHistory;
+use App\Models\RentPayment;
 use App\Models\RoomServiceUsage;
 use App\Models\ServicePayment;
 use App\Services\Contract\ContractService;
@@ -14,11 +14,11 @@ use Mockery\Exception;
 
 class ServicePaymentService
 {
-    function detail($rentalHistoryId)
+    function detail($rentalPaymentId)
     {
         try {
             $history = ServicePayment::on('pgsqlReplica')->with(['contract', 'roomServiceUsage',
-            ])->findOrFail($rentalHistoryId);
+            ])->findOrFail($rentalPaymentId);
             return $history;
         }catch (Exception $exception){
             return ["errors" => [[
@@ -37,12 +37,12 @@ class ServicePaymentService
         $servicePayments = $servicePayments
             ->orderBy(
                 RoomServiceUsage::select('year_billing')
-                    ->whereColumn('room_service_usages.id', 'service_payments.room_service_usage_id'),
+                    ->whereColumn('room_service_invoices.id', 'service_payments.room_service_invoice_id'),
                 'desc'
             )
             ->orderBy(
                 RoomServiceUsage::select('month_billing')
-                    ->whereColumn('room_service_usages.id', 'service_payments.room_service_usage_id'),
+                    ->whereColumn('room_service_invoices.id', 'service_payments.room_service_invoice_id'),
                 'desc'
             )
             ->orderBy('payment_date', 'desc')
@@ -97,7 +97,7 @@ class ServicePaymentService
             ]);
 
             // Cập nhật số tiền đã thanh toán trong RoomServiceUsage
-            RoomServiceUsage::where('id', $bill->room_service_usage_id)->increment('amount_paid', $amountPaid);
+            RoomServiceUsage::where('id', $bill->room_service_invoice_id)->increment('amount_paid', $amountPaid);
 
             // Nếu có số dư, cập nhật số tiền còn lại trong hợp đồng
             if ($refund > 0) {
