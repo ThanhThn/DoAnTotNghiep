@@ -150,7 +150,7 @@ Route::group(['prefix' => 'equipment', 'namespace' => 'App\Http\Controllers'] , 
 
 
 // Rental
-Route::group(['prefix' => 'rental_payment', 'namespace' => 'App\Http\Controllers'], function ($route) {
+Route::group(['prefix' => 'rent_payment', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('list', 'RentPaymentController@list')->middleware('jwt.verify');
 
     Route::get('detail/{rentalPaymentId}', 'RentPaymentController@detail')->middleware('jwt.verify');
