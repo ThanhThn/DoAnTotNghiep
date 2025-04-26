@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Services\RoomRentalHistory;
+namespace App\Services\RoomRentInvoice;
 
 use App\Models\Room;
-use App\Models\RoomRentalHistory;
+use App\Models\RoomRentInvoice;
 use App\Models\RoomServiceInvoice;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class RoomRentalHistoryService
+class RoomRentInvoiceService
 {
     public function detail($id)
     {
-        return RoomRentalHistory::find($id);
+        return RoomRentInvoice::find($id);
     }
 
     public function findHistory(Room $room, $monthBilling = null, $yearBilling = null)
@@ -37,7 +37,7 @@ class RoomRentalHistoryService
             }
         }
 
-        $roomUsage = RoomRentalHistory::where([
+        $roomUsage = RoomRentInvoice::where([
             'room_id' => $room->id,
             'month_billing' => $monthBilling,
             'year_billing' => $yearBilling
@@ -53,12 +53,12 @@ class RoomRentalHistoryService
 
     public function create($data)
     {
-        $history = RoomRentalHistory::create($data);
+        $history = RoomRentInvoice::create($data);
 
         return $history;
     }
 
-    function processRoomRentalHistory($room, $monthBilling = null, $yearBilling = null, $recursionCount = 0, $amountPaid = 0, $paymentAmount = 0, $isFinalized = true, $isFinalizedEarly = false)
+    function processRoomRentInvoice($room, $monthBilling = null, $yearBilling = null, $recursionCount = 0, $amountPaid = 0, $paymentAmount = 0, $isFinalized = true, $isFinalizedEarly = false)
     {
         if ($recursionCount > 1) {
             return false;
@@ -91,7 +91,7 @@ class RoomRentalHistoryService
                 }
 
                 // Gọi đệ quy để kiểm tra tháng tiếp theo
-                return $this->processRoomRentalHistory($room, $nextMonth, $nextYear, $recursionCount + 1, $amountPaid, $paymentAmount, $isFinalized, $isFinalizedEarly);
+                return $this->processRoomRentInvoice($room, $nextMonth, $nextYear, $recursionCount + 1, $amountPaid, $paymentAmount, $isFinalized, $isFinalizedEarly);
             }
 
 

@@ -12,7 +12,7 @@ use App\Services\LodgingService\LodgingServiceManagerService;
 use App\Services\Payment\ServicePaymentFactory;
 use App\Services\RentPayment\RentPaymentService;
 use App\Services\Room\RoomService;
-use App\Services\RoomRentalHistory\RoomRentalHistoryService;
+use App\Services\RoomRentInvoice\RoomRentInvoiceService;
 use App\Services\RoomService\RoomServiceManagerService;
 use App\Services\ServicePayment\ServicePaymentService;
 use App\Services\User\UserService;
@@ -187,7 +187,7 @@ class ContractService
             ];
 
             if($amountPaid > 0){
-                $roomRental = (new RoomRentalHistoryService())->detail($roomRentalId);
+                $roomRental = (new RoomRentInvoiceService())->detail($roomRentalId);
                 if ($roomRental) {
                     $roomRental->amount_paid += $amountPaid;
                     $roomRental->save();
@@ -390,8 +390,8 @@ class ContractService
             $paymentMethod = $usableAmount > 0 ? config('constant.payment.method.system') : null;
 
             // Xử lý tạo hoá đơn chung cho phòng
-            $roomRentalHistoryService = new RoomRentalHistoryService();
-            $roomRental = $roomRentalHistoryService->processRoomRentalHistory($room, amountPaid:  max(min($usableAmount, $paymentAmount), 0), paymentAmount: $paymentAmount ,isFinalized: false,  isFinalizedEarly: true);
+            $roomRentalHistoryService = new RoomRentInvoiceService();
+            $roomRental = $roomRentalHistoryService->processRoomRentInvoice($room, amountPaid:  max(min($usableAmount, $paymentAmount), 0), paymentAmount: $paymentAmount ,isFinalized: false,  isFinalizedEarly: true);
 
             Log::info($roomRental);
 

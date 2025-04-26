@@ -7,7 +7,7 @@ use App\Models\PaymentHistory;
 use App\Models\RentPayment;
 use App\Services\Contract\ContractService;
 use App\Services\Payment\PaymentServiceFactory;
-use App\Services\RoomRentalHistory\RoomRentalHistoryService;
+use App\Services\RoomRentInvoice\RoomRentInvoiceService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +17,7 @@ class RoomPaymentFactory extends PaymentServiceFactory
     function processPaymentByContract(string $contractId, ?string $relatedId, float $amount, string $paymentMethod, $extraData = [])
     {
         try {
-            $roomRentalHistoryService = new RoomRentalHistoryService();
+            $roomRentalHistoryService = new RoomRentInvoiceService();
             $rentalHistory = RentPayment::where('contract_id', $contractId);
 
             if (!isset($extraData['type']) && !$relatedId) {

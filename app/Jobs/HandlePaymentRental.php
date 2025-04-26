@@ -5,7 +5,7 @@ namespace App\Jobs;
 use App\Models\Contract;
 use App\Models\Room;
 use App\Services\Contract\ContractService;
-use App\Services\RoomRentalHistory\RoomRentalHistoryService;
+use App\Services\RoomRentInvoice\RoomRentInvoiceService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -33,8 +33,8 @@ class HandlePaymentRental implements ShouldQueue
             $query->where(['status'  => config('constant.contract.status.active')]);
         }])->find($this->_roomId);
 
-        $roomRentalHistoryService = new RoomRentalHistoryService();
-        $roomRent = $roomRentalHistoryService->processRoomRentalHistory($room);
+        $roomRentalHistoryService = new RoomRentInvoiceService();
+        $roomRent = $roomRentalHistoryService->processRoomRentInvoice($room);
 
         if(!$roomRent) return;
 
