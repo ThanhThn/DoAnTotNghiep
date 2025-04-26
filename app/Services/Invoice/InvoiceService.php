@@ -3,8 +3,8 @@
 namespace App\Services\Invoice;
 
 use App\Models\RoomRentalHistory;
-use App\Models\RoomServiceUsage;
-use App\Services\RoomUsageService\RoomUsageService;
+use App\Models\RoomServiceInvoice;
+use App\Services\RoomServiceInvoice\RoomServiceInvoiceService;
 
 class InvoiceService
 {
@@ -13,7 +13,7 @@ class InvoiceService
         try {
             $model = match ($data['type']) {
                 "rent" => RoomRentalHistory::class,
-                "service" => RoomServiceUsage::class,
+                "service" => RoomServiceInvoice::class,
                 default => throw new \Exception('Loại hoá đơn không hỗ trợ'),
             };
 
@@ -78,7 +78,7 @@ class InvoiceService
         try {
             $model = match ($data['type']) {
                 "rent" => RoomRentalHistory::class,
-                "service" => RoomServiceUsage::class,
+                "service" => RoomServiceInvoice::class,
                 default => throw new \Exception('Loại hoá đơn không hỗ trợ'),
             };
 

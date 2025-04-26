@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Services\RoomUsageService;
+namespace App\Services\RoomServiceInvoice;
 
 use App\Models\Contract;
 use App\Models\RentPayment;
-use App\Models\RoomServiceUsage;
+use App\Models\RoomServiceInvoice;
 use App\Models\ServicePayment;
 use App\Services\Notification\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class RoomUsageService
+class RoomServiceInvoiceService
 {
-    public function createRoomUsage($data)
+    public function createRoomServiceInvoice($data)
     {
         $insertData = $data;
 
@@ -21,12 +21,12 @@ class RoomUsageService
             $insertData['is_need_close'] = false;
         }
 
-        return RoomServiceUsage::create($insertData);
+        return RoomServiceInvoice::create($insertData);
     }
 
     function statisticalAmount($month, $year, $lodgingId)
     {
-        $amount = RoomServiceUsage::whereHas('room.lodging', function ($query) use ($lodgingId) {
+        $amount = RoomServiceInvoice::whereHas('room.lodging', function ($query) use ($lodgingId) {
             $query->where('id', $lodgingId);
         })
             ->where([
@@ -41,7 +41,7 @@ class RoomUsageService
 
     function listNeedCloseByLodging($lodgingId)
     {
-        $usages = RoomServiceUsage::whereHas('room.lodging', function ($query) use ($lodgingId) {
+        $usages = RoomServiceInvoice::whereHas('room.lodging', function ($query) use ($lodgingId) {
             $query->where('id', $lodgingId);
         })->where([
             'finalized' => false,
@@ -53,9 +53,9 @@ class RoomUsageService
     }
 
 
-    function updateFinalRoomUsage($data)
+    function updateFinalRoomServiceInvoice($data)
     {
-        $roomUsage = RoomServiceUsage::with(['lodgingService', 'room', 'room.lodging'])->find($data['room_usage_id']);
+        $roomUsage = RoomServiceInvoice::with(['lodgingService', 'room', 'room.lodging'])->find($data['room_usage_id']);
 
         try{
             DB::beginTransaction();

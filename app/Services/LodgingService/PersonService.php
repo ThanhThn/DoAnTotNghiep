@@ -4,9 +4,9 @@ namespace App\Services\LodgingService;
 
 use App\Models\Contract;
 use App\Models\Room;
-use App\Models\RoomServiceUsage;
+use App\Models\RoomServiceInvoice;
 use App\Services\RoomService\RoomServiceManagerService;
-use App\Services\RoomUsageService\RoomUsageService;
+use App\Services\RoomServiceInvoice\RoomServiceInvoiceService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -37,7 +37,7 @@ class PersonService extends ServiceCalculatorFactory
 
         if (!$roomUsage['usage']) {
 
-            $roomUsage['usage'] = $this->roomUsageService->createRoomUsage([
+            $roomUsage['usage'] = $this->roomUsageService->createRoomServiceInvoice([
                 'room_id' => $room->id,
                 'lodging_service_id' => $this->lodgingService->id,
                 'total_price' => $totalPrice,
@@ -98,7 +98,7 @@ class PersonService extends ServiceCalculatorFactory
             $totalPrice = $this->lodgingService->price_per_unit * $contract->quantity;
             $amountPaid = max(0, min($totalPrice, $usageAmount));
             if(!$roomUsage['usage']){
-                $roomUsageService = new RoomUsageService();
+                $roomUsageService = new RoomServiceInvoiceService();
                 $dataRoomUsage = [
                     'room_id' => $room->id,
                     'lodging_service_id' => $this->lodgingService->id,
@@ -115,7 +115,7 @@ class PersonService extends ServiceCalculatorFactory
                     'service_name' => $this->lodgingService->name
                 ];
 
-                $roomUsage['usage'] = $roomUsageService->createRoomUsage($dataRoomUsage);
+                $roomUsage['usage'] = $roomUsageService->createRoomServiceInvoice($dataRoomUsage);
             }else{
                 $roomUsage['usage']->update([
                     'total_price' => $roomUsage['usage']->total_price + $totalPrice,

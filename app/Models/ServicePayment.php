@@ -44,7 +44,7 @@ class ServicePayment extends Model
 
     public function roomServiceUsage()
     {
-        return $this->belongsTo(RoomServiceUsage::class, 'room_service_invoice_id')->with(['service', 'unit']);
+        return $this->belongsTo(RoomServiceInvoice::class, 'room_service_invoice_id')->with(['service', 'unit']);
     }
 
     public function contract()

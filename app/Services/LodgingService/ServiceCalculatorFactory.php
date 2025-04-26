@@ -6,10 +6,10 @@ use App\Models\Contract;
 use App\Models\LodgingService;
 use App\Models\PaymentHistory;
 use App\Models\Room;
-use App\Models\RoomServiceUsage;
+use App\Models\RoomServiceInvoice;
 use App\Models\ServicePayment;
 use App\Services\Notification\NotificationService;
-use App\Services\RoomUsageService\RoomUsageService;
+use App\Services\RoomServiceInvoice\RoomServiceInvoiceService;
 use App\Services\Token\TokenService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -24,7 +24,7 @@ abstract class ServiceCalculatorFactory
     {
         $this->lodgingService = $lodgingService->load(['service', 'unit', 'lodging']);
         $this->now = Carbon::now();
-        $this->roomUsageService = new RoomUsageService();
+        $this->roomUsageService = new RoomServiceInvoiceService();
     }
 
     abstract public function calculateCost();
@@ -54,7 +54,7 @@ abstract class ServiceCalculatorFactory
             }
         }
 
-        $roomUsage = RoomServiceUsage::where([
+        $roomUsage = RoomServiceInvoice::where([
             'room_id' => $room->id,
             'lodging_service_id' => $this->lodgingService->id,
             'month_billing' => $monthBilling,

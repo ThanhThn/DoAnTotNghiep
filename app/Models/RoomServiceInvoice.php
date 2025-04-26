@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class RoomServiceUsage extends Model
+class RoomServiceInvoice extends Model
 {
     protected $table = 'room_service_invoices';
 

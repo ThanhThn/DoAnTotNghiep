@@ -4,7 +4,7 @@ namespace App\Http\Requests\RoomUsage;
 
 use App\Http\Requests\BaseRequest;
 
-class CloseRoomUsageRequest extends BaseRequest
+class CloseRoomServiceInvoiceRequest extends BaseRequest
 {
     public function rules()
     {

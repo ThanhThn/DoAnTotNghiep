@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RoomUsage\CloseRoomUsageRequest;
-use App\Http\Requests\RoomUsage\ListRoomUsageRequest;
+use App\Http\Requests\RoomUsage\CloseRoomServiceInvoiceRequest;
+use App\Http\Requests\RoomUsage\ListRoomSerivceInvoiceRequest;
 use App\Services\Lodging\LodgingService;
-use App\Services\RoomUsageService\RoomUsageService;
+use App\Services\RoomServiceInvoice\RoomServiceInvoiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class RoomUsageController extends Controller
+class RoomServiceInvoiceController extends Controller
 {
-    public function listUsageNeedCloseByLodging(ListRoomUsageRequest $request)
+    public function listRoomServiceNeedCloseByLodging(ListRoomSerivceInvoiceRequest $request)
     {
         $lodgingId = $request->input('lodging_id');
         $userId = Auth::id();
@@ -26,7 +26,7 @@ class RoomUsageController extends Controller
             ]);
         }
 
-        $service = new RoomUsageService();
+        $service = new RoomServiceInvoiceService();
         $result = $service->listNeedCloseByLodging($lodgingId);
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
@@ -36,7 +36,7 @@ class RoomUsageController extends Controller
         ]);
     }
 
-    public function closeRoomUsage(CloseRoomUsageRequest $request)
+    public function closeRoomService(CloseRoomServiceInvoiceRequest $request)
     {
         $data = $request->all();
         $userId = Auth::id();
@@ -50,8 +50,8 @@ class RoomUsageController extends Controller
             ]);
         }
 
-        $service = new RoomUsageService();
-        $result = $service->updateFinalRoomUsage($data);
+        $service = new RoomServiceInvoiceService();
+        $result = $service->updateFinalRoomServiceInvoice($data);
 
         if(isset($result['errors'])){
             return response()->json([

@@ -4,7 +4,7 @@ namespace App\Http\Requests\RoomUsage;
 
 use App\Http\Requests\BaseRequest;
 
-class ListRoomUsageRequest extends BaseRequest
+class ListRoomSerivceInvoiceRequest extends BaseRequest
 {
     function rules()
     {

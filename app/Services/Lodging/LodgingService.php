@@ -7,7 +7,7 @@ use App\Models\Lodging;
 use App\Models\Room;
 use App\Models\User;
 use App\Services\RentPayment\RentPaymentService;
-use App\Services\RoomUsageService\RoomUsageService;
+use App\Services\RoomServiceInvoice\RoomServiceInvoiceService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
 
@@ -205,7 +205,7 @@ class LodgingService
         $month = $data['month'] ?? Carbon::now()->month;
         $year = $data['year'] ?? Carbon::now()->year;
 
-        $service = (new RoomUsageService())->statisticalAmount($month, $year, $data['lodging_id']);
+        $service = (new RoomServiceInvoiceService())->statisticalAmount($month, $year, $data['lodging_id']);
         $room = (new RentPaymentService())->statisticalAmount($month, $year, $data['lodging_id']);
 
         return [

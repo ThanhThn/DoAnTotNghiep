@@ -4,7 +4,7 @@ namespace App\Services\RoomRentalHistory;
 
 use App\Models\Room;
 use App\Models\RoomRentalHistory;
-use App\Models\RoomServiceUsage;
+use App\Models\RoomServiceInvoice;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 

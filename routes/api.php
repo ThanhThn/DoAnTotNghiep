@@ -158,10 +158,10 @@ Route::group(['prefix' => 'rent_payment', 'namespace' => 'App\Http\Controllers']
 
 
 // RoomUsage
-Route::group(['prefix' => 'room_usage', 'namespace' => 'App\Http\Controllers'], function ($route) {
-   Route::get('list_need_close', 'RoomUsageController@listUsageNeedCloseByLodging')->middleware('jwt.verify');
+Route::group(['prefix' => 'room_service_invoice', 'namespace' => 'App\Http\Controllers'], function ($route) {
+   Route::get('list_need_close', 'RoomServiceInvoiceController@listRoomServiceNeedCloseByLodging')->middleware('jwt.verify');
 
-   Route::post('close_room_usage', 'RoomUsageController@closeRoomUsage')->middleware('jwt.verify');
+   Route::post('close_room_service', 'RoomServiceInvoiceController@closeRoomService')->middleware('jwt.verify');
 });
 
 

@@ -5,11 +5,11 @@ namespace App\Services\LodgingService;
 use App\Models\Contract;
 use App\Models\Room;
 use App\Models\RoomService;
-use App\Models\RoomServiceUsage;
+use App\Models\RoomServiceInvoice;
 use App\Services\LodgingService\ServiceCalculatorFactory;
 use App\Services\Notification\NotificationService;
 use App\Services\RoomService\RoomServiceManagerService;
-use App\Services\RoomUsageService\RoomUsageService;
+use App\Services\RoomServiceInvoice\RoomServiceInvoiceService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -37,7 +37,7 @@ class IndexedService extends ServiceCalculatorFactory
 
         if (!$roomUsage['usage']) {
             // Nếu chưa có, tạo mới
-            $roomUsage = $this->roomUsageService->createRoomUsage([
+            $roomUsage = $this->roomUsageService->createRoomServiceInvoice([
                 'room_id' => $room->id,
                 'lodging_service_id' => $this->lodgingService->id,
                 'total_price' => 0,
@@ -110,7 +110,7 @@ class IndexedService extends ServiceCalculatorFactory
             $amountPaid = max(0, min($paymentAmount, $usageAmount));
 
             if(!$roomUsage['usage']) {
-                $roomUsageService = new RoomUsageService();
+                $roomUsageService = new RoomServiceInvoiceService();
                 $dataRoomUsage = [
                     'room_id' => $room->id,
                     'lodging_service_id' => $this->lodgingService->id,
@@ -127,7 +127,7 @@ class IndexedService extends ServiceCalculatorFactory
                     'service_id' => $this->lodgingService->service_id,
                     'service_name' => $this->lodgingService->name
                 ];
-                $roomUsage['usage'] = $roomUsageService->createRoomUsage($dataRoomUsage);
+                $roomUsage['usage'] = $roomUsageService->createRoomServiceInvoice($dataRoomUsage);
             }else{
                 $roomUsage['usage']->update([
                     'total_price' => $roomUsage['usage']->total_price + $totalPrice,

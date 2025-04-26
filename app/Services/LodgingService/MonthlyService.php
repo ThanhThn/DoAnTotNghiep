@@ -5,10 +5,10 @@ namespace App\Services\LodgingService;
 use App\Helpers\Helper;
 use App\Models\Contract;
 use App\Models\Room;
-use App\Models\RoomServiceUsage;
+use App\Models\RoomServiceInvoice;
 use App\Services\RentPayment\RentPaymentService;
 use App\Services\RoomService\RoomServiceManagerService;
-use App\Services\RoomUsageService\RoomUsageService;
+use App\Services\RoomServiceInvoice\RoomServiceInvoiceService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -38,7 +38,7 @@ class MonthlyService extends ServiceCalculatorFactory
 
         if (!$roomUsage['usage']) {
             // Nếu chưa có, tạo mới
-            $roomUsage['usage'] = $this->roomUsageService->createRoomUsage([
+            $roomUsage['usage'] = $this->roomUsageService->createRoomServiceInvoice([
                 'room_id' => $room->id,
                 'lodging_service_id' => $this->lodgingService->id,
                 'total_price' => $totalPrice,
@@ -121,7 +121,7 @@ class MonthlyService extends ServiceCalculatorFactory
             $amountPaid = max(0, min($paymentAmount, $usageAmount));
 
             if(!$roomUsage['usage']) {
-                $roomUsageService = new RoomUsageService();
+                $roomUsageService = new RoomServiceInvoiceService();
                 $dataRoomUsage = [
                     'room_id' => $room->id,
                     'lodging_service_id' => $this->lodgingService->id,
@@ -138,7 +138,7 @@ class MonthlyService extends ServiceCalculatorFactory
                     'service_name' => $this->lodgingService->name
                 ];
 
-                $roomUsage['usage']=$roomUsageService->createRoomUsage($dataRoomUsage);
+                $roomUsage['usage']=$roomUsageService->createRoomServiceInvoice($dataRoomUsage);
             }else{
                 $roomUsage['usage']->update([
                     'amount_paid' => $roomUsage['usage']->amount_paid + $amountPaid,
