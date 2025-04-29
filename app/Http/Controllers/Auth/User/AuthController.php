@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use Mockery\Exception;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -33,18 +34,24 @@ class AuthController extends BaseAuthController
         $data = $request->all();
         $password = Helper::decrypt($data["password"]);
         $device = request()->header('User-Agent');
-
-        $user = (new UserService())->create([
+        $result = (new UserService())->create([
             'email' => $data['email'],
             'password' => Hash::make($password),
             'phone' => $data['phone'],
         ]);
 
-        $token = JWTAuth::fromUser($user);
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        $token = JWTAuth::fromUser($result);
         if(isset($data['token'])){
             TokenService::insert([
                 'token' => $data['token'],
-                'user_id' => $user->id,
+                'user_id' => $result->id,
                 'device' => $device,
                 'token_type' => config('constant.token.type.notify'),
                 'rule' => "user"

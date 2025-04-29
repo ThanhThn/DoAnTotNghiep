@@ -5,6 +5,7 @@ namespace App\Services\User;
 use App\Helpers\Helper;
 use App\Models\Lodging;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
 use Mockery\Exception;
@@ -40,13 +41,23 @@ class UserService
 
     public  function create($data)
     {
-        $user = User::create($data);
-        $scope = Redis::zscore('dashboard', 'current_users');
-        if($scope != null){
-            $scope += 1;
-            Redis::zadd('dashboard', $scope, 'current_users');
+        try{
+            DB::beginTransaction();
+            $user = User::create($data);
+            $scope = Redis::zscore('dashboard', 'current_users');
+            if($scope != null){
+                $scope += 1;
+                Redis::zadd('dashboard', $scope, 'current_users');
+            }
+            DB::commit();
+            return $user;
+        }catch (Exception $exception){
+            DB::rollBack();
+            return ['errors' => [[
+                'message' => $exception->getMessage(),
+            ]]];
         }
-        return $user;
+
     }
 
     public function listByAdmin($data)
