@@ -393,8 +393,6 @@ class ContractService
             $roomRentalHistoryService = new RoomRentInvoiceService();
             $roomRental = $roomRentalHistoryService->processRoomRentInvoice($room, amountPaid:  max(min($usableAmount, $paymentAmount), 0), paymentAmount: $paymentAmount ,isFinalized: false,  isFinalizedEarly: true);
 
-            Log::info($roomRental);
-
             if(!$roomRental){
                 throw new \Exception('Fail create room rental');
             }
@@ -409,7 +407,7 @@ class ContractService
                 'status' => $paymentStatus,
                 'payment_method' => $paymentMethod,
                 'due_date' => $now->clone()->addDays($room->late_days),
-                'room_rent_invoice_id' => $roomRental->id
+                'room_rent_invoice_id' => $roomRental["history"]['id']
             ]);
 
             $usableAmount -= $paymentAmount;
@@ -555,7 +553,7 @@ class ContractService
             'end_date' => $data['end_date'] ?? Carbon::now(),
         ]);
 
-        Room::where("room_id", $contract->room_id)->update([
+        Room::where("id", $contract->room_id)->update([
             "current_tenants" =>  DB::raw("current_tenants - " . (int)$contract->quantity)
         ]);
 
