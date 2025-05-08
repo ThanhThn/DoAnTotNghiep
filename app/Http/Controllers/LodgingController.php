@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Lodging\ConfigLodgingRequest;
 use App\Http\Requests\Lodging\CreateLodgingRequest;
 use App\Http\Requests\Lodging\LodgingRequest;
 use App\Http\Requests\Lodging\OverviewRequest;
@@ -113,8 +114,8 @@ class LodgingController extends Controller
 
     function softDelete(LodgingRequest $request, $lodgingId)
     {
-        $useId = Auth::id();
-        if(!LodgingService::isOwnerLodging($lodgingId, $useId)){
+        $userId = Auth::id();
+        if(!LodgingService::isOwnerLodging($lodgingId, $userId)){
             return response()->json([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'errors' => [
@@ -131,6 +132,40 @@ class LodgingController extends Controller
             'status' => JsonResponse::HTTP_OK,
             'body' => [
                 'data' => "Xoá nhà cho thuê thành công"
+            ]
+        ]);
+    }
+
+    function config(ConfigLodgingRequest $request)
+    {
+        $data = $request->all();
+        $userId = Auth::id();
+
+        if(!LodgingService::isOwnerLodging($data["lodging_id"], $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [
+                    [
+                        'message' => 'Unauthorized'
+                    ]
+                ]
+            ]);
+        }
+
+        $service = new LodgingService();
+        $result = $service->configLodging($data['lodging_id'], $data['config']);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body'  => [
+                'data' => $result
             ]
         ]);
     }

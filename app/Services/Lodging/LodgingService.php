@@ -10,6 +10,7 @@ use App\Services\RentPayment\RentPaymentService;
 use App\Services\RoomServiceInvoice\RoomServiceInvoiceService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
+use Mockery\Exception;
 
 class LodgingService
 {
@@ -244,6 +245,21 @@ class LodgingService
             'renting' => $roomRenting,
             'empty' => count($roomIds) - $roomRenting,
         ];
+    }
+
+    public function configLodging($id, $config)
+    {
+        try{
+            $lodging = Lodging::findOrFail($id);
+
+            $lodging->config = $config;
+            $lodging->save();
+            return $lodging;
+        }catch (Exception $exception){
+            return ['errors' => [[
+                'message' => $exception->getMessage(),
+            ]]];
+        }
     }
 
     static function isOwnerLodging($lodgingId, $userId){
