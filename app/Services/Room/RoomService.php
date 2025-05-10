@@ -72,7 +72,7 @@ class RoomService
             $roomQuery->where('status', $data['status']);
         }
 
-        return $roomQuery->get();
+        return $roomQuery->orderBy("created_at", 'asc')->get();
     }
 
     public function filterRooms($data, $lodgingId)
