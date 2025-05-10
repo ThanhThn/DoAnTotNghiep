@@ -27,6 +27,7 @@ class ContractService
     {
         try {
             DB::beginTransaction();
+            $room = Room::with('lodging')->find($data['room_id']);
             $user = null;
             if($data['status'] == config('constant.contract.status.active')){
                 $user = User::firstOrCreate(
@@ -34,7 +35,7 @@ class ContractService
                     [
                         'full_name' => $data['full_name'],
                         'address' => $data['address'],
-                        'password' => Hash::make(""),
+                        'password' => Hash::make($room->lodging->config['password_for_client']),
                         'identity_card' => $data['identity_card'],
                         'date_of_birth' => $data['date_of_birth'],
                         'gender' => $data['gender'],
@@ -80,7 +81,6 @@ class ContractService
 
 //            dd($insertData);
             $contract = Contract::create($insertData);
-            $room = Room::find($data['room_id']);
             if ($data['status'] == config('constant.contract.status.active') && $startDate->toDateString() == Carbon::now()->toDateString()) {
                 $newTenantCount = $room->current_tenants + $data['quantity'];
                 if ($newTenantCount > $room->max_tenants) {
