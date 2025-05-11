@@ -35,31 +35,25 @@ class FeedbackController extends Controller
         ]);
     }
 
-    public function listByUser(Request $request)
-    {
-        $data = $request->all();
-        $userId = Auth::id();
-        $service = new FeedbackService();
-        $result = $service->listByUser($data, $userId);
-        return response()->json([
-            'status' => JsonResponse::HTTP_OK,
-            'body' => [
-                'data' => $result
-            ]
-        ]);
-    }
-
     public function list(ListFeedbackRequest $request)
     {
         $data = $request->all();
-//        $userId = Auth::id();
+        $userId = Auth::id();
+
+        if($data['scope'] != config('constant.rule.user') && !LodgingService::isOwnerLodging($data['lodging_id'], $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
         $service = new FeedbackService();
-        $result = $service->list($data);
+        $result = $service->list($data, $userId);
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
-            'body' => [
-                'data' => $result
-            ]
+            'body' => $result
         ]);
     }
 

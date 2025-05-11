@@ -9,9 +9,13 @@ class ListFeedbackRequest extends BaseRequest
     public function rules()
     {
         return [
-            'lodging_id' => 'nullable|uuid|exists:lodgings,id',
+            'scope' => 'required|string|in:user,owner',
+            'lodging_id' => 'required_if:scope,owner|uuid|exists:lodgings,id',
             'room_id' => 'nullable|uuid|exists:rooms,id',
-            'status' => 'nullable|integer'
+            'status' => 'nullable|integer',
+            'limit' => 'nullable|integer',
+            'offset' => 'nullable|integer',
+            'search' => 'nullable|string',
         ];
     }
 }

@@ -126,11 +126,16 @@ class ContractService
                 $query->whereColumn('amount_paid', '<', 'payment_amount');
             }], DB::raw('payment_amount - amount_paid'));
 
+        if(isset($data['search'])){
+            $search = ltrim($data['search'], '#');
+            $contracts = $contracts->where('code', 'like', $search. '%');
+        }
+
         $total = (clone $contracts)->count();
 
         $contracts = $contracts->offset($data['offset'] ?? 0)
             ->limit($data['limit'] ?? 20)
-            ->get();
+            ->orderBy('created_at', 'desc')->get();
 
         return [
             'total' => $total,

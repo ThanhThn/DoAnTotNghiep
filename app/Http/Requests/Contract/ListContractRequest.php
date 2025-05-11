@@ -14,6 +14,7 @@ class ListContractRequest extends BaseRequest
             'status' => 'nullable|integer',
             'limit' => 'nullable|integer',
             'offset' => 'nullable|integer',
+            'search' => 'nullable|string',
         ];
     }
 }

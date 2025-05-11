@@ -79,23 +79,36 @@ class FeedbackService
         return $feedback->get();
     }
 
-    public function list($data)
+    public function list($data, $userId)
     {
-        $feedback = Feedback::with('user');
+        $feedbacks = Feedback::on('pgsqlReplica')->with(['user', 'room', 'lodging']);
         if(isset($data['lodging_id'])){
-            $feedback->with('room')->where('lodging_id', $data['lodging_id']);
+            $feedbacks->where('lodging_id', $data['lodging_id']);
         }
 
         if(isset($data['room_id'])){
-            $feedback->with('lodging')->where('room_id', $data['room_id']);
+            $feedbacks->where('room_id', $data['room_id']);
+        }
+
+        if($data['scope'] == config('constant.rule.user')){
+            $feedbacks->where('user_id', $userId);
         }
 
         if(isset($data['status'])){
-            $feedback->where('status', $data['status']);
+            $feedbacks->where('status', $data['status']);
         }
 
-        $feedback->orderBy('created_at', 'desc');
-        return $feedback->get();
+        if(isset($data['search'])){
+            $feedbacks->where('title', 'ilike', '%' . $data['search'] . '%');
+        }
+
+        $total = $feedbacks->count();
+
+        $feedbacks->orderBy('created_at', 'desc')->limit($data['limit'] ?? 10)->offset($data['offset'] ?? 0);
+        return [
+            'total' => $total,
+            'data' => $feedbacks->get()
+        ];
     }
 
     public function detail($id)

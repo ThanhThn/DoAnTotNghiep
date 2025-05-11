@@ -122,8 +122,7 @@ Route::group(['prefix' => 'contract', 'namespace' => 'App\Http\Controllers'], fu
 //Feedback
 Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], function ($route) {
     Route::post('create', 'FeedbackController@create')->middleware('jwt.verify');
-    Route::post('list', 'FeedbackController@list');
-    Route::get('list_by_user', 'FeedbackController@listByUser')->middleware('jwt.verify');
+    Route::post('list', 'FeedbackController@list')->middleware('jwt.verify');
 
     Route::get('detail/{feedbackId}', 'FeedbackController@detail');
     Route::post('update_status', 'FeedbackController@updateStatus')->middleware('jwt.verify');
