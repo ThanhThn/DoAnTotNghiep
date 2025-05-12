@@ -104,7 +104,7 @@ class RoomService
             $roomQuery->where('status', $data['status']);
         }
 
-        $rooms =  $roomQuery->get();
+        $rooms =  $roomQuery->orderBy("created_at", 'asc')->get();
 
         $rooms = $rooms->filter(function ($room) use ($quantity) {
             $totalQuantity = $room->contracts->sum('quantity') + $quantity;
