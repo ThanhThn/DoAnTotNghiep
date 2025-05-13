@@ -560,8 +560,13 @@ class ContractService
             'end_date' => $data['end_date'] ?? Carbon::now(),
         ]);
 
-        Room::where("id", $contract->room_id)->update([
-            "current_tenants" =>  DB::raw("current_tenants - " . (int)$contract->quantity)
+        $room = Room::find("id", $contract->room_id);
+
+        $currentTenants = $room->current_tenants - (int)$contract->quantity;
+
+        $room->update([
+            'current_tenants' => $currentTenants,
+            'status' => $room->status == config('constant.room.status.filled') && $currentTenants < $room->max_tenants ? config('constant.room.status.unfilled') : $room->status
         ]);
 
         return true;
