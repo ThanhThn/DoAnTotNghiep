@@ -65,7 +65,7 @@ class FlushUserChannelState extends Command
             $this->bulkUpsert($batchData);
         }
 
-        Log::info('Flushed user channel states successfully!');
+//        Log::info('Flushed user channel states successfully!');
     }
 
     private function bulkUpsert(array $data)
