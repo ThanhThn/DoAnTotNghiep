@@ -307,7 +307,9 @@ class ContractService
 
                 if ($statusNew == config('constant.contract.status.active')) {
                     $currentTenants += $delta;
-                } else {
+                }
+
+                if ($statusOld == config('constant.contract.status.active')) {
                     $currentTenants -= $delta;
                 }
 
