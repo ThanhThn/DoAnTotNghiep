@@ -182,6 +182,8 @@ Route::group(['prefix' => 'chat', 'namespace' => 'App\Http\Controllers'], functi
     Route::post('list', 'ChatHistoryController@list')->middleware('jwt.verify');
 
     Route::post('create', 'ChatHistoryController@create')->middleware('jwt.verify');
+
+    Route::post('update_status', 'ChatHistoryController@updateStatus')->middleware('jwt.verify');
 });
 
 Route::group(['prefix' => 'payment', 'namespace' => 'App\Http\Controllers'], function ($route) {

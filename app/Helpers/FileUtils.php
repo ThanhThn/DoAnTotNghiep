@@ -21,7 +21,6 @@ class FileUtils
         file_put_contents($tempFilePath, $data);
 
         // Tạo UploadedFile
-        $file = new UploadedFile($tempFilePath, $fileName, $mimeType, null, true);
-        return $file;
+        return new UploadedFile($tempFilePath, $fileName, $mimeType, null, true);
     }
 }

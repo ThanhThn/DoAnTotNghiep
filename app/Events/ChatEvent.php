@@ -48,9 +48,6 @@ class ChatEvent implements ShouldBroadcastNow
     }
 
     public function broadcastAs(){
-        if($this->_eventType == "new"){
-            return "chat.new-{$this->_message->channel_id}";
-        }
-        return 'chat';
+        return $this->_eventType;
     }
 }

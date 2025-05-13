@@ -62,4 +62,34 @@ class ChatHistoryService
 
         return $chat;
     }
+
+    public function updateStatus($data)
+    {
+        try{
+            $chat = ChatHistory::on('pgsqlReplica')->where([
+                'sender_id' => $this->_memberId,
+                'sender_type' => $this->_memberType,
+                'id' => $data['chat_id']
+            ])->firstOrFail();
+
+            $chat->status = $data['status'];
+            $chat->save();
+
+            event(new ChatEvent('update', $chat));
+
+            return $chat;
+        }
+        catch(\Exception $e){
+            return ['errors' => [['message' => $e->getMessage()]]];
+        }
+    }
+
+    public function isSenderMessage($chatId)
+    {
+        return ChatHistory::on('pgsqlReplica')->where([
+            'sender_id' => $this->_memberId,
+            'id' => $chatId,
+            'sender_type' => $this->_memberType,
+        ])->exists();
+    }
 }
