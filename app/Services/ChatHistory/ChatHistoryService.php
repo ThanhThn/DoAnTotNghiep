@@ -57,7 +57,7 @@ class ChatHistoryService
         $members = ChannelMember::select('member_id', 'member_type')->where('channel_id', $channelId)->get();
 
         if ($members->isNotEmpty()) {
-            event(new ObjectEvent($members, 'channels', $chat));
+            event(new ObjectEvent($members, 'channels', $chat, ['action' => 'create']));
         }
 
         return $chat;
@@ -72,10 +72,16 @@ class ChatHistoryService
                 'id' => $data['chat_id']
             ])->firstOrFail();
 
+            $members = ChannelMember::select('member_id', 'member_type')->where('channel_id', $chat->channet_id)->get();
+
             $chat->status = $data['status'];
             $chat->save();
 
             event(new ChatEvent('update', $chat));
+
+            if ($members->isNotEmpty()) {
+                event(new ObjectEvent($members, 'channels', $chat, ["action" => "update"]));
+            }
 
             return $chat;
         }

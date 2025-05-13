@@ -17,14 +17,17 @@ class ObjectEvent implements ShouldBroadcastNow
     private $_objects;
     private $_eventType;
     private $_data;
+
+    private $_extraData;
     /**
      * Create a new event instance.
      */
-    public function __construct($objects, $eventType, $data)
+    public function __construct($objects, $eventType, $data, $extraData = [])
     {
         $this->_objects = $objects;
         $this->_eventType = $eventType;
         $this->_data = $data;
+        $this->_extraData = $extraData;
     }
 
     /**
@@ -33,17 +36,17 @@ class ObjectEvent implements ShouldBroadcastNow
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastAs() : string{
-        if($this->_eventType == "channels"){
-            return "channels";
-        }
-        return '*';
+
+        return match ($this->_eventType) {
+            'channels' => 'channels',
+            default => '*',
+        };
     }
 
     public function broadcastWith(): array
     {
-        return [
-            'data' => $this->_data,
-        ];
+        $data = ['data' => $this->_data, 'extra_data' => $this->_extraData];
+        return $data;
     }
 
     public function broadcastOn()
