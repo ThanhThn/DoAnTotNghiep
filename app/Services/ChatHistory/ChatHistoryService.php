@@ -66,7 +66,7 @@ class ChatHistoryService
     public function updateStatus($data)
     {
         try{
-            $chat = ChatHistory::on('pgsqlReplica')->where([
+            $chat = ChatHistory::where([
                 'sender_id' => $this->_memberId,
                 'sender_type' => $this->_memberType,
                 'id' => $data['chat_id']
@@ -77,6 +77,7 @@ class ChatHistoryService
             $chat->status = $data['status'];
             $chat->save();
 
+            $chat = $chat->load('sender');
             event(new ChatEvent('update', $chat));
 
             if ($members->isNotEmpty()) {
