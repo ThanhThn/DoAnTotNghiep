@@ -23,7 +23,7 @@ class ChannelMemberService
             return true;
         }
 
-        $lodgingIds = Lodging::where('user_id', $userId)->pluck('lodging_id')->toArray();
+        $lodgingIds = Lodging::where('user_id', $userId)->pluck('id')->toArray();
         return ChannelMember::whereIn('member_id', $lodgingIds)->where([
             'channel_id' => $channelId,
             'member_type' => config('constant.object.type.lodging')
