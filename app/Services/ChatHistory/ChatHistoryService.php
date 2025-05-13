@@ -11,6 +11,7 @@ use App\Models\Lodging;
 use App\Models\User;
 use App\Services\ChannelMember\ChannelMemberService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ChatHistoryService
 {
@@ -72,7 +73,7 @@ class ChatHistoryService
                 'id' => $data['chat_id']
             ])->firstOrFail();
 
-            $members = ChannelMember::select('member_id', 'member_type')->where('channel_id', $chat->channet_id)->get();
+            $members = ChannelMember::select('member_id', 'member_type')->where('channel_id', $chat->channel_id)->get();
 
             $chat->status = $data['status'];
             $chat->save();
