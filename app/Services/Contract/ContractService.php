@@ -301,7 +301,6 @@ class ContractService
 
             if ($statusNew != $statusOld) {
 
-
                 $delta = $quantity ?? 0;
                 $currentTenants = $contract->room->current_tenants;
 
@@ -309,7 +308,9 @@ class ContractService
                     $currentTenants += $delta;
                 }
 
-                if ($statusOld == config('constant.contract.status.active')) {
+
+                // Giảm số lượng  người trong phòng khi chuyển từ trạng thái active sang trạng thái khác ngoại trừ quá hạn (vì quá hạn là còn ở chưa rời đi)
+                if ($statusOld == config('constant.contract.status.active') && $statusNew != config('constant.contract.status.overdue')) {
                     $currentTenants -= $delta;
                 }
 

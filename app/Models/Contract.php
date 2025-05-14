@@ -70,7 +70,8 @@ class Contract extends Model
         });
 
         static::updating(function ($model) {
-            if ($model->status == config('constant.contract.status.active')) {
+            $status = [config('constant.contract.status.active'), config('constant.contract.status.overdue')];
+            if (in_array($model->status, $status)) {
                 self::addChannelMember($model);
             } else {
                 self::removeChannelMember($model);
