@@ -4,7 +4,9 @@ namespace App\Services\RentPayment;
 
 use App\Models\Contract;
 use App\Models\RentPayment;
+use App\Models\RoomRentInvoice;
 use App\Services\Notification\NotificationService;
+use App\Services\RoomRentInvoice\RoomRentInvoiceService;
 use App\Services\Token\TokenService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +36,9 @@ class RentPaymentService
             if ($data['amount_paid'] < $data['payment_amount']) {
                 $contract = Contract::find($data['contract_id']);
 
-                $currentMonth = Carbon::today()->month;
+                $rentInvoice = RoomRentInvoice::on('pgsqlReplica')->find($insertData['room_rent_invoice_id']);
+
+                $currentMonth = $rentInvoice ? $rentInvoice->month_billing : Carbon::today()->month;
 
                 $dif = $data['payment_amount'] - $data['amount_paid'];
 
