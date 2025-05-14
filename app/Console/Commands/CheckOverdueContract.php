@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\HandleOverdueContract;
 use App\Models\Contract;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -31,7 +32,7 @@ class CheckOverdueContract extends Command
 
         $contracts = Contract::where("status", config('constant.contract.status.active'))->whereRaw("COALESCE(end_date, start_date + (lease_duration || 'months')::interval)::date < ?", [$now])->chunk(1000, function ($contracts) {
             foreach ($contracts as $contract) {
-
+                HandleOverdueContract::dispatch($contract);
             }
         });
     }
