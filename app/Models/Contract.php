@@ -131,4 +131,8 @@ class Contract extends Model
         return $this->hasMany(RentPayment::class, 'contract_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
