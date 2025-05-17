@@ -22,8 +22,7 @@ class ClientService
             $query->whereHas('contracts', function ($query) use ($userId) {
                 $query->where([
                     'user_id' => $userId,
-                    'status' => config('constant.contract.status.active'),
-                ]);
+                ])->whereIn('status', [config('constant.contract.status.active'), config('constant.contract.status.overdue')]);;
             });
         });
 
@@ -39,7 +38,7 @@ class ClientService
                     $query->with(['contracts' => function ($query) use ($userId) {
                         $query->where([
                             'user_id' => $userId,
-                        ])->whereIn('status', [config('constant.contract.status.active'), config('constant.contract.status.overdue')]);;
+                        ])->whereIn('status', [config('constant.contract.status.active'), config('constant.contract.status.overdue')]);
                     }]);
                 }
             },
