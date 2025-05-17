@@ -212,9 +212,3 @@ Route::group(['prefix' => 'invoice', 'namespace' => 'App\Http\Controllers'], fun
 
     Route::post('detail', 'InvoiceController@detail')->middleware('jwt.verify');
 });
-
-
-Route::post('test', function (Request $request){
-    $data = $request->input('file');
-    \App\Helpers\FileUtils::convertBase64ToFile($data, 'image');
-});

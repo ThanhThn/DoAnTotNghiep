@@ -155,7 +155,7 @@ class NotificationService
     {
         try {
             $notification = Notification::findOrFail($id);
-            $notification->is_seen = !$notification->is_seen;
+            $notification->is_seen = true;
             $notification->save();
             return $notification->refresh();
         }catch (Exception $exception){

@@ -4,7 +4,6 @@ namespace App\Helpers;
 
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\Laravel\Facades\Image;
-use function PHPUnit\Framework\callback;
 
 class FileUtils
 {
