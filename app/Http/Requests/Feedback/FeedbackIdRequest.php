@@ -4,7 +4,7 @@ namespace App\Http\Requests\Feedback;
 
 use App\Http\Requests\BaseRequest;
 
-class DetailFeedbackRequest extends BaseRequest
+class FeedbackIdRequest extends BaseRequest
 {
     public function rules(){
         return [

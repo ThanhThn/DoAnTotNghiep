@@ -54,6 +54,7 @@ class ActiveFeedback implements ShouldBroadcastNow
         return match ($this->eventType) {
             'new' => 'new',
             'update' => 'update',
+            'delete' => 'delete',
             default => 'default'
         };
     }

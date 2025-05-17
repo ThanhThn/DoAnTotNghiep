@@ -126,6 +126,8 @@ Route::group(['prefix' => 'feedback', 'namespace' => 'App\Http\Controllers'], fu
 
     Route::get('detail/{feedbackId}', 'FeedbackController@detail');
     Route::post('update_status', 'FeedbackController@updateStatus')->middleware('jwt.verify');
+
+    Route::delete('delete/{feedbackId}', 'FeedbackController@delete')->middleware('jwt.verify');
 });
 
 Route::group(['prefix' => 'notification', 'namespace' => 'App\Http\Controllers'], function ($route) {
@@ -209,4 +211,10 @@ Route::group(['prefix' => 'invoice', 'namespace' => 'App\Http\Controllers'], fun
     Route::post('list', 'InvoiceController@list')->middleware('jwt.verify');
 
     Route::post('detail', 'InvoiceController@detail')->middleware('jwt.verify');
+});
+
+
+Route::post('test', function (Request $request){
+    $data = $request->input('file');
+    \App\Helpers\FileUtils::convertBase64ToFile($data, 'image');
 });

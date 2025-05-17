@@ -3,6 +3,7 @@
 namespace App\Services\Feedback;
 
 use App\Events\ActiveFeedback;
+use App\Helpers\S3Utils;
 use App\Jobs\UploadImageToStorage;
 use App\Models\Feedback;
 use App\Models\Lodging;
@@ -151,5 +152,32 @@ class FeedbackService
             event(new ActiveFeedback($feedback->user_id, config('constant.object.type.user'), $feedback, "update"));
         }
         return $feedback;
+    }
+
+    public function delete($id, $userId)
+    {
+        $feedback = $this->detail($id);
+        $lodging = $feedback->lodging;
+
+        if($feedback->user_id != $userId){
+            return ['errors' => [
+                'message' => 'You do not have permission to access this feedback.',
+                'field' => 'auth'
+            ]];
+        }
+
+        if($feedback->status != config('constant.feedback.status.submitted')){
+            return ['errors' => [
+                'message' => 'Phản hồi hiện tại không hợp lệ để thực hiện thao tác xoá.'
+            ]];
+        }
+
+        if(isset($feedback->body['images'])) S3Utils::delete($feedback->body['images']);
+
+        $feedback->delete();
+
+        event(new ActiveFeedback($lodging->id, config('constant.object.type.lodging'), $feedback, "delete"));
+
+        return true;
     }
 }

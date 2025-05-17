@@ -17,21 +17,26 @@ class S3Utils
         return Storage::disk('supabase')->url($path);
     }
 
-    static function delete($url)
+    static function delete(array $urls)
     {
         $storage = Storage::disk('supabase');
-        $parsedUrl = parse_url($url);
-        $path = $parsedUrl['path'] ?? '';
-
         $pattern = '/\/object\/public\/[^\/]+\/(.*)/';
+        $paths = array_map(function ($url) use ($pattern) {
+            $parsedUrl = parse_url($url);
+            $path = $parsedUrl['path'] ?? '';
 
-        if (preg_match($pattern, $path, $matches)) {
-            $filePath = $matches[1];
-            return $storage->delete($filePath);
-        }
+            if (preg_match($pattern, $path, $matches)) {
+                return $filePath = $matches[1];
+            }
 
-        return false;
+            return null;
+        }, $urls);
+
+        $paths = array_filter($paths);
+
+        return $storage->delete($paths);
     }
+
 
 
     public function uploadLargeFile(string $store, $file, $fileName)

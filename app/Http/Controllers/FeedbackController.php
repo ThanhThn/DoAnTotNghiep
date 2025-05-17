@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Feedback\CreateFeedbackRequest;
-use App\Http\Requests\Feedback\DetailFeedbackRequest;
+use App\Http\Requests\Feedback\FeedbackIdRequest;
 use App\Http\Requests\Feedback\ListFeedbackRequest;
 use App\Http\Requests\Feedback\UpdateFeedbackRequest;
 use App\Services\Feedback\FeedbackService;
@@ -14,12 +14,18 @@ use Illuminate\Support\Facades\Auth;
 
 class FeedbackController extends Controller
 {
+    private $service;
+    public function __construct()
+    {
+        $this->service = new FeedbackService();
+    }
+
     public function create(CreateFeedbackRequest $request)
     {
         $data = $request->all();
         $userId = Auth::id();
-        $service = new FeedbackService();
-        $result = $service->createFeedback($data, $userId);
+
+        $result = $this->service->createFeedback($data, $userId);
 
         if(isset($result['errors'])){
             return response()->json([
@@ -49,18 +55,16 @@ class FeedbackController extends Controller
             ]);
         }
 
-        $service = new FeedbackService();
-        $result = $service->list($data, $userId);
+        $result = $this->service->list($data, $userId);
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => $result
         ]);
     }
 
-    public function detail(DetailFeedbackRequest $request ,$feedbackId)
+    public function detail(FeedbackIdRequest $request , $feedbackId)
     {
-        $service = new FeedbackService();
-        $result = $service->detail($feedbackId);
+        $result = $this->service->detail($feedbackId);
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => [
@@ -83,13 +87,33 @@ class FeedbackController extends Controller
             ]);
         }
 
-        $service = new FeedbackService();
-        $result = $service->updateStatus($data['feedback_id'], $data['status']);
+        $result = $this->service->updateStatus($data['feedback_id'], $data['status']);
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'body' => [
                 'data' => $result
+            ]
+        ]);
+    }
+
+    public function delete(FeedbackIdRequest $request, $feedbackId)
+    {
+        $userId = Auth::id();
+
+        $result = $this->service->delete($feedbackId, $userId);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body' => [
+                'data' => "Xoá phản hồi thành công !"
             ]
         ]);
     }
