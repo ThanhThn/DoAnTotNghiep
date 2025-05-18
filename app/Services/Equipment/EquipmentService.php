@@ -2,6 +2,7 @@
 
 namespace App\Services\Equipment;
 
+use App\Helpers\S3Utils;
 use App\Jobs\UploadImageToStorage;
 use App\Models\Equipment;
 use App\Models\Room;
@@ -97,6 +98,9 @@ class EquipmentService
             $oldThumbnail = $equipment->thumbnail;
             $newThumbnail = $data['thumbnail'];
 
+            if($oldThumbnail != $newThumbnail){
+                S3Utils::delete([$oldThumbnail]);
+            }
 
             if ($oldThumbnail != $newThumbnail && is_string($newThumbnail)) {
                 UploadImageToStorage::dispatch($equipment->id, config('constant.type.equipment'), $newThumbnail);
@@ -105,6 +109,7 @@ class EquipmentService
             if($newThumbnail instanceof UploadedFile){
                 $newThumbnail = ImageService::uploadImage($newThumbnail, config('constant.type.equipment'), $equipment->id);
             }
+
             $equipment->update([
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
