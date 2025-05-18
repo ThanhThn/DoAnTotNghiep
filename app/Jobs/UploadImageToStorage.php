@@ -6,6 +6,7 @@ use App\Helpers\FileUtils;
 use App\Helpers\S3Utils;
 use App\Models\Equipment;
 use App\Models\Feedback;
+use App\Services\Image\ImageService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Http\UploadedFile;
@@ -41,7 +42,7 @@ class UploadImageToStorage implements ShouldQueue
                 return;
             }
 
-            $images = $this->uploadImages($this->_images, 'feedback');
+            $images = ImageService::uploadImages($this->_images, 'feedback', $this->_objectId);
             $body = $feedback->body;
             $body['images'] = $images;
             $feedback->body = $body;
@@ -54,43 +55,10 @@ class UploadImageToStorage implements ShouldQueue
                 return;
             }
 
-            $url = $this->uploadImage($this->_images, 'equipment');
+            $url = ImageService::uploadImage($this->_images, 'equipment', $this->_objectId);
             $equipment->thumbnail = $url;
             $equipment->save();
             break;
     }
 }
-
-    /**
-     * Hàm xử lý nhiều ảnh (cho feedback)
-     */
-    private function uploadImages(array $images, string $folder): array
-    {
-        return array_map(fn($image) => $this->uploadImage($image, $folder), array_filter($images));
-    }
-
-    /**
-     * Hàm xử lý 1 ảnh duy nhất
-     */
-    private function uploadImage(string|UploadedFile $image , string $folder): ?string
-    {
-        if (!$image) return null;
-
-        $fileName = now()->format('Y-m-d') . "/" . $this->_objectId . "/" . uniqid();
-
-        if(is_string($image)){
-            $file = FileUtils::convertBase64ToFile($image, 'image');
-        }else {
-            $file = FileUtils::convertImageToWebp($image);
-        }
-
-
-        $url = S3Utils::upload($file, $fileName, $folder);
-        // Nếu $file là file tạm do convertBase64ToFile tạo ra thì mới unlink
-        if (is_string($image) && $file && file_exists($file->getPathname())) {
-            unlink($file->getPathname());
-        }
-
-        return $url;
-    }
 }

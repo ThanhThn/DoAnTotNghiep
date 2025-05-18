@@ -6,12 +6,10 @@ use App\Events\ActiveFeedback;
 use App\Helpers\S3Utils;
 use App\Jobs\UploadImageToStorage;
 use App\Models\Feedback;
-use App\Models\Lodging;
-use App\Models\Room;
-use App\Models\Token;
 use App\Services\Notification\NotificationService;
 use App\Services\Token\TokenService;
 use Illuminate\Support\Facades\DB;
+use App\Services\Image\ImageService;
 use Illuminate\Support\Facades\Log;
 
 class FeedbackService
@@ -39,7 +37,7 @@ class FeedbackService
             $feedback = Feedback::create($insertData);
             DB::commit();
             if($flag){
-                UploadImageToStorage::dispatch($feedback->id, config('constant.type.feedback'), $data['images']);
+                ImageService::uploadImages($data['images'], config('constant.type.feedback'), $feedback->id);
             }
 
             $feedback->load(['lodging', 'room']);
