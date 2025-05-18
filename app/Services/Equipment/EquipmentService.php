@@ -38,16 +38,17 @@ class EquipmentService
 
             $equipment = Equipment::create($insertData);
 
-            $roomSetupData = array_map(fn ($roomId) => [
-                "room_id" => $roomId,
-                'equipment_id' => $equipment->id,
-                'quantity' => 1,
-            ], $data['room_ids']);
-            $roomSetupService = new RoomSetupService();
-            $result = $roomSetupService->insert($roomSetupData);
-
-            if (!$result) {
-                throw new \Exception("Lỗi khi chèn dữ liệu room setup");
+            if(isset($data['room_ids'])){
+                $roomSetupData = array_map(fn ($roomId) => [
+                    "room_id" => $roomId,
+                    'equipment_id' => $equipment->id,
+                    'quantity' => 1,
+                ], $data['room_ids']);
+                $roomSetupService = new RoomSetupService();
+                $result = $roomSetupService->insert($roomSetupData);
+                if (!$result) {
+                    throw new \Exception("Lỗi khi chèn dữ liệu room setup");
+                }
             }
 
             UploadImageToStorage::dispatch($equipment->id, config('constant.type.equipment'), $data['thumbnail']);
