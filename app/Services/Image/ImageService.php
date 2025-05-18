@@ -30,7 +30,7 @@ class ImageService
             $file = FileUtils::convertBase64ToFile($image, 'image');
             $path = $file->storeAs($folder, $fileName, "supabase");
 
-            $url = Storage::disk('s3')->url($path);
+            $url = Storage::disk('supabase')->url($path);
             unlink($file->getPathname());
         }else {
             $file = FileUtils::convertImageToWebp($image);
