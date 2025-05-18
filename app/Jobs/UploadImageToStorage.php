@@ -72,15 +72,24 @@ class UploadImageToStorage implements ShouldQueue
     /**
      * Hàm xử lý 1 ảnh duy nhất
      */
-    private function uploadImage(string $image, string $folder): ?string
+    private function uploadImage(string|UploadedFile $image , string $folder): ?string
     {
         if (!$image) return null;
 
         $fileName = now()->format('Y-m-d') . "/" . $this->_objectId . "/" . uniqid();
-        $file = FileUtils::convertBase64ToFile($image, 'image');
+
+        if(is_string($image)){
+            $file = FileUtils::convertBase64ToFile($image, 'image');
+        }else {
+            $file = FileUtils::convertImageToWebp($image);
+        }
+
 
         $url = S3Utils::upload($file, $fileName, $folder);
-        unlink($file->getPathname());
+        // Nếu $file là file tạm do convertBase64ToFile tạo ra thì mới unlink
+        if (is_string($image) && $file && file_exists($file->getPathname())) {
+            unlink($file->getPathname());
+        }
 
         return $url;
     }

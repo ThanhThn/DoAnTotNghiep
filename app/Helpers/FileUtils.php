@@ -24,12 +24,16 @@ class FileUtils
         file_put_contents($tempFilePath, $data);
 
         if ($type === 'image') {
-            $image = Image::read($tempFilePath)->toWebp(90);
+            $image = self::convertImageToWebp($tempFilePath);
             file_put_contents($tempFilePath, (string) $image);
         }
 
 
         // Tạo UploadedFile
         return new UploadedFile($tempFilePath, $fileName, $mimeType, null, true);
+    }
+
+    public static function convertImageToWebp($file){
+        return Image::read($file)->toWebp(90);
     }
 }
