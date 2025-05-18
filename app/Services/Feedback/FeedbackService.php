@@ -37,7 +37,7 @@ class FeedbackService
             $feedback = Feedback::create($insertData);
             DB::commit();
             if($flag){
-                UploadImageToStorage::dispatch($feedback->id , config('constant.type.feedback', $data['images']));
+                UploadImageToStorage::dispatch($feedback->id , config('constant.type.feedback'), $data['images']);
             }
 
             $feedback->load(['lodging', 'room']);
