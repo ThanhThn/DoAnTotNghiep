@@ -5,6 +5,7 @@ namespace App\Services\Image;
 use App\Helpers\FileUtils;
 use App\Helpers\S3Utils;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class ImageService
 {
@@ -27,16 +28,14 @@ class ImageService
 
         if(is_string($image)){
             $file = FileUtils::convertBase64ToFile($image, 'image');
+            $path = $file->storeAs($folder, $fileName, "supabase");
+
+            $url = Storage::disk('s3')->url($path);
+            unlink($file->getPathname());
         }else {
             $file = FileUtils::convertImageToWebp($image);
+            $url = S3Utils::upload($file, $fileName, $folder);
         }
-
-        $url = S3Utils::upload($file, $fileName, $folder);
-        // Nếu $file là file tạm do convertBase64ToFile tạo ra thì mới unlink
-        if (is_string($image) && $file && file_exists($file->getPathname())) {
-            unlink($file->getPathname());
-        }
-
         return $url;
     }
 }
