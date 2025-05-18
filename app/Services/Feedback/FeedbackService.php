@@ -20,6 +20,12 @@ class FeedbackService
             DB::beginTransaction();
             $roomId = $data['room_id'];
             $lodgingId = $data['lodging_id'];
+            $flag = false;
+            if(isset($data['images'])){
+                $flag = true;
+            }
+            DB::commit();
+
             $insertData = [
                 'room_id' => $roomId,
                 'lodging_id' => $lodgingId,
@@ -30,15 +36,15 @@ class FeedbackService
                     'content'  => $data['content']
                 ],
             ];
-            $flag = false;
-            if(isset($data['images'])){
-                $flag = true;
-            }
             $feedback = Feedback::create($insertData);
-            DB::commit();
             if($flag){
-                UploadImageToStorage::dispatch($feedback->id , config('constant.type.feedback'), $data['images']);
+                $images = ImageService::uploadImages($data['images'] , config('constant.type.feedback') , $feedback->id);
+                $body = $feedback->body;
+                $body['images'] = $images;
+                $feedback->body = $body;
+                $feedback->save();
             }
+
 
             $feedback->load(['lodging', 'room']);
 
