@@ -13,7 +13,7 @@ class CreateEquipmentRequest extends BaseRequest
             'type' => 'required|integer|in:1,2,3',
             'thumbnail' => 'required|string',
             'lodging_id' => 'required|uuid|exists:lodgings,id',
-            'room_ids' => 'required|array',
+            'room_ids' => 'array|nullable',
             'room_ids.*' => 'required|uuid|exists:rooms,id',
         ];
     }
