@@ -13,7 +13,7 @@ class ImageService
      */
     static function uploadImages(array $images, string $folder, $objectId): array
     {
-        return array_map(fn($image) => $this->uploadImage($image, $folder, $objectId), array_filter($images));
+        return array_map(fn($image) => self::uploadImage($image, $folder, $objectId), array_filter($images));
     }
 
     /**
