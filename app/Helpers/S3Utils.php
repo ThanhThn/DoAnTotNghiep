@@ -26,7 +26,7 @@ class S3Utils
             $path = $parsedUrl['path'] ?? '';
 
             if (preg_match($pattern, $path, $matches)) {
-                return $filePath = $matches[1];
+                return $matches[1];
             }
 
             return null;
