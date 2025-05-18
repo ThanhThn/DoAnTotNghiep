@@ -12,9 +12,10 @@ class S3Utils
 {
     static function upload($file, $fileName , $store)
     {
-        $path = $file->storeAs($store, $fileName, 'supabase');
-        // Lấy URL của file vừa tải lên
-        return Storage::disk('supabase')->url($path);
+        $storage = Storage::disk('supabase');
+        $path = $store .  '/' . $fileName;
+        $storage->put($path, $file , 'supabase');
+        return $storage->url($path);
     }
 
     static function delete(array $urls)
