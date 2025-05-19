@@ -9,6 +9,7 @@ use App\Models\RentPayment;
 use App\Models\Room;
 use App\Models\User;
 use App\Services\LodgingService\LodgingServiceManagerService;
+use App\Services\Notification\NotificationService;
 use App\Services\Payment\ServicePaymentFactory;
 use App\Services\RentPayment\RentPaymentService;
 use App\Services\Room\RoomService;
@@ -135,7 +136,8 @@ class ContractService
 
         $contracts = $contracts->offset($data['offset'] ?? 0)
             ->limit($data['limit'] ?? 20)
-            ->orderBy('created_at', 'desc')->get();
+            ->orderBy('created_at', 'desc')
+            ->orderBy('status')->get();
 
         return [
             'total' => $total,
@@ -595,6 +597,56 @@ class ContractService
         ];
     }
 
+    public function extensionContract($data)
+    {
+        try{
+            DB::beginTransaction();
+            $status = [config('constant.contract.status.overdue'), config('constant.contract.status.active')];
+            $contract = Contract::whereIn('status', $status)->findOrFail($data['contract_id']);
+            $today = Carbon::today();
+            $isOverdue = false;
+
+            $startDate = Carbon::parse($contract->start_date);
+
+            $extension = [];
+
+            if(isset($data['duration'])){
+                $duration = $data['duration'];
+                $extension['lease_duration'] = $duration;
+                $isOverdue = $startDate->copy()->addMonth($duration) < $today;
+            }
+            if(isset($data['end_date'])){
+                $extension['end_date'] = $data['end_date'];
+                $isOverdue = Carbon::parse($data['end_date']) < $today;
+            }
+
+            $extension = array_merge($extension, [
+                'status' => $isOverdue ? config('constant.contract.status.overdue') : config('constant.contract.status.active'),
+            ]);
+
+            $contract->update($extension);
+
+            if(!$isOverdue && isset($contract->user_id)){
+                $notifyService = new NotificationService();
+
+                $notifyService->createNotification([
+                    'title' => "Hợp đồng {$contract->code} đã được gia hạn.",
+                    'body'  => "",
+                    'target_endpoint' => "/contract/detail/{$contract->id}",
+                    'type' => config('constant.notification.type.important')
+                ], config('constant.object.type.user'), $contract->user_id, $contract->user_id);
+            }
+
+            DB::commit();
+            return $this->detail($data['contract_id'], "pgsqlReplica", true );
+
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return ["errors" => [[
+                'message' => $exception->getMessage(),
+            ]]];
+        }
+    }
     static function isContractOwner($contract_id, $user_id)
     {
         return Contract::where([

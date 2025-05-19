@@ -93,6 +93,7 @@ class NotificationService
           'pushData' => [
               'end_point' => $data['target_endpoint'] ?? "/",
               'id' => $data['id'] ?? "",
+              'rule' => $data['rule'] ?? "",
           ]
         ];
 
@@ -128,6 +129,7 @@ class NotificationService
         $tokens = TokenService::getTokens($userId, config('constant.token.type.notify'), $rule);
         if(count($tokens) > 0){
             $data['id'] = $notification->id;
+            $data['rule'] = $rule;
             $this->sendNotificationRN($data, $tokens);
         }
         return $notification;

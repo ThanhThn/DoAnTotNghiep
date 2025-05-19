@@ -259,6 +259,44 @@ class ContractController extends Controller
             'status' => JsonResponse::HTTP_OK,
             'body'   => $result
         ]);
+    }
 
+    public function extension(BaseRequest $request)
+    {
+        $request->validate([
+            'contract_id' => 'required|exists:contracts,id',
+            'end_date' => 'required_without:duration|date',
+            'duration' => 'required_without:end_date|integer|min:1',
+        ]);
+        $data = $request->all();
+        $userId = Auth::id();
+        $service =  new ContractService();
+
+        $contract = $service->detail($data['contract_id'], 'pgsqlReplica');
+
+        if(!LodgingService::isOwnerLodging($contract->room->lodging_id, $userId)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'errors' => [[
+                    'message' => 'Unauthorized'
+                ]]
+            ]);
+        }
+
+        $result = $service->extensionContract($data);
+
+        if(isset($result['errors'])){
+            return response()->json([
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
+                'errors' => $result['errors']
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'body'   => [
+                'data' => $result
+            ]
+        ]);
     }
 }

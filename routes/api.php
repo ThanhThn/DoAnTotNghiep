@@ -117,6 +117,8 @@ Route::group(['prefix' => 'contract', 'namespace' => 'App\Http\Controllers'], fu
     Route::post('pay_amount', 'ContractController@paymentAmountByContract' )->middleware('jwt.verify');
 
     Route::post('list_by_user', 'ContractController@listByUser')->middleware('jwt.verify');
+
+    Route::post('extension', 'ContractController@extension')->middleware('jwt.verify');
 });
 
 //Feedback
