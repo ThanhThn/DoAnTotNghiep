@@ -612,7 +612,7 @@ class ContractService
             $extension = [];
 
             if(isset($data['duration'])){
-                $duration = $data['duration'];
+                $duration = $data['duration'] + $contract->lease_duration;
                 $extension['lease_duration'] = $duration;
                 $isOverdue = $startDate->copy()->addMonth($duration) < $today;
             }
@@ -632,7 +632,7 @@ class ContractService
 
                 $notifyService->createNotification([
                     'title' => "Hợp đồng {$contract->code} đã được gia hạn.",
-                    'body'  => "",
+                    'body'  => "Thời hạn của hợp đồng đã được gia hạn thành công. Vui lòng kiểm tra chi tiết hợp đồng.",
                     'target_endpoint' => "/contract/detail/{$contract->id}",
                     'type' => config('constant.notification.type.important')
                 ], config('constant.object.type.user'), $contract->user_id, $contract->user_id);
