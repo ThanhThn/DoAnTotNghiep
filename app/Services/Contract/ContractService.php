@@ -136,8 +136,9 @@ class ContractService
 
         $contracts = $contracts->offset($data['offset'] ?? 0)
             ->limit($data['limit'] ?? 20)
+            ->orderBy('status')
             ->orderBy('created_at', 'desc')
-            ->orderBy('status')->get();
+            ->get();
 
         return [
             'total' => $total,
