@@ -73,7 +73,7 @@ class RentPaymentService
 
     function listRentPayment($data)
     {
-        $rentalHistory = RentPayment::where('contract_id', $data['contract_id']);
+        $rentalHistory = RentPayment::with("roomRentInvoice")->where('contract_id', $data['contract_id']);
 
         if(isset($data['status'])){
             $rentalHistory->where('status', $data['status']);

@@ -53,6 +53,18 @@ class ContractService
             //
             $startDate = isset($data['start_date']) ? Carbon::parse($data['start_date']) : Carbon::now();
 
+            $roomService = new RoomService();
+            $roomsValid = $roomService->filterRooms([
+                'quantity' => $quantity,
+                'start_date' => $startDate,
+                'lease_duration' => $data['lease_duration'],
+            ], $room->lodging->id);
+
+            if($roomsValid->isEmpty() || !$roomsValid->contains("id", $data['room_id'])){
+                throw new \Exception("Phòng không đủ điều kiện để tạo hợp đồng.");
+            }
+
+
 
             $status = $data['status'] ?? config('constant.contract.status.pending');
             $insertData = [
@@ -631,7 +643,7 @@ class ContractService
                 $notifyService = new NotificationService();
 
                 $notifyService->createNotification([
-                    'title' => "Hợp đồng {$contract->code} đã được gia hạn.",
+                    'title' => "Hợp đồng #{$contract->code} đã được gia hạn.",
                     'body'  => "Thời hạn của hợp đồng đã được gia hạn thành công. Vui lòng kiểm tra chi tiết hợp đồng.",
                     'target_endpoint' => "/contract/detail/{$contract->id}",
                     'type' => config('constant.notification.type.important')

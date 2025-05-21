@@ -75,6 +75,29 @@ class RoomService
         return $roomQuery->orderBy("created_at", 'asc')->get();
     }
 
+    /**
+     * Lọc danh sách các phòng đủ điều kiện để tạo hợp đồng mới tại một khu trọ cụ thể.
+     *
+     * @param array $data Dữ liệu đầu vào bao gồm:
+     *   - start_date (string|Carbon|null): Ngày bắt đầu thuê (mặc định là ngày hiện tại nếu không truyền).
+     *   - lease_duration (int): Thời hạn thuê (tính theo tháng, mặc định là 1 tháng).
+     *   - quantity (int): Số lượng người dự kiến ở (mặc định là 1 người).
+     *   - status (string|null): Trạng thái phòng cần lọc (tùy chọn).
+     * @param int $lodgingId ID của khu trọ cần kiểm tra phòng.
+     *
+     * @return \Illuminate\Support\Collection Danh sách các phòng thỏa điều kiện, đã được lọc và sắp xếp.
+     *
+     * ✅ Điều kiện lọc chính:
+     * - Phòng thuộc khu trọ (`lodging_id`) và đang được bật (`is_enabled = true`).
+     * - Không có hợp đồng (đang chờ duyệt hoặc đang hoạt động) bị **giao thoa thời gian** với khoảng thời gian thuê mới.
+     * - Tổng số người ở hiện tại + số người dự kiến không vượt quá `max_tenants` của phòng.
+     *
+     * 📌 Lưu ý:
+     * - Hợp đồng được coi là giao thoa nếu:
+     *     - `start_date` hoặc `end_date` nằm trong khoảng thời gian thuê mới, hoặc
+     *     - hợp đồng bao trùm toàn bộ khoảng thuê mới.
+     * - Sau khi lọc, các phòng thỏa điều kiện sẽ được **loại bỏ thông tin hợp đồng** để nhẹ dữ liệu trả về.
+     */
     public function filterRooms($data, $lodgingId)
     {
         $startDate = isset($data['start_date']) ? Carbon::parse($data['start_date']) : Carbon::now();

@@ -41,6 +41,9 @@ class RentPayment extends Model
         });
     }
 
+    public function roomRentInvoice(){
+        return $this->belongsTo(RoomRentInvoice::class);
+    }
     public function contract()
     {
         return $this->belongsTo(Contract::class)->with('room');
