@@ -82,13 +82,15 @@ class RentPaymentService
 
         $total = $rentalHistory->count();
 
-        $rentalHistories = $rentalHistory            ->orderBy(
-            RoomRentInvoice::select('year_billing')
+        $rentalHistories = $rentalHistory
+            ->orderByRaw('(payment_amount - amount_paid) DESC')
+            ->orderBy(
+            RoomRentInvoice::on("pgsqlReplica")->select('year_billing')
                 ->whereColumn('room_service_invoices.id', 'service_payments.room_service_invoice_id'),
             'desc'
         )
             ->orderBy(
-                RoomRentInvoice::select('month_billing')
+                RoomRentInvoice::on("pgsqlReplica")->select('month_billing')
                     ->whereColumn('room_service_invoices.id', 'service_payments.room_service_invoice_id'),
                 'desc'
             )

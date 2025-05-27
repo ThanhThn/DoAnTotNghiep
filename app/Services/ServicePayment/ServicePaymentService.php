@@ -35,6 +35,7 @@ class ServicePaymentService
         $total = $servicePayments->count();
 
         $servicePayments = $servicePayments
+            ->orderByRaw('(payment_amount - amount_paid) DESC')
             ->orderBy(
                 RoomServiceInvoice::select('year_billing')
                     ->whereColumn('room_service_invoices.id', 'service_payments.room_service_invoice_id'),
