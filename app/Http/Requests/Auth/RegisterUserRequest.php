@@ -9,7 +9,7 @@ class RegisterUserRequest extends BaseRequest
     public function rules(){
         return [
           'phone' => 'required|unique:users,phone',
-          'email' => 'required|email',
+          'email' => 'nullable|email',
           'password' => 'required|string',
           'token' => 'nullable|string',
         ];

@@ -35,7 +35,7 @@ class AuthController extends BaseAuthController
         $password = Helper::decrypt($data["password"]);
         $device = request()->header('User-Agent');
         $result = (new UserService())->create([
-            'email' => $data['email'],
+            'email' => $data['email'] ?? null,
             'password' => Hash::make($password),
             'phone' => $data['phone'],
         ]);
