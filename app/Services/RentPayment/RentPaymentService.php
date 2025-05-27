@@ -86,12 +86,12 @@ class RentPaymentService
             ->orderByRaw('(payment_amount - amount_paid) DESC')
             ->orderBy(
             RoomRentInvoice::on("pgsqlReplica")->select('year_billing')
-                ->whereColumn('room_service_invoices.id', 'service_payments.room_service_invoice_id'),
+                ->whereColumn('room_rent_invoices.id', 'rent_payments.room_rent_invoice_id'),
             'desc'
         )
             ->orderBy(
                 RoomRentInvoice::on("pgsqlReplica")->select('month_billing')
-                    ->whereColumn('room_service_invoices.id', 'service_payments.room_service_invoice_id'),
+                    ->whereColumn('room_rent_invoices.id', 'rent_payments.room_rent_invoice_id'),
                 'desc'
             )
             ->orderBy('payment_date', 'desc')->orderBy('payment_date', 'desc')->offset($data['offset'] ?? 0)->limit($data['limit'] ?? 20)->get();

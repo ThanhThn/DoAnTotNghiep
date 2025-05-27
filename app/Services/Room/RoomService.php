@@ -124,7 +124,8 @@ class RoomService
 
                     $q->orWhere(function ($sub) use ($startDate, $endDate) {
                         $sub->where('status', config('constant.contract.status.overdue'))
-                            ->whereBetween('start_date', [$startDate, $endDate]);
+                            ->whereBetween('start_date', [$startDate, $endDate])
+                            ->orWhere('start_date', "<" ,$startDate);
                     });
                 });
 
