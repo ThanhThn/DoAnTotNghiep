@@ -109,18 +109,25 @@ class RoomService
             'lodging_id' => $lodgingId,
             'is_enabled' => true
         ])
-            ->with('contracts', function ($query) use ($startDate, $endDate, $quantity) {
-                $query->whereIn('status', [
-                    config('constant.contract.status.pending'),
-                    config('constant.contract.status.active')
-                ])
-                    ->where(function ($subQuery) use ($startDate, $endDate) {
-                        $subQuery->whereBetween('start_date', [$startDate, $endDate])
-                            ->orWhereRaw('
-                        (COALESCE(end_date, start_date + (lease_duration || \' months\')::INTERVAL) BETWEEN ? AND ?)
+            ->with('contracts', function ($query) use ($startDate, $endDate) {
+                $query->where(function ($q) use ($startDate, $endDate) {
+                    $q->whereIn('status', [
+                        config('constant.contract.status.pending'),
+                        config('constant.contract.status.active')
+                    ])
+                        ->where(function ($subQuery) use ($startDate, $endDate) {
+                            $subQuery->whereBetween('start_date', [$startDate, $endDate])
+                                ->orWhereRaw('(COALESCE(end_date, start_date + (lease_duration || \' months\')::INTERVAL) BETWEEN ? AND ?)
                         OR (start_date < ? AND COALESCE(end_date, start_date + (lease_duration || \' months\')::INTERVAL) > ?)
                     ', [$startDate, $endDate, $startDate, $endDate]);
+                        });
+
+                    $q->orWhere(function ($sub) use ($startDate, $endDate) {
+                        $sub->where('status', config('constant.contract.status.overdue'))
+                            ->whereBetween('start_date', [$startDate, $endDate]);
                     });
+                });
+
             });
 
         if (isset($data['status'])) {

@@ -5,6 +5,7 @@ namespace App\Services\RentPayment;
 use App\Models\Contract;
 use App\Models\RentPayment;
 use App\Models\RoomRentInvoice;
+use App\Models\RoomServiceInvoice;
 use App\Services\Notification\NotificationService;
 use App\Services\RoomRentInvoice\RoomRentInvoiceService;
 use App\Services\Token\TokenService;
@@ -81,7 +82,17 @@ class RentPaymentService
 
         $total = $rentalHistory->count();
 
-        $rentalHistories = $rentalHistory->orderBy('payment_date', 'desc')->offset($data['offset'] ?? 0)->limit($data['limit'] ?? 20)->get();
+        $rentalHistories = $rentalHistory            ->orderBy(
+            RoomRentInvoice::select('year_billing')
+                ->whereColumn('room_service_invoices.id', 'service_payments.room_service_invoice_id'),
+            'desc'
+        )
+            ->orderBy(
+                RoomRentInvoice::select('month_billing')
+                    ->whereColumn('room_service_invoices.id', 'service_payments.room_service_invoice_id'),
+                'desc'
+            )
+            ->orderBy('payment_date', 'desc')->orderBy('payment_date', 'desc')->offset($data['offset'] ?? 0)->limit($data['limit'] ?? 20)->get();
 
         return [
             'total' => $total,
