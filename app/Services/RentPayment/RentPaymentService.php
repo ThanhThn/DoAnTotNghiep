@@ -118,7 +118,7 @@ class RentPaymentService
     function detail($rentalPaymentId)
     {
         try {
-            $history = RentPayment::on('pgsqlReplica')->with('contract')->findOrFail($rentalPaymentId);
+            $history = RentPayment::on('pgsqlReplica')->with(['contract', "roomRentInvoice"])->findOrFail($rentalPaymentId);
             return $history;
         }catch (Exception $exception){
             return ["errors" => [[
