@@ -14,4 +14,12 @@ class LoginUserRequest extends BaseRequest
             'rule' => 'required|string|in:user,manager'
         ];
     }
+
+    function messages(): array{
+        return [
+            'phone.required' => 'Số điện thoại là bắt buộc.',
+            'phone.regex' => 'Số điện thoại phải có đúng 10 chữ số.',
+            'phone.exists' => 'Số điện thoại chưa đăng ký.',
+        ];
+    }
 }
