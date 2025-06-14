@@ -171,12 +171,16 @@ class RoomService
         $rooms =  $roomQuery->orderBy("created_at", 'asc')->get();
 
         $rooms = $rooms->filter(function ($room) use ($quantity, $allowShareRoom) {
-            if($allowShareRoom) {
-                $totalQuantity = $room->contracts->sum('quantity') + $quantity;
-                return $totalQuantity <= $room->max_tenants;
+            $totalQuantity = $room->contracts->sum('quantity') + $quantity;
+            if($totalQuantity > $room->max_tenants) {
+                return false;
             }
 
-            return $room->contracts->count() <= 0;
+            if ($allowShareRoom) {
+                return true;
+            }
+
+            return  $room->contracts->count() <= 0;
         })->map(function ($room) {
             unset($room->contracts);
             return $room;
