@@ -66,14 +66,37 @@ class RoomService
 
     public function listRoomsByLodging($lodgingId, $data = [])
     {
-        $roomQuery = Room::where(['lodging_id'=> $lodgingId, 'is_enabled' => true]);
+        $roomQuery = Room::with('lodging')->where([
+            'lodging_id' => $lodgingId,
+            'is_enabled' => true,
+        ]);
 
-        // Lọc theo trạng thái phòng nếu có
+        $rooms = $roomQuery->orderBy("created_at", 'asc')->get();
+
+        $rooms = $rooms->map(function ($room) {
+            $config = is_array($room->lodging->config)
+                ? $room->lodging->config
+                : json_decode($room->lodging->config, true); // Nếu config là JSON
+
+            $allowShareRoom = $config['allow_shared_room'] ?? false;
+            unset($room->lodging);
+
+            // Nếu không cho ở ghép và đã có người thuê thì chuyển status thành filled
+            if (!$allowShareRoom && $room->current_tenants > 0 && $room->status !== config('constant.room.status.fixing')) {
+                $room->status = config('constant.room.status.filled');
+            }
+
+            return $room;
+        });
+
+        // Chỉ lọc ở đây nếu yêu cầu status (sau khi update)
         if (isset($data['status'])) {
-            $roomQuery->where('status', $data['status']);
+            $rooms = $rooms->filter(function ($room) use ($data) {
+                return $room->status == $data['status'];
+            })->values(); // reset index sau khi filter
         }
 
-        return $roomQuery->orderBy("created_at", 'asc')->get();
+        return $rooms;
     }
 
     /**
