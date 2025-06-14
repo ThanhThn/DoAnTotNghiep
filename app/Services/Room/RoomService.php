@@ -155,8 +155,11 @@ class RoomService
 
                     $q->orWhere(function ($sub) use ($startDate, $endDate) {
                         $sub->where('status', config('constant.contract.status.overdue'))
-                            ->whereBetween('start_date', [$startDate, $endDate])
-                            ->orWhere('start_date', "<" ,$startDate);
+                        ->where(function ($cond) use ($startDate, $endDate) {
+                            $cond
+                                ->whereBetween('start_date', [$startDate, $endDate])
+                                ->orWhere('start_date', '<', $startDate);
+                        });
                     });
                 });
             });
@@ -172,6 +175,7 @@ class RoomService
                 $totalQuantity = $room->contracts->sum('quantity') + $quantity;
                 return $totalQuantity <= $room->max_tenants;
             }
+
             return $room->contracts->count() <= 0;
         })->map(function ($room) {
             unset($room->contracts);
