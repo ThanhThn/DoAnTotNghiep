@@ -121,7 +121,7 @@ class RentPaymentService
             'month_billing' => $month,
             'year_billing' => $year
         ])
-            ->selectRaw('SUM(payment_amount) as total_payment, SUM(amount_paid) as total_paid')
+            ->selectRaw('SUM(total_price) as total_payment, SUM(amount_paid) as total_paid')
             ->first();
         return $rental;
     }
