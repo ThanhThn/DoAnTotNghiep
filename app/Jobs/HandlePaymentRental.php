@@ -29,8 +29,10 @@ class HandlePaymentRental implements ShouldQueue
      */
     public function handle(): void
     {
-        $room = Room::with(['contracts' => function ($query) {
-            $query->where(['status'  => config('constant.contract.status.active')]);
+
+        $status = [config('constant.contract.status.active'), config('constant.contract.status.overdue')];
+        $room = Room::with(['contracts' => function ($query) use ($status) {
+            $query->whereIn('status', $status);
         }])->find($this->_roomId);
 
         $roomRentalHistoryService = new RoomRentInvoiceService();
