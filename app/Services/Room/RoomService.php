@@ -6,6 +6,7 @@ use App\Models\Lodging;
 use App\Models\LodgingService as Model;
 use App\Models\Room;
 use App\Models\RoomService as ModelsRoomService;
+use App\Services\Lodging\LodgingService;
 use App\Services\RoomService\RoomServiceManagerService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -100,6 +101,13 @@ class RoomService
      */
     public function filterRooms($data, $lodgingId)
     {
+        $lodgingService = new LodgingService();
+
+        $lodging = $lodgingService->detailLodging($lodgingId);
+
+//        Lấy cấu hình hình thức thuê
+        $allowShareRoom = $lodging->config['allow_shared_room'] ?? false;
+
         $startDate = isset($data['start_date']) ? Carbon::parse($data['start_date']) : Carbon::now();
         $leaseDuration = $data['lease_duration'] ?? 1;
         $endDate = $startDate->copy()->addMonths($leaseDuration);
@@ -128,7 +136,6 @@ class RoomService
                             ->orWhere('start_date', "<" ,$startDate);
                     });
                 });
-
             });
 
         if (isset($data['status'])) {
@@ -137,9 +144,12 @@ class RoomService
 
         $rooms =  $roomQuery->orderBy("created_at", 'asc')->get();
 
-        $rooms = $rooms->filter(function ($room) use ($quantity) {
-            $totalQuantity = $room->contracts->sum('quantity') + $quantity;
-            return $totalQuantity <= $room->max_tenants;
+        $rooms = $rooms->filter(function ($room) use ($quantity, $allowShareRoom) {
+            if($allowShareRoom) {
+                $totalQuantity = $room->contracts->sum('quantity') + $quantity;
+                return $totalQuantity <= $room->max_tenants;
+            }
+            return $room->contracts->count() <= 0;
         })->map(function ($room) {
             unset($room->contracts);
             return $room;
