@@ -55,7 +55,7 @@ class FeedbackService
             $mess = [
                 'title' => "Ý kiến mới tại {$lodging->type->name} {$lodging->name}",
                 'body' => "Phòng {$room->room_code} tại {$lodging->type->name} {$lodging->name} vừa có góp ý mới!",
-                'target_endpoint' => '/feedback/list',
+                'target_endpoint' => '/lodging/'. $lodging->id .'/feedback/detail' . $feedback->id,
                 'type' => config('constant.notification.type.normal')
             ];
 
