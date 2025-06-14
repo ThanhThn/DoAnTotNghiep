@@ -115,11 +115,12 @@ class RentPaymentService
 
     function statisticalAmount($month, $year, $lodgingId)
     {
-        $rental = RentPayment::whereHas('contract.room.lodging', function ($query) use ($lodgingId) {
+        $rental = RoomRentInvoice::whereHas('room.lodging', function ($query) use ($lodgingId) {
             $query->where('id', $lodgingId);
         }) ->where([
             'month_billing' => $month,
-            'year_billing' => $year,])
+            'year_billing' => $year
+        ])
             ->selectRaw('SUM(payment_amount) as total_payment, SUM(amount_paid) as total_paid')
             ->first();
         return $rental;
